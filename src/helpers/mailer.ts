@@ -28,6 +28,7 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
         });
 
         console.log("transporter--->",transporter);
+        console.log("token inside ->",hashedToken);
 
 
 const mailOptions = {

@@ -23,6 +23,7 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     // Extract token from the URL if present
     const urlToken = window.location.search.split("=")[1];
+    console.log("send to backedn ->",urlToken);
     setToken(urlToken || "");
   }, []);
 
