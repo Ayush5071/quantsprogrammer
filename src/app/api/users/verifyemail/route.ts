@@ -12,6 +12,7 @@ export async function POST(request:NextRequest){
         const user = await User.findOne({verifyToken: token,
             verifyTokenExpiry: {$gt: Date.now()} // jo time stored h wo abhi ke time se jada to hona hi chahiye
         })
+        console.log("Found User ->", user);
 
         if(!user){
             return NextResponse.json({error:"Invalid token details"},{
@@ -24,6 +25,8 @@ export async function POST(request:NextRequest){
         user.verifyTokenExpiry = undefined;
 
         await user.save();
+
+        console.log("new user",user)
 
         return NextResponse.json({message:"email verified successfully",success: true},{status:200});
         
