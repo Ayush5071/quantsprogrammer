@@ -117,7 +117,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-950 via-purple-900 to-indigo-950 px-6 py-12 relative">
       {/* Back Button */}
-      <Link href="/" className="absolute top-6 left-6 text-white text-3xl hover:text-purple-400 transition-all">
+      <Link href="/" className="absolute z-50 top-3 left-3 md:top-6 md:left-3 text-white text-3xl hover:text-purple-400 transition-all">
         &larr;
       </Link>
 
