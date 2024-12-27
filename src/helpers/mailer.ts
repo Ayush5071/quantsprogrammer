@@ -5,7 +5,7 @@ import bcryptjs from "bcryptjs";
 export const sendEmail = async ({ email, emailType, userId }: any) => {
     try {
         // Hash the userId as a token
-        const hashedToken = await bcryptjs.hash(userId.toString(), 10);
+        const hashedToken = (await bcryptjs.hash(userId.toString(), 10)).replace(/[^a-zA-Z0-9]/g, '');
 
         // Update the user with appropriate token and expiry
         if (emailType === "VERIFY") {
