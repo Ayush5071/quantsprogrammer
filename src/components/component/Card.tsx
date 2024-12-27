@@ -26,7 +26,7 @@ export function Roadmapcard({
       </div>
 
       {/* Curated by section */}
-      <div className="text-neutral-300 font-sfText relative text-sm mt-4">
+      <div className="text-neutral-300 font-sfText relative text-xs md:text-sm mt-4">
         Curated by{" "}
         <a
           href={linkedIn}
@@ -41,7 +41,7 @@ export function Roadmapcard({
       {/* Explore button positioned at bottom right */}
       <a
         href={link}
-        className="absolute font-sfText bottom-4 right-4 flex items-center gap-2 px-4 py-2 bg-neutral-800 text-neutral-100 font-semibold rounded-md shadow-md hover:shadow-lg transition-all"
+        className="absolute font-sfText bottom-4 right-4 flex items-center gap-2 px-2 py-1 md:px-4 md:py-2 bg-neutral-800 text-neutral-100 font-semibold rounded-md shadow-md hover:shadow-lg transition-all"
       >
         Explore
         <svg
