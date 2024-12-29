@@ -7,7 +7,7 @@
   --foreground: #171717;
 }
 
-*{
+body,html{
   scroll-behavior: smooth;
 }
 
@@ -211,3 +211,7 @@ body {
     transform: rotateX(35deg) rotateY(55deg) rotateZ(360deg);
   }
 }
+
+
+/* Buy me a coffee button */
+

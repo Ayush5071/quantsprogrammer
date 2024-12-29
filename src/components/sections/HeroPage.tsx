@@ -1,10 +1,12 @@
 import React from "react";
 import { BackgroundBeamsWithCollision } from "../ui/Title";
 import { Welcome } from "./Welcome";
+import { useRouter } from "next/navigation";
 
 export function HeroPage() {
+  const router = useRouter();
   const RedirectAbout = () => {
-    window.open('https://ayush-delta.vercel.app/', '_blank');
+    router.push("/explore")   
   };
 
   return (
@@ -30,7 +32,7 @@ export function HeroPage() {
         >
           <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-indigo-600 via-purple-500 to-pink-500 h-full w-full -z-10 group-hover:bottom-0 group-hover:right-0 transition-all duration-200" />
           <span className="relative font-bebas text-2xl xl:text-3xl">
-            Know More About Me
+            Start Exploring 
           </span>
         </button>
       </div>

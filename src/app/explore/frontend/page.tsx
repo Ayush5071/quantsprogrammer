@@ -31,7 +31,7 @@ const Page = () => {
         if (response.ok) {
           console.log("Fetched roadmap data: ", data);
           setCheckedItems(data.checkedData || []);
-          localStorage.setItem("FrontEndDev", JSON.stringify(data.checkedData)); // Save to local storage
+          localStorage.setItem("NewFrontEndDev", JSON.stringify(data.checkedData)); // Save to local storage
         } else {
           console.error("Error fetching roadmap data: ", data.error);
         }
@@ -45,7 +45,7 @@ const Page = () => {
       fetchRoadmapData();
     } else {
       // If not logged in, load data from localStorage
-      const localData = localStorage.getItem("FrontEndWeb");
+      const localData = localStorage.getItem("NewFrontEndWeb");
       if (localData) {
         const parsedData = JSON.parse(localData);
         setCheckedItems(parsedData || []);
@@ -88,7 +88,7 @@ const Page = () => {
         
         if (response.ok) {
           console.log("Roadmap updated successfully:", data);
-          localStorage.setItem("FrontEndWeb", JSON.stringify(updatedCheckedItems));
+          localStorage.setItem("NewFrontEndWeb", JSON.stringify(updatedCheckedItems));
         } else {
           console.error("Error updating roadmap:", data.error);
         }
@@ -97,7 +97,7 @@ const Page = () => {
       }
     } else {
       console.log("User is not logged in, saving data locally.");
-      localStorage.setItem("FrontEndWeb", JSON.stringify(updatedCheckedItems));
+      localStorage.setItem("NewFrontEndWeb", JSON.stringify(updatedCheckedItems));
     }
   };
 

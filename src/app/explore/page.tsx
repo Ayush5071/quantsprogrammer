@@ -31,7 +31,7 @@ const page = () => {
     {
       heading: "Data Analysis",
       description: "A guide to mastering data analysis using Python and key libraries like pandas, numpy, and more.",
-      link: "/soon",
+      link: "/explore/dataanalysis",
       author: "Kanishka Maurya",
       linkedIn: "https://www.linkedin.com/in/kanishka-maurya",
     }

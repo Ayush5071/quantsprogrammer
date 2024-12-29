@@ -47,26 +47,40 @@ export function Context() {
 
       {/* Third WobbleCard */}
       <WobbleCard containerClassName="col-span-1 lg:col-span-3 bg-blue-900 min-h-[500px] lg:min-h-[600px] xl:min-h-[300px]">
-        <div className="max-w-sm">
-          <h2 className="font-Manrope max-w-sm md:max-w-lg text-left text-balance text-base md:text-xl lg:text-3xl font-semibold tracking-[-0.015em] text-white">
-            Official Website for My Learning Journey
-          </h2>
-          <p className="mt-4 font-Sfpro max-w-[26rem] text-left text-base/6 text-neutral-200">
-            This website is a space where I can share my experience, the
-            technologies I’ve learned, and provide a structured learning
-            path for others. All the roadmaps are based on my personal
-            experience, so use them as a guide—feel free to tailor them to
-            your own needs!
-          </p>
-        </div>
-        <Image
-          src="/home/test2.webp"
-          width={500}
-          height={500}
-          alt="Roadmap demo image"
-          className="absolute -right-10 md:-right-[40%] lg:-right-[20%] -bottom-10 object-contain rounded-2xl"
-        />
-      </WobbleCard>
+  <div className="max-w-sm">
+    <h2 className="font-Manrope max-w-sm md:max-w-lg text-left text-balance text-base md:text-xl lg:text-3xl font-semibold tracking-[-0.015em] text-white">
+      Official Website for My Learning Journey
+    </h2>
+    <p className="mt-4 font-Sfpro max-w-[26rem] text-left text-base/6 text-neutral-200">
+      This website is a space where I can share my experience, the
+      technologies I’ve learned, and provide a structured learning
+      path for others. All the roadmaps are based on my personal
+      experience, so use them as a guide—feel free to tailor them to
+      your own needs!
+    </p>
+
+    {/* Portfolio Button */}
+    <div className="mt-6 flex">
+      <a
+        href="https://ayush-delta.vercel.app"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="py-2 px-6 mt-4 bg-gray-700 hover:bg-blue-600 text-white font-semibold rounded-lg transition-all duration-300 ease-in-out transform hover:scale-105"
+      >
+        View My Portfolio
+      </a>
+    </div>
+  </div>
+
+  <Image
+    src="/home/test2.webp"
+    width={500}
+    height={500}
+    alt="Roadmap demo image"
+    className="absolute -right-[40%] md:-right-[40%] lg:-right-[20%] -bottom-28 md:-bottom-10 object-contain rounded-2xl"
+  />
+</WobbleCard>
+
 
       {/* Auth steps */}
       <WobbleCard containerClassName="col-span-1 lg:col-span-2 h-full bg-violet-500 min-h-[500px] lg:min-h-[300px]">

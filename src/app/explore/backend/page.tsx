@@ -53,7 +53,7 @@ const Page = () => {
         if (response.ok) {
           console.log("Fetched roadmap data: ", data);
           setCheckedItems(data.checkedData || []);
-          localStorage.setItem("BackEndWeb", JSON.stringify(data.checkedData)); // Save to local storage
+          localStorage.setItem("NewBackEndWeb", JSON.stringify(data.checkedData)); // Save to local storage
         } else {
           console.error("Error fetching roadmap data: ", data.error);
         }
@@ -67,7 +67,7 @@ const Page = () => {
       fetchRoadmapData();
     } else {
       // If not logged in, load data from localStorage
-      const localData = localStorage.getItem("BackEndWeb");
+      const localData = localStorage.getItem("NewBackEndWeb");
       if (localData) {
         const parsedData = JSON.parse(localData);
         setCheckedItems(parsedData || []);
@@ -110,7 +110,7 @@ const Page = () => {
         
         if (response.ok) {
           console.log("Roadmap updated successfully:", data);
-          localStorage.setItem("BackEndWeb", JSON.stringify(updatedCheckedItems));
+          localStorage.setItem("NewBackEndWeb", JSON.stringify(updatedCheckedItems));
         } else {
           console.error("Error updating roadmap:", data.error);
         }
@@ -119,7 +119,7 @@ const Page = () => {
       }
     } else {
       console.log("User is not logged in, saving data locally.");
-      localStorage.setItem("BackEndWeb", JSON.stringify(updatedCheckedItems));
+      localStorage.setItem("NewBackEndWeb", JSON.stringify(updatedCheckedItems));
     }
   };
 

@@ -26,10 +26,10 @@ export default function ProfilePage() {
   const [loadingBackend, setLoadingBackend] = useState<boolean>(true);
   const [loadingDataAnalysis, setLoadingDataAnalysis] = useState<boolean>(true);
 
-  const totalFrontendTasks = 44;
-  const totalFullStackTasks = 44;
-  const totalBackendTasks = 30;
-  const totalDataAnalysisTasks = 25;
+  const totalFrontendTasks = 18;
+  const totalFullStackTasks = 40;
+  const totalBackendTasks = 26;
+  const totalDataAnalysisTasks = 16;
 
   useEffect(() => {
     const fetchUserDetails = async () => {

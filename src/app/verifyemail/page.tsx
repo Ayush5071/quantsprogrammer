@@ -23,7 +23,6 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     // Extract token from the URL if present
     const urlToken = window.location.search.split("=")[1];
-    console.log("send to backedn ->",urlToken);
     setToken(urlToken || "");
   }, []);
 
@@ -65,7 +64,7 @@ export default function VerifyEmailPage() {
       </motion.h1>
 
       {/* Message Display (No Token or Token processing status) */}
-      {token ? (
+      {token && !verified && (
         <motion.h2
           className="p-2 bg-yellow-500 text-black rounded-lg mb-6 z-10 relative"
           initial={{ opacity: 0 }}
@@ -74,7 +73,20 @@ export default function VerifyEmailPage() {
         >
           Verifying your email address...
         </motion.h2>
-      ) : (
+      )}
+
+      {token && verified && (
+        <motion.h2
+          className="p-2 bg-green-500 text-white rounded-lg mb-6 z-10 relative"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          Your email is verified!
+        </motion.h2>
+      )}
+
+      {token && !verified && !error && (
         <motion.h2
           className="p-2 bg-orange-500 text-black rounded-lg mb-6 z-10 relative"
           initial={{ opacity: 0 }}

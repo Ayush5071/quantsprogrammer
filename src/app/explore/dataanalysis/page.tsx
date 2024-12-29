@@ -51,9 +51,8 @@ const Page = () => {
         const data = await response.json();
         
         if (response.ok) {
-          console.log("Fetched roadmap data: ", data);
           setCheckedItems(data.checkedData || []);
-          localStorage.setItem("DataAnalysis", JSON.stringify(data.checkedData)); // Save to local storage
+          localStorage.setItem("NewDataAnalysis", JSON.stringify(data.checkedData)); // Save to local storage
         } else {
           console.error("Error fetching roadmap data: ", data.error);
         }
@@ -66,11 +65,10 @@ const Page = () => {
     if (isLoggedIn) {
       fetchRoadmapData();
     } else {
-      const localData = localStorage.getItem("DataAnalysis");
+      const localData = localStorage.getItem("NewDataAnalysis");
       if (localData) {
         const parsedData = JSON.parse(localData);
         setCheckedItems(parsedData || []);
-        console.log("Found local storage data, setting checked items -> ", parsedData);
       } else {
         console.log("No local data found.");
         setCheckedItems([]);
@@ -80,13 +78,11 @@ const Page = () => {
   }, [isLoggedIn]); 
 
   const handleCheckboxChange = async (id: string) => {
-    console.log("Checkbox changed for ID: ", id);
 
     const updatedCheckedItems = checkedItems.includes(id)
       ? checkedItems.filter((item) => item !== id)
       : [...checkedItems, id];
 
-    console.log("Updated checked items: ", updatedCheckedItems);
 
     setCheckedItems(updatedCheckedItems);
 
@@ -108,8 +104,7 @@ const Page = () => {
         const data = await response.json();
         
         if (response.ok) {
-          console.log("Roadmap updated successfully:", data);
-          localStorage.setItem("DataAnalysis", JSON.stringify(updatedCheckedItems));
+          localStorage.setItem("NewDataAnalysis", JSON.stringify(updatedCheckedItems));
         } else {
           console.error("Error updating roadmap:", data.error);
         }
@@ -118,7 +113,7 @@ const Page = () => {
       }
     } else {
       console.log("User is not logged in, saving data locally.");
-      localStorage.setItem("DataAnalysis", JSON.stringify(updatedCheckedItems));
+      localStorage.setItem("NewDataAnalysis", JSON.stringify(updatedCheckedItems));
     }
   };
 
