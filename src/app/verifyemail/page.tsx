@@ -93,7 +93,7 @@ export default function VerifyEmailPage() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          Invalid token. Please check the verification link.
+          We are validating Token..... resend if not verified in 2min
         </motion.h2>
       )}
 
