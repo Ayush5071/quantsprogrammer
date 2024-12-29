@@ -1,82 +1,98 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { CheckBox } from "@/components/ui/CheckBox";
-import Taskbtn from "@/components/ui/Taskbtn";
-import Projectbtn from "@/components/ui/Projectbtn";
-import { fetchDataFromAPI } from "@/helpers/fetchData";
-import { useCheckedData } from "@/context/checkedDataContext";
 import { Timeline } from "@/components/ui/Roadmap";
 import { useRouter } from "next/navigation";
+import { useCheckedData } from "@/context/checkedDataContext";
+import Taskbtn from "@/components/ui/Taskbtn";
+import Projectbtn from "@/components/ui/Projectbtn";
+import { CheckBox } from "@/components/ui/CheckBox";
 
-const page = () => {
+
+const Page = () => {
   const router = useRouter();
-  const { checkedData, setCheckedData, isLoggedIn } = useCheckedData();
+  const { isLoggedIn } = useCheckedData(); 
   const [checkedItems, setCheckedItems] = useState<string[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  // Log to verify initialization
-  console.log("checkedItems value:", checkedItems);
-  console.log("Is array? ->", Array.isArray(checkedItems));
-  console.log("is loggediN", isLoggedIn);
+  const [stars, setStars] = useState<JSX.Element[]>([]);
+  const topicName = "FullStackWeb";
 
   useEffect(() => {
-    console.log("user LoggedIn Roadmap Page -> ", isLoggedIn);
+    const generatedStars = [...Array(600)].map((_, index) => (
+      <div
+        key={index}
+        className="star absolute bg-white rounded-full"
+        style={{
+          top: `${Math.random() * 500}vh`,
+          left: `${Math.random() * 100}vw`,
+          width: `${Math.random() * 2 + 1}px`,
+          height: `${Math.random() * 2 + 1}px`,
+          opacity: Math.random() * 0.5 + 0.1, 
+        }}
+      />
+    ));
+    setStars(generatedStars);
+  }, []); 
 
+  useEffect(() => {
     const fetchData = async () => {
       if (isLoggedIn) {
         try {
-          const data = await fetchDataFromAPI();
-          console.log("Fetched data RoadmapPage (Logged In) ->", data?.checkedData);
-          if (data?.checkedData) {
-            setCheckedData(data.checkedData); // Update context state
-            setCheckedItems(data.checkedData); // Update component state
+          const response = await fetch(`/api/roadmap/fetch?topic=${topicName}`, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            setCheckedItems(data.checkedData || []);
+          } else {
+            console.error("Error fetching data from API:", data.error);
           }
         } catch (error) {
-          console.error("Error fetching data:", error);
+          console.error("Error fetching roadmap data:", error);
         }
       } else {
-        const localData = localStorage.getItem("roadmap");
-        console.log("Fetched data RoadmapPage (LocalStorage) ->", localData);
+        const localData = localStorage.getItem(topicName);
         if (localData) {
-          const parsedData = JSON.parse(localData);
-          setCheckedItems(parsedData);
-          setCheckedData(parsedData);
+          setCheckedItems(JSON.parse(localData));
         }
       }
-      setLoading(false);
     };
 
     fetchData();
-  }, [isLoggedIn, setCheckedData]);
+  }, [isLoggedIn]);
 
-  const handleCheckboxChange = (id: string) => {
+  const handleCheckboxChange = async (id: string) => {
     const updatedCheckedItems = checkedItems.includes(id)
       ? checkedItems.filter((item) => item !== id)
       : [...checkedItems, id];
+
     setCheckedItems(updatedCheckedItems);
-    console.log(updatedCheckedItems, "--->updated");
 
     if (isLoggedIn) {
-      fetch("/api/data/store", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${document.cookie.replace("token=", "")}`,
-        },
-        body: JSON.stringify({ checkedData: updatedCheckedItems }),
-      })
-        .then((response) => response.json())
-        .then(() => {
-          setCheckedData(updatedCheckedItems);
-        })
-        .catch(console.error);
+      try {
+        const response = await fetch("/api/roadmap/store", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            checkedData: updatedCheckedItems,
+            topic: topicName,
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          console.error("Error updating roadmap:", data.error);
+        }
+      } catch (error) {
+        console.error("Error updating roadmap data:", error);
+      }
     } else {
-      localStorage.setItem("roadmap", JSON.stringify(updatedCheckedItems));
+      localStorage.setItem(topicName, JSON.stringify(updatedCheckedItems));
     }
   };
-
-  console.log(checkedItems, "ye decision sbhjb");
 
   const data = [
     {
@@ -174,7 +190,7 @@ const page = () => {
             <Projectbtn link="https://www.youtube.com/watch?v=jS4aFq5-91M" content="FreeCodeCamp"/>
           </div>  
         </div>
-
+  
       ),
     },
     {
@@ -463,25 +479,13 @@ const page = () => {
     <div className="relative w-full h-full bg-gradient-to-b from-black via-blue-900 to-black py-8 px-5 overflow-hidden">
       {/* Background stars */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
-        {[...Array(600)].map((_, index) => (
-          <div
-            key={index}
-            className="star absolute bg-white rounded-full"
-            style={{
-              top: `${Math.random() * 500}vh`,
-              left: `${Math.random() * 100}vw`,
-              width: `${Math.random() * 2 + 1}px`,
-              height: `${Math.random() * 2 + 1}px`,
-              opacity: Math.random() * 0.5 + 0.1, // Subtle twinkling effect
-            }}
-          />
-        ))}
+        {stars} {/* Render stars from state */}
       </div>
 
       {/* Back Arrow */}
       <div
         className="flex items-center gap-2 mb-6 cursor-pointer font-moon text-zinc-200"
-        onClick={() => router.push('/')}
+        onClick={() => router.push("/explore")}
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -505,4 +509,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

@@ -34,14 +34,14 @@ export default function LoginPage() {
 
     try {
       setLoading(true);
-      toast.dismiss(); // Dismiss any previous toasts
+      toast.dismiss();
 
       const response = await axios.post("/api/users/login", user);
-      console.log("Login success:", response.data);
+      // console.log("Login success:", response.data);
 
       toast.success("Login successful! Redirecting...");
       localStorage.setItem("token", response.data.token);
-      router.push("/"); // Redirect to home after successful login
+      router.push("/"); 
     } catch (error: any) {
       console.error("Login failed:", error.response?.data?.error || error.message);
 

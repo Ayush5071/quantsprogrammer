@@ -27,13 +27,8 @@ const userSchema = new Schema({
     forgotPasswordTokenExpiry: Date,
     verifyToken: String,
     verifyTokenExpiry: Date,
-    checkedData: {
-        type: [String], // An array of strings
-        default: [], // Default to an empty array
-    },
 });
 
-// Avoid overwriting the model during hot reloading in development
 if (mongoose.models.users) {
     delete mongoose.models.users;
 }

@@ -18,15 +18,18 @@ export default function ProfilePage() {
   const router = useRouter();
   const [userData, setUserData] = useState<User | null>(null);
   const [frontendCheckedItems, setFrontendCheckedItems] = useState<string[]>([]);
+  const [FullStackCheckedItems, setFullStackCheckedItems] = useState<string[]>([]);
   const [backendCheckedItems, setBackendCheckedItems] = useState<string[]>([]);
   const [dataAnalysisCheckedItems, setDataAnalysisCheckedItems] = useState<string[]>([]);
   const [loadingFrontend, setLoadingFrontend] = useState<boolean>(true);
+  const [loadingFullStack, setLoadingFullStack] = useState<boolean>(true);
   const [loadingBackend, setLoadingBackend] = useState<boolean>(true);
   const [loadingDataAnalysis, setLoadingDataAnalysis] = useState<boolean>(true);
 
   const totalFrontendTasks = 44;
+  const totalFullStackTasks = 44;
   const totalBackendTasks = 30;
-  const totalDataAnalysisTasks = 25; // Example data analysis tasks, adjust as needed
+  const totalDataAnalysisTasks = 25;
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -43,20 +46,41 @@ export default function ProfilePage() {
       try {
         const res = await fetch(`/api/roadmap/fetch?topic=FrontEndWeb`);
         const data = await res.json();
-        if (res.ok) setFrontendCheckedItems(data.checkedData || []);
-        else console.error("Error fetching Frontend roadmap progress");
+        if (res.ok) {
+          setFrontendCheckedItems(data.checkedData || []);
+        } else {
+          console.error("Error fetching Frontend roadmap progress");
+        }
       } catch (error) {
         console.error("Error fetching Frontend roadmap progress:", error);
       }
       setLoadingFrontend(false);
     };
 
+    const fetchFullStackProgress = async () => {
+      try {
+        const res = await fetch(`/api/roadmap/fetch?topic=FullStackWeb`);
+        const data = await res.json();
+        if (res.ok) {
+          setFullStackCheckedItems(data.checkedData || []);
+        } else {
+          console.error("Error fetching FullStack roadmap progress");
+        }
+      } catch (error) {
+        console.error("Error fetching FullStack roadmap progress:", error);
+      }
+      setLoadingFullStack(false);
+    };
+
     const fetchBackendProgress = async () => {
       try {
         const res = await fetch(`/api/roadmap/fetch?topic=BackEndWeb`);
         const data = await res.json();
-        if (res.ok) setBackendCheckedItems(data.checkedData || []);
-        else console.error("Error fetching Backend roadmap progress");
+        if (res.ok) {
+          setBackendCheckedItems(data.checkedData || []);
+        } else {
+          console.error("Error fetching Backend roadmap progress");
+        }
       } catch (error) {
         console.error("Error fetching Backend roadmap progress:", error);
       }
@@ -67,8 +91,11 @@ export default function ProfilePage() {
       try {
         const res = await fetch(`/api/roadmap/fetch?topic=DataAnalysis`);
         const data = await res.json();
-        if (res.ok) setDataAnalysisCheckedItems(data.checkedData || []);
-        else console.error("Error fetching Data Analysis roadmap progress");
+        if (res.ok) {
+          setDataAnalysisCheckedItems(data.checkedData || []);
+        } else {
+          console.error("Error fetching Data Analysis roadmap progress");
+        }
       } catch (error) {
         console.error("Error fetching Data Analysis roadmap progress:", error);
       }
@@ -77,6 +104,7 @@ export default function ProfilePage() {
 
     fetchUserDetails();
     fetchFrontendProgress();
+    fetchFullStackProgress();
     fetchBackendProgress();
     fetchDataAnalysisProgress();
   }, []);
@@ -84,6 +112,12 @@ export default function ProfilePage() {
   const calculateFrontendProgress = () => {
     return frontendCheckedItems.length
       ? Math.round((frontendCheckedItems.length / totalFrontendTasks) * 100)
+      : 0;
+  };
+
+  const calculateFullStackProgress = () => {
+    return FullStackCheckedItems.length
+      ? Math.round((FullStackCheckedItems.length / totalFullStackTasks) * 100)
       : 0;
   };
 
@@ -100,6 +134,7 @@ export default function ProfilePage() {
   };
 
   const frontendProgress = calculateFrontendProgress();
+  const FullStackProgress = calculateFullStackProgress();
   const backendProgress = calculateBackendProgress();
   const dataAnalysisProgress = calculateDataAnalysisProgress();
 
@@ -115,21 +150,22 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen overflow-hidden flex items-center justify-center bg-gradient-to-br from-indigo-950 via-purple-900 to-indigo-950 px-6 py-12 relative">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-900 py-12 px-6">
       {/* Back Button */}
-      <Link href="/" className="absolute z-50 top-3 left-3 md:top-6 md:left-3 text-white text-3xl hover:text-purple-400 transition-all">
+      <Link
+        href="/"
+        className="absolute top-4 left-4 text-white text-lg md:text-2xl font-bold hover:text-zinc-300 transition-all"
+      >
         &larr;
       </Link>
 
       <motion.div
-        initial={{ opacity: 0.5, scale: 0.8 }}
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8, ease: "easeInOut" }}
-        className="relative flex flex-col items-center max-w-lg w-full p-6 bg-gradient-to-br from-indigo-800 to-purple-800 rounded-xl shadow-lg"
+        transition={{ duration: 0.6 }}
+        className="bg-zinc-800 rounded-lg shadow-lg p-6 max-w-lg w-full"
       >
-        <h1 className="text-4xl font-bold bg-gradient-to-br from-pink-400 to-purple-500 bg-clip-text text-transparent mb-4">
-          Profile
-        </h1>
+        <h1 className="text-3xl font-semibold text-zinc-200 mb-6 text-center">Profile</h1>
 
         {userData ? (
           <motion.div
@@ -138,100 +174,80 @@ export default function ProfilePage() {
             transition={{ duration: 0.6 }}
             className="flex flex-col items-center text-white"
           >
-            <div className="relative mb-4">
-              <div className="h-24 w-24 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-2xl font-bold uppercase">
-                {userData.username[0]}
+            {/* Profile Header */}
+            <div className="w-24 h-24 mb-4 rounded-full bg-zinc-600 flex items-center justify-center text-3xl font-bold">
+              {userData.username[0]}
+            </div>
+
+            <h2 className="text-2xl font-semibold">{userData.username}</h2>
+            <p className="text-zinc-400 text-sm">{userData.email}</p>
+            <p
+              className={`mt-2 px-4 py-1 rounded-full text-xs font-semibold ${userData.isVerified ? "bg-green-500" : "bg-red-500"}`}
+            >
+              {userData.isVerified ? "Verified" : "Not Verified"}
+            </p>
+
+            {/* Course Progress Section */}
+            <div className="w-full mt-6 space-y-6">
+              {/* FullStack Progress */}
+              <div>
+                <h3 className="text-xl font-semibold text-zinc-300 mb-2">FullStack WebDev Progress</h3>
+                <div className="bg-zinc-700 rounded-full h-2 mb-2">
+                  <div
+                    className="h-2 bg-blue-500 rounded-full"
+                    style={{ width: `${FullStackProgress}%` }}
+                  />
+                </div>
+                <p className="text-center text-sm text-zinc-400">{FullStackProgress}% Complete</p>
+              </div>
+
+              {/* Frontend Progress */}
+              <div>
+                <h3 className="text-xl font-semibold text-zinc-300 mb-2">Frontend Development Progress</h3>
+                <div className="bg-zinc-700 rounded-full h-2 mb-2">
+                  <div
+                    className="h-2 bg-purple-500 rounded-full"
+                    style={{ width: `${frontendProgress}%` }}
+                  />
+                </div>
+                <p className="text-center text-sm text-zinc-400">{loadingFrontend ? "Loading..." : `${frontendProgress}% Complete`}</p>
+              </div>
+
+              {/* Backend Progress */}
+              <div>
+                <h3 className="text-xl font-semibold text-zinc-300 mb-2">BackEnd Development Progress</h3>
+                <div className="bg-zinc-700 rounded-full h-2 mb-2">
+                  <div
+                    className="h-2 bg-green-500 rounded-full"
+                    style={{ width: `${backendProgress}%` }}
+                  />
+                </div>
+                <p className="text-center text-sm text-zinc-400">{loadingBackend ? "Loading..." : `${backendProgress}% Complete`}</p>
+              </div>
+
+              {/* Data Analysis Progress */}
+              <div>
+                <h3 className="text-xl font-semibold text-zinc-300 mb-2">Data Analysis Progress</h3>
+                <div className="bg-zinc-700 rounded-full h-2 mb-2">
+                  <div
+                    className="h-2 bg-yellow-500 rounded-full"
+                    style={{ width: `${dataAnalysisProgress}%` }}
+                  />
+                </div>
+                <p className="text-center text-sm text-zinc-400">{loadingDataAnalysis ? "Loading..." : `${dataAnalysisProgress}% Complete`}</p>
               </div>
             </div>
 
-            <div className="text-center">
-              <h2 className="text-2xl font-semibold mb-2">{userData.username}</h2>
-              <p className="text-sm text-gray-400 mb-4">{userData.email}</p>
-              <p
-                className={`py-1 px-3 rounded-full text-xs font-bold ${
-                  userData.isVerified
-                    ? "bg-green-500 text-white"
-                    : "bg-red-500 text-white"
-                }`}
-              >
-                {userData.isVerified ? "Verified" : "Not Verified"}
-              </p>
-            </div>
-
-            {/* FullStack Course Progress */}
-            <div className="w-full mt-6">
-              <h3 className="text-xl font-semibold text-purple-400 mb-2">
-                FullStack WebDev Course Progress
-              </h3>
-              <div className="relative w-full bg-gray-700 rounded-full h-4 mb-2">
-                <div
-                  className="absolute top-0 left-0 h-4 bg-purple-600 rounded-full"
-                  style={{ width: `${frontendProgress}%` }}
-                />
-              </div>
-              <p className="text-center text-sm text-gray-300">
-                {frontendProgress}% Complete
-              </p>
-            </div>
-
-            {/* Frontend Progress Bar */}
-            <div className="w-full mt-4">
-              <h3 className="text-xl font-semibold text-blue-400 mb-2">
-                FrontEnd Development Progress
-              </h3>
-              <div className="relative w-full bg-gray-700 rounded-full h-4 mb-2">
-                <div
-                  className="absolute top-0 left-0 h-4 bg-blue-500 rounded-full"
-                  style={{ width: `${frontendProgress}%` }}
-                />
-              </div>
-              <p className="text-center text-sm text-gray-300">
-                {loadingFrontend ? "Loading..." : `${frontendProgress}% Complete`}
-              </p>
-            </div>
-
-            {/* Backend Progress Bar */}
-            <div className="w-full mt-4">
-              <h3 className="text-xl font-semibold text-green-400 mb-2">
-                BackEnd Development Progress
-              </h3>
-              <div className="relative w-full bg-gray-700 rounded-full h-4 mb-2">
-                <div
-                  className="absolute top-0 left-0 h-4 bg-green-500 rounded-full"
-                  style={{ width: `${backendProgress}%` }}
-                />
-              </div>
-              <p className="text-center text-sm text-gray-300">
-                {loadingBackend ? "Loading..." : `${backendProgress}% Complete`}
-              </p>
-            </div>
-
-            {/* Data Analysis Progress Bar */}
-            <div className="w-full mt-4">
-              <h3 className="text-xl font-semibold text-yellow-400 mb-2">
-                Data Analysis Progress
-              </h3>
-              <div className="relative w-full bg-gray-700 rounded-full h-4 mb-2">
-                <div
-                  className="absolute top-0 left-0 h-4 bg-yellow-500 rounded-full"
-                  style={{ width: `${dataAnalysisProgress}%` }}
-                />
-              </div>
-              <p className="text-center text-sm text-gray-300">
-                {loadingDataAnalysis ? "Loading..." : `${dataAnalysisProgress}% Complete`}
-              </p>
-            </div>
-
-            <div className="mt-6 flex flex-col gap-3 w-full">
+            <div className="mt-6 flex flex-col gap-4 w-full">
               <Link
                 href="/forgotpassword"
-                className="w-full px-4 py-2 text-center bg-purple-500 hover:bg-purple-600 text-white font-semibold rounded-md"
+                className="w-full px-4 py-2 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md"
               >
                 Change Password
               </Link>
               <button
                 onClick={logout}
-                className="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-md"
+                className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md"
               >
                 Logout
               </button>
@@ -242,18 +258,11 @@ export default function ProfilePage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6 }}
-            className="text-white text-lg"
+            className="text-white text-lg text-center"
           >
             Loading profile...
           </motion.div>
         )}
-
-        <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="absolute inset-auto top-full mt-6 w-72 h-16 rounded-full bg-purple-500 blur-3xl opacity-50"
-        ></motion.div>
       </motion.div>
     </div>
   );

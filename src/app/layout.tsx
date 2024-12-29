@@ -3,7 +3,6 @@ import "./globals.css";
 import { Analytics } from '@vercel/analytics/next';
 import { CheckedDataProvider } from "@/context/checkedDataContext";
 import { Toaster } from "react-hot-toast";
-import { RoadmapProvider } from "@/context/RoadmapContext";
 
 // Metadata for Quants Programmer
 export const metadata: Metadata = {
@@ -61,10 +60,8 @@ export default function RootLayout({
     <html lang="en">
       <body className={`antialiased notallow`}>
         <CheckedDataProvider>
-          <RoadmapProvider>
             <Toaster position="top-right" reverseOrder={false} />
             {children}
-          </RoadmapProvider>
         </CheckedDataProvider>
         <Analytics />
       </body>
