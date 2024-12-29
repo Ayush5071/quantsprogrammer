@@ -9,7 +9,6 @@ export function Cardstack() {
   );
 }
 
-// Utility to highlight specific sections of testimonial content
 export const Highlight = ({
   children,
   className,
@@ -71,7 +70,7 @@ const CARDS = [
     designation: "Creator of Linux",
     content: (
       <p>
-        "Talk is cheap. <Highlight>Show me the code</Highlight>."
+        Talk is cheap. <Highlight>Show me the code</Highlight>.
       </p>
     ),
   },
@@ -81,9 +80,9 @@ const CARDS = [
     designation: "Software Developer and Author",
     content: (
       <p>
-        "Any fool can write code that a computer understands.{" "}
+        Any fool can write code that a computer understands.{" "}
         <Highlight>Good programmers</Highlight> write code that humans
-        understand."
+        understand.
       </p>
     ),
   },
@@ -93,8 +92,8 @@ const CARDS = [
     designation: "Co-founder of Microsoft",
     content: (
       <p>
-        "Measuring programming progress by lines of code is like measuring{" "}
-        <Highlight>aircraft building</Highlight> by weight."
+        Measuring programming progress by lines of code is like measuring{" "}
+        <Highlight>aircraft building</Highlight> by weight.
       </p>
     ),
   },
