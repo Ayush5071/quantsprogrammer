@@ -41,7 +41,6 @@ export default function ProfilePage() {
         toast.error("Failed to fetch user details");
       }
     };
-
     const fetchFrontendProgress = async () => {
       try {
         const res = await fetch(`/api/roadmap/fetch?topic=FrontEndWeb`);
