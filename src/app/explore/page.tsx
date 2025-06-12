@@ -1,41 +1,25 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Roadmapcard } from "@/components/component/Card";
 import { gsap } from "gsap";
 
 const page = () => {
   const router = useRouter();
-  const roadmaps = [
-    {
-      heading: "Full Stack (JS)",
-      description: "A comprehensive guide to mastering full stack development using JavaScript.",
-      link: "/explore/fullstackweb",
-      author: "Ayush Tiwari",
-      linkedIn: "https://www.linkedin.com/in/ayush-tiwari-84a823281",
-    },
-    {
-      heading: "Frontend (JS)",
-      description: "Learn how to become proficient in frontend development with JavaScript and modern frameworks.",
-      link: "/explore/frontend",
-      author: "Ayush Tiwari",
-      linkedIn: "https://www.linkedin.com/in/ayush-tiwari-84a823281",
-    },
-    {
-      heading: "Backend (JS)",
-      description: "Explore backend development with JavaScript using Node.js, Express, and MongoDB.",
-      link: "/explore/backend",
-      author: "Ayush Tiwari",
-      linkedIn: "https://www.linkedin.com/in/ayush-tiwari-84a823281",
-    },
-    {
-      heading: "Data Analysis",
-      description: "A guide to mastering data analysis using Python and key libraries like pandas, numpy, and more.",
-      link: "/explore/dataanalysis",
-      author: "Kanishka Maurya",
-      linkedIn: "https://www.linkedin.com/in/kanishka-maurya",
-    }
-  ];
+  const [roadmaps, setRoadmaps] = useState<Array<{
+    _id: string;
+    title: string;
+    description?: string;
+    createdBy: string;
+    linkedIn?: string;
+  }>>([]);
+
+  useEffect(() => {
+    // Fetch roadmaps from API
+    fetch("/api/roadmap/fetchall")
+      .then((res) => res.json())
+      .then((data) => setRoadmaps(data.roadmaps || []));
+  }, []);
 
   useEffect(() => {
     const timeline = gsap.timeline();
@@ -145,16 +129,20 @@ const page = () => {
       </h1>
 
       <div className="relative z-20 flex flex-wrap justify-center gap-6 px-8">
-        {roadmaps.map((roadmap, idx) => (
-          <Roadmapcard
-            key={idx}
-            heading={roadmap.heading}
-            description={roadmap.description}
-            link={roadmap.link}
-            author={roadmap.author}
-            linkedIn={roadmap.linkedIn}
-          />
-        ))}
+        {roadmaps.length === 0 ? (
+          <div className="text-center text-gray-400 text-xl">No roadmaps available yet.</div>
+        ) : (
+          roadmaps.map((roadmap, idx) => (
+            <Roadmapcard
+              key={roadmap._id || idx}
+              heading={roadmap.title}
+              description={roadmap.description || ""}
+              link={`/explore/roadmap/${roadmap._id}`}
+              author={roadmap.createdBy}
+              linkedIn={roadmap.linkedIn || ""}
+            />
+          ))
+        )}
       </div>
     </div>
   );
