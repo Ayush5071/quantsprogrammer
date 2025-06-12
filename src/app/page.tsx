@@ -25,7 +25,7 @@ export default function Home() {
       icon: <IconMessage className="h-4 w-4 text-white" />,
     },
     {
-      name: "RoadMaps",
+      name: "Roadmaps",
       link: "/explore",
       icon: <IconMessage className="h-4 w-4 text-white" />,
     },
