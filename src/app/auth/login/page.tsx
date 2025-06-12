@@ -36,12 +36,20 @@ export default function LoginPage() {
       setLoading(true);
       toast.dismiss();
 
-      const response = await axios.post("/api/users/login", user);
+      const response = await axios.post(
+        "/api/users/login",
+        user,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       // console.log("Login success:", response.data);
 
       toast.success("Login successful! Redirecting...");
       localStorage.setItem("token", response.data.token);
-      router.push("/"); 
+      router.push("/");
     } catch (error: any) {
       console.error("Login failed:", error.response?.data?.error || error.message);
 
@@ -147,7 +155,7 @@ export default function LoginPage() {
 
         <p className="mt-1 text-center text-white text-sm">
           Account not verified?{" "}
-          <Link href="/resendverification">
+          <Link href="/auth/resendverification">
             <span className="text-blue-400 hover:underline cursor-pointer">Verify Email</span>
           </Link>
         </p>

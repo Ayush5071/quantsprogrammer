@@ -101,7 +101,7 @@ export const FloatingNav = ({
 
         {/* Dynamic Profile/Login Item */}
         <Link
-          href={isLoggedIn ? "/profile" : "/login"}
+          href={isLoggedIn ? "/profile" : "/auth/login"}
           className={cn(
             "relative text-neutral-50 items-center flex space-x-auto hover:text-neutral-300"
           )}

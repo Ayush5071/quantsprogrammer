@@ -174,7 +174,6 @@ export default function SignupPage() {
           </Link>
         </p>
 
-        {/* Forgot password link */}
         <div className="mt-6 text-center text-white text-xs">
           <Link href="/auth/forgotpassword">
             <span className="hover:underline cursor-pointer">Forgot password?</span>

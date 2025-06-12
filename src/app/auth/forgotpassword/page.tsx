@@ -131,7 +131,7 @@ export default function ForgotPassword() {
         <div className="mt-6 text-center">
           <p className="text-gray-300 text-sm">
             Remember your password?{" "}
-            <a href="/auth/login" className="text-blue-400 hover:underline cursor-pointer">Login here</a>
+            <a href="/login" className="text-blue-400 hover:underline cursor-pointer">Login here</a>
           </p>
         </div>
       </div>
