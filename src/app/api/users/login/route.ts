@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
       id: user._id,
       username: user.username,
       email: user.email,
+      isAdmin: user.email === "ayusht5071@gmail.com" || user.isAdmin === true,
     };
 
     const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: "1d" });

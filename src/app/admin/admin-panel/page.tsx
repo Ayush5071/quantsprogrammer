@@ -10,9 +10,13 @@ const AdminPanel = () => {
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    axios.get("/api/admin/Ayush208025")
+    // Only allow hardcoded admin emails
+    const adminEmails = ["admin@example.com", "ayush@example.com"];
+    axios.get("/api/admin/admin-panel")
       .then((response) => {
-        setUsers(response.data.data);
+        // Filter users to only show admin emails
+        const filtered = response.data.data.filter((user: any) => adminEmails.includes(user.email));
+        setUsers(filtered);
         setLoading(false);
       })
       .catch((error) => {
