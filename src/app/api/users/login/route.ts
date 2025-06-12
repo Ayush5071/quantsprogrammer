@@ -41,12 +41,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate JWT token
+    // Admin check using env variable
+    const adminEmails = process.env.ADMINS ? process.env.ADMINS.split(",") : [];
     const tokenData = {
       id: user._id,
       username: user.username,
       email: user.email,
-      isAdmin: user.email === "ayusht5071@gmail.com" || user.isAdmin === true,
+      isAdmin: adminEmails.includes(user.email) || user.isAdmin === true,
     };
 
     const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: "1d" });
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
       message: "User logged in successfully",
       success: true,
       user,
+      token, // Add token to response body for client-side use
     });
 
     response.cookies.set("token", token, {});
