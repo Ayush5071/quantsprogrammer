@@ -60,12 +60,12 @@ export default function EmailSentPage() {
 
       {/* Buttons */}
       <div className="button-container mt-8 space-y-4 flex flex-col items-center z-10">
-        <Link href="/login">
+        <Link href="/auth/login">
           <button className="bg-blue-500 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-600 hover:scale-110 hover:shadow-xl transition-transform duration-300 w-full sm:w-auto">
             Proceed to Login
           </button>
         </Link>
-        <Link href="/resendverification">
+        <Link href="/auth/resendverification">
           <button className="bg-gray-600 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-gray-700 hover:scale-110 hover:shadow-xl transition-transform duration-300 w-full sm:w-auto">
             Resend Verification Link
           </button>

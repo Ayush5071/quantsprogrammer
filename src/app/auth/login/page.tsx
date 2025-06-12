@@ -140,7 +140,7 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-white text-lg">
           Don’t have an account?{" "}
-          <Link href="/signup">
+          <Link href="/auth/signup">
             <span className="text-blue-400 hover:underline cursor-pointer">Sign up here</span>
           </Link>
         </p>
@@ -153,7 +153,7 @@ export default function LoginPage() {
         </p>
 
         <div className="mt-6 text-center text-white text-xs">
-          <Link href="/forgotpassword">
+          <Link href="/auth/forgotpassword">
             <span className="hover:underline cursor-pointer">Forgot password?</span>
           </Link>
         </div>

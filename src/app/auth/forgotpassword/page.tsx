@@ -1,10 +1,10 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { HiArrowLeft } from "react-icons/hi"; // Arrow Icon from React Icons
 
-export default function ResendVerification() {
+export default function ForgotPassword() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,7 +28,7 @@ export default function ResendVerification() {
 
     setLoading(true);
 
-    const res = await fetch("/api/users/resendverification", {
+    const res = await fetch("/api/users/password/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -40,10 +40,10 @@ export default function ResendVerification() {
 
     if (res.ok) {
       setMessage(data.message);
-      toast.success(data.message || "Verification email sent successfully.");
+      toast.success(data.message || "Reset link sent successfully.");
     } else {
       setMessage(data.error);
-      toast.error(data.error || "An error occurred while sending the verification email.");
+      toast.error(data.error || "An error occurred while sending the reset link.");
     }
   };
 
@@ -62,9 +62,10 @@ export default function ResendVerification() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-black via-gray-900 to-black px-6 relative overflow-hidden">
+              {/* Back to Login Button */}
               <button
-          onClick={() => router.push("/login")}
-          className="absolute top-6 cursor-pointer left-6 text-blue-500 hover:text-blue-700 text-lg"
+          onClick={() => router.push('/login')}
+          className="absolute top-6 left-6 text-blue-500 hover:text-blue-700 text-lg"
         >
           <HiArrowLeft className="inline-block mr-2" /> Back to Login
         </button>
@@ -87,12 +88,11 @@ export default function ResendVerification() {
         ))}
       </div>
 
-      {/* Glassmorphism Effect Resend Verification Card */}
+      {/* Glassmorphism Effect Forgot Password Card */}
       <div className="max-w-md w-full p-8 bg-white bg-opacity-20 backdrop-blur-md border-2 border-gray-300 rounded-xl shadow-2xl z-10 relative">
-        {/* Back to Login Button */}
 
 
-        <h1 className="text-3xl font-extrabold text-center text-white mb-6">Resend Verification Email</h1>
+        <h1 className="text-3xl font-extrabold text-center text-white mb-6">Forgot Password</h1>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -110,31 +110,28 @@ export default function ResendVerification() {
             />
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className={`w-full p-3 text-white rounded-lg transition-all duration-300 ease-in-out ${
-              loading ? "bg-gray-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 active:scale-95 shadow-lg"
-            }`}
+            className={`w-full p-3 text-white rounded-lg transition-all duration-300 ease-in-out ${loading ? "bg-gray-600 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 active:scale-95 shadow-lg"}`}
           >
-            {loading ? "Sending..." : "Resend Verification Link"}
+            {loading ? "Sending..." : "Send Reset Link"}
           </button>
         </form>
 
+        {/* Success/Error Message */}
         {message && (
-          <div
-            className={`mt-4 text-center text-sm ${message.includes("error") ? "text-red-500" : "text-green-500"}`}
-          >
+          <div className={`mt-4 text-center text-sm ${message.includes('error') ? "text-red-500" : "text-green-500"}`}>
             <p>{message}</p>
           </div>
         )}
 
+        {/* Back to login link */}
         <div className="mt-6 text-center">
           <p className="text-gray-300 text-sm">
-            Already verified?{" "}
-            <a href="/login" className="text-blue-400 hover:underline cursor-pointer">
-              Login here
-            </a>
+            Remember your password?{" "}
+            <a href="/auth/login" className="text-blue-400 hover:underline cursor-pointer">Login here</a>
           </p>
         </div>
       </div>

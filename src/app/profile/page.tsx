@@ -239,7 +239,7 @@ export default function ProfilePage() {
 
             <div className="mt-6 flex flex-col gap-4 w-full">
               <Link
-                href="/forgotpassword"
+                href="/auth/forgotpassword"
                 className="w-full px-4 py-2 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-md"
               >
                 Change Password
