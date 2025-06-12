@@ -28,9 +28,22 @@ export const FloatingNav = ({
 
   const [isLoggedIn, setIsLoggedIn] = useState(contextIsLoggedIn); // Local state for dynamic updates
   const [visible, setVisible] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     setIsLoggedIn(contextIsLoggedIn);
+    // Check admin from token (if present)
+    const token = Cookies.get("token");
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setIsAdmin(payload.isAdmin === true);
+      } catch {
+        setIsAdmin(false);
+      }
+    } else {
+      setIsAdmin(false);
+    }
   }, [contextIsLoggedIn]);
 
   useEffect(() => {
@@ -98,6 +111,18 @@ export const FloatingNav = ({
             <span className="absolute inset-x-0 w-3/4 mx-auto -bottom-px bg-gradient-to-r from-transparent via-blue-500 to-transparent h-[5px]" />
           </span>
         </Link>
+
+        {/* Admin Panel Link - Shown only if the user is an admin */}
+        {isAdmin && (
+          <Link
+            href="/admin/admin-panel"
+            className={cn(
+              "relative text-yellow-300 items-center flex space-x-auto hover:text-yellow-200 font-bold border-2 border-yellow-400 rounded-2xl px-4 py-2 ml-2"
+            )}
+          >
+            Admin Panel
+          </Link>
+        )}
       </motion.div>
     </AnimatePresence>
   );

@@ -8,9 +8,22 @@ const RoadmapDetailPage = () => {
   const { id } = params as { id: string };
   const [roadmap, setRoadmap] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!id) return;
+    // Check admin from token (if present)
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        setIsAdmin(payload.isAdmin === true);
+      } catch {
+        setIsAdmin(false);
+      }
+    } else {
+      setIsAdmin(false);
+    }
     fetch(`/api/roadmap/${id}`)
       .then((res) => res.json())
       .then((data) => {
@@ -31,6 +44,14 @@ const RoadmapDetailPage = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-black text-red-400 text-2xl">
         Roadmap not found.
+      </div>
+    );
+  }
+
+  if (isAdmin) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black text-green-400 text-2xl">
+        Admin: You can edit this roadmap (admin UI placeholder)
       </div>
     );
   }
