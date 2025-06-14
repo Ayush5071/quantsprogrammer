@@ -1,21 +1,26 @@
 import mongoose, { Schema } from 'mongoose';
 
+const assignmentSchema = new Schema({
+  title: { type: String, required: true },
+  link: { type: String, required: true },
+});
+
 const taskSchema = new Schema({
   title: { type: String, required: true },
-  link: { type: String },
-  assignment: { type: String },
+  link: { type: String, required: true },
 });
 
 const phaseSchema = new Schema({
   title: { type: String, required: true },
   tasks: [taskSchema],
+  assignments: [assignmentSchema],
 });
 
 const roadmapSchema = new Schema(
   {
     title: { type: String, required: true },
     description: { type: String },
-    createdBy: { type: String, required: true }, // admin user id
+    createdBy: { type: String, required: true },//admin user id
     phases: [phaseSchema],
   },
   {

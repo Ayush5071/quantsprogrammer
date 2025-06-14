@@ -12,8 +12,17 @@ export async function POST(request: NextRequest) {
     const { title, description, createdBy, phases } = reqBody;
     if (!title || !createdBy) {
       return NextResponse.json({ error: "Title and createdBy are required" }, { status: 400 });
-   }
-    // Admin check: get token from headers
+    }
+    // Validate phases, tasks, and assignments for required links
+    if (!Array.isArray(phases) || phases.some((phase: any) =>
+      !phase.title ||
+      !Array.isArray(phase.tasks) ||
+      phase.tasks.some((task: any) =>
+        (!task.title || !task.link) && !(task.assignment && task.assignment.title && task.assignment.link)
+      )
+    )) {
+      return NextResponse.json({ error: "Each phase must have tasks and each task/assignment must have a title and link." }, { status: 400 });
+    }
     const authHeader = request.headers.get("authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

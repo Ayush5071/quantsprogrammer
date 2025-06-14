@@ -1,5 +1,3 @@
-import { CardSpotlight } from "../ui/CardSpotlight";
-
 interface RoadmapCardProps {
   heading: string;
   description: string;
@@ -16,49 +14,51 @@ export function Roadmapcard({
   linkedIn,
 }: RoadmapCardProps) {
   return (
-    <CardSpotlight className="h-64 w-96 flex flex-col  p-6">
-      {/* Heading on top left */}
-      <p className="text-2xl font-bold font-bebas relative text-zinc-100">{heading}</p>
-
-      {/* Description with 'Curated by' section at the bottom left */}
-      <div className="text-neutral-200 font-Sfpro relative flex-1 mt-4">
-        <p>{description}</p>
+    <div className="relative h-72 w-full max-w-xs md:max-w-md flex flex-col p-6 bg-zinc-900 rounded-3xl shadow-xl border-2 border-blue-800 hover:border-blue-400 transition-all duration-300 overflow-hidden group">
+      <div className="flex flex-col h-full justify-between">
+        <div>
+          <p className="text-2xl md:text-3xl font-extrabold font-bebas text-blue-200 mb-2 line-clamp-2 break-words tracking-wide">
+            {heading}
+          </p>
+          <p className="text-neutral-300 font-Sfpro text-sm md:text-base line-clamp-3 break-words opacity-90 mb-4">
+            {description}
+          </p>
+        </div>
+        <div className="flex items-center justify-between mt-auto">
+          <div className="text-xs md:text-sm text-zinc-400 flex items-center gap-2">
+            <span>Curated by</span>
+            <a
+              href={linkedIn}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:underline font-semibold"
+            >
+              {author}
+            </a>
+          </div>
+          <a
+            href={link}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-800 hover:bg-blue-600 text-white font-bold rounded-xl shadow hover:scale-105 transition-transform border border-blue-900"
+          >
+            Explore
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M17.25 6.75L21 12m0 0l-3.75 5.25M21 12H3"
+              />
+            </svg>
+          </a>
+        </div>
       </div>
-
-      {/* Curated by section */}
-      <div className="text-neutral-300 font-sfText relative text-xs md:text-sm mt-4">
-        Curated by{" "}
-        <a
-          href={linkedIn}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-400 hover:underline"
-        >
-          {author}
-        </a>
-      </div>
-
-      {/* Explore button positioned at bottom right */}
-      <a
-        href={link}
-        className="absolute font-sfText bottom-4 right-4 flex items-center gap-2 px-2 py-1 md:px-4 md:py-2 bg-neutral-800 text-neutral-100 font-semibold rounded-md shadow-md hover:shadow-lg transition-all"
-      >
-        Explore
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-5 h-5"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
-          />
-        </svg>
-      </a>
-    </CardSpotlight>
+      <div className="absolute inset-0 pointer-events-none rounded-3xl border-2 border-blue-900 opacity-20"></div>
+    </div>
   );
 }

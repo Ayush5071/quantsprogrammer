@@ -1,0 +1,13 @@
+import Certificate from "@/components/component/Certificate";
+// ...existing code...
+{progressData.map((item, idx) => (
+  <div key={idx} className="w-full">
+    {/* ...existing progress bar code... */}
+    {item.percent === 100 && userData && userData.fullName && userData.address && userData.age && userData.college && userData.gender && userData.contactNumber && (
+      <div className="mt-8">
+        <Certificate user={userData} roadmap={roadmaps[idx]} percent={item.percent} />
+      </div>
+    )}
+  </div>
+))}
+// ...existing code...

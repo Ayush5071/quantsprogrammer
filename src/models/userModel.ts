@@ -27,6 +27,19 @@ const userSchema = new Schema({
     forgotPasswordTokenExpiry: Date,
     verifyToken: String,
     verifyTokenExpiry: Date,
+    completedRoadmaps: [
+        {
+            roadmapId: { type: String, required: true },
+            completedTasks: [String], // task IDs or titles
+            completedAssignments: [String], // assignment IDs or titles
+        }
+    ],
+    fullName: { type: String },
+    address: { type: String },
+    age: { type: String },
+    college: { type: String },
+    gender: { type: String },
+    contactNumber: { type: String },
 });
 
 if (mongoose.models.users) {
