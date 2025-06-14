@@ -9,7 +9,7 @@ function EditableField({ value, onChange, placeholder, className = "" }: { value
   const [temp, setTemp] = useState(value);
   return editing ? (
     <input
-      className={"bg-gray-900 border border-blue-400 rounded px-2 py-1 text-white text-base md:text-xl w-full max-w-xs md:max-w-2xl " + className}
+      .\commit-all.ps1      className={"bg-gray-900 border border-blue-400 rounded px-2 py-1 text-white text-base md:text-xl w-full max-w-xs md:max-w-2xl " + className}
       value={temp}
       onChange={e => setTemp(e.target.value)}
       onBlur={() => { setEditing(false); onChange(temp); }}
