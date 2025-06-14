@@ -1,89 +1,115 @@
 "use client";
-import React, { useEffect } from "react";
-import { BlogCard } from "@/components/component/blog-card";
+import React, { useEffect, useState } from "react";
+import { BlogCard } from "@/components/component/BlogCard";
 import { gsap } from "gsap";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
-const blogData = [
-  {
-    title: "Why Development Isn’t as Boring as You Think",
-    description:
-      "You might think development is boring because you’re only focused on getting through two projects for placement, but that’s not the whole story. The fun comes in the journey of learning, building, and creating. You can make anything you imagine if you enjoy the process of developing.",
-    author: "Ayush Tiwari",
-    link: "#",
-  },
-  {
-    title: "Is It Fine to Create Clone Apps?",
-    description:
-      "Absolutely! Cloning apps is a great way to learn, but don’t just copy everything blindly from YouTube. Understand the tech behind it, add your unique creativity, and build something original. It’s all about mastering the basics and applying them to create real products that people will use.",
-    author: "Ayush Tiwari",
-    link: "#",
-  },
-  {
-    title: "How to Build Any Application Like a Pro",
-    description:
-      "Every app, at its core, is a to-do app. Whether it’s an ecommerce platform focusing on payments, social media where chat rules, or a healthcare app requiring video calls, file uploads, and socket communication – the essentials remain similar. Learn the common building blocks, and you can create any application that exists or doesn’t.",
-    author: "Ayush Tiwari",
-    link: "#",
-  },
-  {
-    title: "Will Only DSA Get You a Job? Here’s the Reality",
-    description:
-      "It’s true – in colleges, companies often prioritize DSA and high CPI over development skills. But you need to master both to succeed in the placement race. Development might have a smaller role, but it still has an impact in the very few companies that care about it.",
-    author: "Ayush Tiwari",
-    link: "#",
-  },
-  {
-    title: "How to Start Development If You’re a Beginner",
-    description:
-      "Feeling lost in development? No worries. Start by following a roadmap that aligns with your interests. Join tech channels like ‘Chai Aur Code’, ‘Sheriyan Coding School’, ‘FreeCodeCamp’, and more for practical advice and solid tips on how to begin your dev journey the right way.",
-    author: "Ayush Tiwari",
-    link: "#",
-  },
-  {
-    title: "Hackathon Reality – Creativity Under Pressure",
-    description:
-      "In hackathons, you’ve got limited time to build something amazing. The pressure is real, but that’s where creativity shines. Focus on features and functionality, add as much value as you can – even if it’s not perfectly polished. I believe a well-optimized to-do app will stand out more than any hackathon-winning project that’s flashy but not functional.",
-    author: "Ayush Tiwari",
-    link: "#",
-  },
-];
+interface User {
+  isAdmin?: boolean;
+  _id?: string;
+}
+interface BlogRequest {
+  status?: string;
+}
 
 const BlogSection = () => {
+  const [blogs, setBlogs] = useState([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [blogRequest, setBlogRequest] = useState<BlogRequest | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const res = await axios.get("/api/blogs");
+        setBlogs(res.data.blogs || []);
+      } catch {
+        setBlogs([]);
+      }
+    };
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get("/api/users/me");
+        setUser(res.data.user);
+        // Fetch blog request status
+        const reqRes = await axios.get(
+          `/api/blogs/request?userId=${res.data.user._id}`
+        );
+        setBlogRequest(reqRes.data.request || null);
+      } catch {
+        setUser(null);
+      }
+    };
+    fetchBlogs();
+    fetchUser();
+    setLoading(false);
+  }, []);
+
+  const handleRequest = async () => {
+    try {
+      const res = await axios.post("/api/blogs/request", { userId: user!._id });
+      setBlogRequest(res.data.request);
+      toast.success("Request sent to admin!");
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Request failed");
+    }
+  };
+
+  const handleEdit = (blog: any) => {
+    window.location.href = `/blogs/edit?id=${blog._id}`;
+  };
+  const handleDelete = async (blog: any) => {
+    if (!window.confirm("Are you sure you want to delete this blog?")) return;
+    try {
+      await axios.delete("/api/blogs/edit", { data: { blogId: blog._id, adminId: user!._id } });
+      setBlogs((prev) => prev.filter((b: any) => b._id !== blog._id));
+      toast.success("Blog deleted!");
+    } catch (err: any) {
+      toast.error(err.response?.data?.error || "Failed to delete blog");
+    }
+  };
+
   useEffect(() => {
     const timeline = gsap.timeline();
-
     timeline.fromTo(
       ".moon",
-      {
-        y: "50vh",
-        x: "50%",
-        opacity: 0,
-      },
-      {
-        y: "-10vh",
-        x: "50%",
-        opacity: 1,
-        duration: 3,
-        ease: "power2.out",
-        scale: 2,
-      }
+      { y: "50vh", x: "50%", opacity: 0 },
+      { y: "-10vh", x: "50%", opacity: 1, duration: 3, ease: "power2.out", scale: 2 }
     );
-
     gsap.to(".star", {
       opacity: 0.7,
       duration: 2,
       repeat: -1,
       yoyo: true,
       ease: "sine.inOut",
-      stagger: {
-        amount: 1,
-        from: "random",
-      },
+      stagger: { amount: 1, from: "random" },
     });
   }, []);
 
+  // Add logic to check if user can create blog
+  const canCreateBlog = user && (user.isAdmin || (blogRequest && blogRequest.status === "accepted"));
+
   return (
-    <div className="relative overflow-x-hidden h-screen text-white bg-gradient-to-b from-black via-gray-900 to-black">
+    <div className="relative overflow-x-hidden min-h-screen text-white bg-gradient-to-b from-black via-gray-900 to-black">
+      {/* Request Button */}
+      {user && !user.isAdmin && (!blogRequest || blogRequest.status === "rejected" || blogRequest.status === "pending") && (
+        <button
+          className="fixed top-8 right-8 z-30 px-6 py-3 bg-blue-700 text-white rounded-xl text-lg font-semibold shadow hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all"
+          onClick={handleRequest}
+        >
+          {blogRequest && blogRequest.status === "pending" ? "Request Pending" : "Request to Write Blog"}
+        </button>
+      )}
+      {/* Create Blog Button for eligible users */}
+      {canCreateBlog && (
+        <button
+          className="fixed top-8 left-8 z-30 px-6 py-3 bg-green-700 text-white rounded-xl text-lg font-semibold shadow hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-all"
+          onClick={() => window.location.href = '/blogs/create'}
+        >
+          + Create Blog
+        </button>
+      )}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
         {[...Array(50)].map((_, index) => (
           <div
@@ -99,9 +125,7 @@ const BlogSection = () => {
           />
         ))}
       </div>
-
       <div className="absolute top-0 left-1/2 transform -translate-x-1/2 moon z-10 h-48 w-48 rounded-full bg-gradient-to-br from-gray-300 via-white to-blue-200 shadow-2xl border-4 border-white"></div>
-
       <div className="relative z-20 text-center py-16">
         <h1 className="text-5xl font-bebas lg:text-7xl xl:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-teal-400">
           Discover the Cosmos of Tech Blogs
@@ -110,7 +134,6 @@ const BlogSection = () => {
           Dive into insightful blogs about web development, machine learning, hackathons, and everything tech!
         </p>
       </div>
-
       <div className="relative z-20 py-8 px-4 sm:px-6 lg:px-12">
         <div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
@@ -121,13 +144,17 @@ const BlogSection = () => {
             padding: "1rem",
           }}
         >
-          {blogData.map((blog, index) => (
+          {blogs.map((blog: any, index: number) => (
             <BlogCard
-              key={index}
+              key={blog._id || index}
               title={blog.title}
-              description={blog.description}
+              description={blog.description || blog.content?.replace(/<[^>]+>/g, '').slice(0, 200) + '...'}
               author={blog.author}
-              link={blog.link}
+              link={`/blogs/${blog._id}`}
+              canEdit={user && blog.authorId === user._id}
+              canDelete={user && user.isAdmin}
+              onEdit={() => handleEdit(blog)}
+              onDelete={() => handleDelete(blog)}
             />
           ))}
         </div>

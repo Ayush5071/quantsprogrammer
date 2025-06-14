@@ -38,6 +38,8 @@ export default function ProfilePage() {
   const [loadingRoadmaps, setLoadingRoadmaps] = useState(true);
   const [editMode, setEditMode] = useState(false);
   const [editData, setEditData] = useState<User | null>(null);
+  const [blogRequest, setBlogRequest] = useState<any>(null);
+  const [canCreateBlog, setCanCreateBlog] = useState(false);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -78,6 +80,21 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (userData) setEditData(userData);
+  }, [userData]);
+
+  useEffect(() => {
+    const fetchBlogRequest = async () => {
+      if (!userData) return;
+      try {
+        const res = await axios.get(`/api/blogs/request?userId=${userData._id}`);
+        setBlogRequest(res.data.request || null);
+        setCanCreateBlog(userData.isAdmin || (res.data.request && res.data.request.status === "accepted"));
+      } catch {
+        setBlogRequest(null);
+        setCanCreateBlog(userData.isAdmin);
+      }
+    };
+    fetchBlogRequest();
   }, [userData]);
 
   // Calculate progress for each roadmap from DB data
@@ -157,6 +174,9 @@ export default function ProfilePage() {
                   <div className="flex gap-4 mt-4">
                     <button onClick={handleSave} className="px-6 py-3 bg-blue-700 text-white rounded-xl text-lg hover:bg-blue-800">Save</button>
                     <button onClick={() => setEditMode(false)} className="px-6 py-3 bg-zinc-700 text-white rounded-xl text-lg hover:bg-zinc-800">Cancel</button>
+                    {canCreateBlog && (
+                      <button onClick={() => router.push('/blogs/create')} className="px-6 py-3 bg-green-700 text-white rounded-xl text-lg hover:bg-green-800">Create Blog</button>
+                    )}
                   </div>
                 </>
               ) : (

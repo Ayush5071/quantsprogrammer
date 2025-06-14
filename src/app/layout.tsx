@@ -3,6 +3,7 @@ import "./globals.css";
 import { Analytics } from '@vercel/analytics/next';
 import { CheckedDataProvider } from "@/context/checkedDataContext";
 import { Toaster } from "react-hot-toast";
+import dynamic from "next/dynamic";
 
 // Metadata for Quants Programmer
 export const metadata: Metadata = {
@@ -51,6 +52,8 @@ export const viewport = {
   initialScale: 1.0,
 };
 
+const NotificationIcon = dynamic(() => import("@/components/ui/NotificationIcon"), { ssr: false });
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -61,6 +64,7 @@ export default function RootLayout({
       <body className={`antialiased notallow`}>
         <CheckedDataProvider>
             <Toaster position="top-right" reverseOrder={false} />
+            <NotificationIcon />
             {children}
         </CheckedDataProvider>
         <Analytics />
