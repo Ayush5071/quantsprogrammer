@@ -151,8 +151,8 @@ const BlogSection = () => {
               description={blog.description || blog.content?.replace(/<[^>]+>/g, '').slice(0, 200) + '...'}
               author={blog.author}
               link={`/blogs/${blog._id}`}
-              canEdit={user && blog.authorId === user._id}
-              canDelete={user && user.isAdmin}
+              canEdit={!!(user && blog.authorId === user._id)}
+              canDelete={!!(user && user.isAdmin)}
               onEdit={() => handleEdit(blog)}
               onDelete={() => handleDelete(blog)}
             />

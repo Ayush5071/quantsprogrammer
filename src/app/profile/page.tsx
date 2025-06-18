@@ -20,6 +20,8 @@ interface User {
   college?: string;
   gender?: string;
   contactNumber?: string;
+  _id?: string;
+  isAdmin?: boolean;
 }
 
 export default function ProfilePage() {
@@ -88,10 +90,10 @@ export default function ProfilePage() {
       try {
         const res = await axios.get(`/api/blogs/request?userId=${userData._id}`);
         setBlogRequest(res.data.request || null);
-        setCanCreateBlog(userData.isAdmin || (res.data.request && res.data.request.status === "accepted"));
+        setCanCreateBlog(!!userData.isAdmin || (res.data.request && res.data.request.status === "accepted"));
       } catch {
         setBlogRequest(null);
-        setCanCreateBlog(userData.isAdmin);
+        setCanCreateBlog(!!userData.isAdmin);
       }
     };
     fetchBlogRequest();
