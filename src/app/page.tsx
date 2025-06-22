@@ -4,11 +4,13 @@ import { HeroPage } from "@/components/sections/HeroPage";
 import { Footer } from "@/components/sections/Footer";
 import { IconMessage, IconUser, IconCoffee } from "@tabler/icons-react";
 import { FloatingNav } from "@/components/ui/Navbar";
-import { Context } from "@/components/sections/context";
-import { SecondSection } from "@/components/sections/secondSection";
+// import { Context } from "@/components/sections/context";
+// import { SecondSection } from "@/components/sections/secondSection";
 import { gsap } from "gsap";
 import Loading from "@/components/ui/Loading";
 import Head from "next/head";
+import WhyDevRoadmap from "@/components/sections/WhyDevRoadmap";
+import KeyFeatures from "@/components/sections/KeyFeatures";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -122,8 +124,12 @@ export default function Home() {
           <div className="relative z-10">
             <FloatingNav navItems={navItems} />
             <HeroPage />
-            <SecondSection />
-            <Context />
+            {/* Why Dev Roadmap Section: Problems & Solution */}
+            <WhyDevRoadmap />
+            {/* Key Features Section: Features List */}
+            <KeyFeatures />
+            {/* <SecondSection /> */}
+            {/* <Context /> */}
             <Footer />
           </div>
         </div>

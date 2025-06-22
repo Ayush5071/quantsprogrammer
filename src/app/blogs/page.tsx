@@ -104,7 +104,7 @@ const BlogSection = () => {
       {/* Create Blog Button for eligible users */}
       {canCreateBlog && (
         <button
-          className="fixed top-8 left-8 z-30 px-6 py-3 bg-green-700 text-white rounded-xl text-lg font-semibold shadow hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 transition-all"
+          className="fixed top-8 left-8 z-30 px-6 py-3 bg-gradient-to-r from-blue-700 via-blue-600 to-purple-700 text-white rounded-2xl text-lg font-bold shadow-lg hover:from-blue-800 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all border-2 border-blue-400 hover:border-purple-400"
           onClick={() => window.location.href = '/blogs/create'}
         >
           + Create Blog

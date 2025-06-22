@@ -19,6 +19,9 @@ A modern, professional, and user-friendly platform for sharing, reading, and man
 - **Image Uploads**: Secure backend image upload to Cloudinary with environment-based credentials.
 - **Live Blog Preview**: See your blog as you write, including images and formatting.
 - **Responsive & Accessible**: Works beautifully on all devices, with accessible design.
+- **Modern Homepage Design**: Redesigned hero section with automatic carousel for mobile and improved card alignment.
+- **FAQ Section**: Updated with gradient backgrounds, rounded corners, and hover effects.
+- **User Testimonials Section**: Redesigned for better alignment, reduced padding, and clean appearance.
 
 ---
 

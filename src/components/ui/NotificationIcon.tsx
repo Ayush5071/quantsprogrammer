@@ -43,8 +43,10 @@ export default function NotificationIcon() {
     setActionLoading(null);
   };
 
+  if (!user) return null; // Only show notification icon if user is logged in
+
   return (
-    <div className="fixed top-6 right-8 z-50">
+    <div className="fixed top-6 right-4 z-50 sm:right-8">
       <button
         onClick={() => setShow(v => !v)}
         className="relative p-3 rounded-full bg-zinc-900 border-2 border-blue-700 hover:bg-blue-900 transition-all shadow-lg"
@@ -58,7 +60,8 @@ export default function NotificationIcon() {
         )}
       </button>
       {show && (
-        <div className="absolute right-0 mt-2 w-96 bg-zinc-900 border border-blue-700 rounded-xl shadow-2xl p-4 z-50">
+        <div className="absolute right-0 mt-2 w-80 max-w-[95vw] sm:w-96 bg-zinc-900 border border-blue-700 rounded-xl shadow-2xl p-4 z-50"
+          style={{ minWidth: '260px' }}>
           <h2 className="text-lg font-bold text-blue-400 mb-2">Blog Requests</h2>
           {loading ? (
             <div className="text-gray-400">Loading...</div>
@@ -72,7 +75,7 @@ export default function NotificationIcon() {
                   <span className="text-gray-400 text-xs">Requested At: {new Date(req.requestedAt).toLocaleString()}</span>
                   <span className="text-blue-400 text-xs mt-1 mb-2">Status: {req.status}</span>
                   {user?.isAdmin && (
-                    <div className="flex gap-2 mt-1">
+                    <div className="flex gap-2 mt-1 flex-wrap">
                       <button
                         className="px-3 py-1 bg-green-700 text-white rounded hover:bg-green-800 text-xs disabled:opacity-60"
                         disabled={actionLoading === req.userId + 'accepted'}
