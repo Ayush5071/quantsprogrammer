@@ -11,8 +11,12 @@ import Loading from "@/components/ui/Loading";
 import Head from "next/head";
 import WhyDevRoadmap from "@/components/sections/WhyDevRoadmap";
 import KeyFeatures from "@/components/sections/KeyFeatures";
+import FAQ from "@/components/sections/FAQ";
+import Testimonials from "@/components/sections/Testimonials";
+import useLocomotiveScroll from "@/hooks/useLocomotiveScroll";
 
 export default function Home() {
+  useLocomotiveScroll();
   const [loading, setLoading] = useState(true);
 
   const navItems = [
@@ -97,7 +101,7 @@ export default function Home() {
       {loading ? (
         <Loading />
       ) : (
-        <div className="relative bg-gradient-to-b from-black via-blue-900 to-black overflow-x-hidden">
+        <div className="relative bg-gradient-to-b from-black via-blue-900 to-black overflow-x-hidden" data-scroll-container>
           <div className="absolute top-0 left-0 w-full h-full z-0">
             {[...Array(600)].map((_, index) => (
               <div
@@ -131,15 +135,22 @@ export default function Home() {
       </div>
     </div>
           {/* Components */}
-          <div className="relative z-10">
+          <div className="relative z-10 min-h-screen flex flex-col">
             <FloatingNav navItems={navItems} />
-            <HeroPage />
-            {/* Why Dev Roadmap Section: Problems & Solution */}
-            <WhyDevRoadmap />
-            {/* Key Features Section: Features List */}
-            <KeyFeatures />
-            {/* <SecondSection /> */}
-            {/* <Context /> */}
+            {/* Add top padding to push HeroPage below navbar */}
+            <div className="pt-16 md:pt-20 lg:pt-24 flex-1">
+              <HeroPage />
+              {/* Why Dev Roadmap Section: Problems & Solution */}
+              <WhyDevRoadmap />
+              {/* Key Features Section: Features List */}
+              <KeyFeatures />
+              {/* FAQ Section */}
+              <FAQ />
+              {/* Testimonials Section */}
+              <Testimonials />
+              {/* <SecondSection /> */}
+              {/* <Context /> */}
+            </div>
             <Footer />
           </div>
         </div>
