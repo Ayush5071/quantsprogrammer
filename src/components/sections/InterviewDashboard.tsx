@@ -12,7 +12,7 @@ function ResponsiveNavbar() {
   const [open, setOpen] = useReactState(false);
   return (
     <nav className="w-full bg-zinc-950 border-b-2 border-blue-900 shadow-lg sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 py-3">
+      <div className="max-w-[98vw] w-full mx-auto flex items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-blue-400">
           <img src="/official_logo.png" alt="Dev Roadmap" className="h-10 w-10 rounded-full" />
           Dev Roadmap
@@ -34,9 +34,10 @@ function ResponsiveNavbar() {
           <Link href="/explore" className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Explore</Link>
           <Link href="/blogs" className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Blogs</Link>
           <Link href="/profile" className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Profile</Link>
-          <Link href="/interview" className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Mock Interview</Link>
+          {/* <Link href="/interview" className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Mock Interview</Link> */}
           <Link href="/top-interviews" className="text-zinc-200 hover:text-pink-400 font-bold text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Top Interviews</Link>
           <Link href="/profile#interview-history" className="ml-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold shadow transition-all">Past Interviews</Link>
+          <Link href="/top-interview-history" className="ml-2 px-4 py-2 bg-pink-700 hover:bg-pink-800 text-white rounded-lg font-semibold shadow transition-all">Top Interview History</Link>
         </div>
       </div>
       {/* Mobile nav overlay */}
@@ -59,9 +60,10 @@ function ResponsiveNavbar() {
             <Link href="/explore" className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900" onClick={() => setOpen(false)}>Explore</Link>
             <Link href="/blogs" className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900" onClick={() => setOpen(false)}>Blogs</Link>
             <Link href="/profile" className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900" onClick={() => setOpen(false)}>Profile</Link>
-            <Link href="/interview" className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900" onClick={() => setOpen(false)}>Mock Interview</Link>
+            {/* <Link href="/interview" className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900" onClick={() => setOpen(false)}>Mock Interview</Link> */}
             <Link href="/top-interviews" className="text-zinc-200 hover:text-pink-400 font-bold text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900" onClick={() => setOpen(false)}>Top Interviews</Link>
             <Link href="/profile#interview-history" className="px-4 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold shadow transition-all text-center" onClick={() => setOpen(false)}>Past Interviews</Link>
+            <Link href="/top-interview-history" className="px-4 py-3 bg-pink-700 hover:bg-pink-800 text-white rounded-lg font-semibold shadow transition-all text-center" onClick={() => setOpen(false)}>Top Interview History</Link>
           </div>
         </>
       )}
@@ -97,6 +99,7 @@ export default function InterviewDashboard() {
   const user = useCurrentUser();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const router = useRouter();
+  const [ttsEnabled, setTtsEnabled] = useState(true);
 
   // SpeechRecognition hook
   const {
@@ -108,7 +111,7 @@ export default function InterviewDashboard() {
 
   // Text-to-Speech: Speak the question when it appears
   const speakQuestion = (text: string) => {
-    if (typeof window !== "undefined" && 'speechSynthesis' in window) {
+    if (ttsEnabled && typeof window !== "undefined" && 'speechSynthesis' in window) {
       setIsSpeaking(true);
       const utter = new window.SpeechSynthesisUtterance(text);
       utter.lang = 'en-US';
@@ -304,7 +307,21 @@ export default function InterviewDashboard() {
               <div className={`bg-zinc-800 rounded-xl p-4 border border-blue-800 text-zinc-200 min-h-[80px] shadow-inner flex items-center gap-3 ${isSpeaking ? 'ring-2 ring-blue-400 animate-pulse' : ''}`}>
                 {isSpeaking && <span className="w-3 h-3 rounded-full bg-blue-400 animate-pulse mr-2" />}
                 {question ? (
-                  <span className="text-lg">{question}</span>
+                  <>
+                    <span className="text-lg">{question}</span>
+                    <button
+                      className={`ml-2 p-1 rounded-full border transition-all ${ttsEnabled ? 'bg-blue-700 border-blue-400 text-white' : 'bg-zinc-800 border-zinc-500 text-zinc-300'}`}
+                      onClick={() => setTtsEnabled(v => !v)}
+                      title={ttsEnabled ? 'Disable Text-to-Speech' : 'Enable Text-to-Speech'}
+                      type="button"
+                      aria-label={ttsEnabled ? 'Disable Text-to-Speech' : 'Enable Text-to-Speech'}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5L6 9H2v6h4l5 4V5z" />
+                        {ttsEnabled && <path strokeLinecap="round" strokeLinejoin="round" d="M19 12c0-1.657-1.343-3-3-3m0 6c1.657 0 3-1.343 3-3" />}
+                      </svg>
+                    </button>
+                  </>
                 ) : (
                   <span className="text-zinc-400">AI will ask you questions here...</span>
                 )}
