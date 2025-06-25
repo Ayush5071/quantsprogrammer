@@ -1,11 +1,23 @@
 # 🚀 Dev Roadmap Platform
 
-A modern, professional, and user-friendly platform for sharing, reading, and managing tech blogs, developer roadmaps, and personal portfolios. Built with Next.js, TypeScript, Tailwind CSS, and MongoDB.
+A modern, professional, and user-friendly platform for sharing, reading, and managing tech blogs, developer roadmaps, personal portfolios, and now AI-powered mock interviews.
 
 ---
 
 ## ✨ Features
 
+- **AI-Powered Mock Interviews:**
+  - Start a mock interview with dynamic, Gemini-generated questions based on your skills and experience.
+  - Voice-based answering with live camera feed, speech-to-text, and AI feedback/scoring.
+  - All interview attempts and feedback are saved to your profile.
+  - View detailed feedback and scores for each attempt.
+- **Top Interviews:**
+  - Special admin-curated interviews with company/field/level context and hard questions.
+  - Any user can attempt Top Interviews and receive strict AI feedback and a score.
+  - Leaderboard for each Top Interview, showing all users ranked by score.
+  - See number of questions on each Top Interview card.
+- **Interview History:**
+  - Users can view all their past interview attempts and feedback in their profile.
 - **Dynamic Blog System**: Request blog access, admin approval, and role-based blog creation/editing.
 - **Medium-like Blog Editor**: Rich text, images, formatting, and secure Cloudinary uploads.
 - **Beautiful Blog Cards & Detail Pages**: Modern, responsive, and professional UI for both blog lists and individual articles.
@@ -31,16 +43,18 @@ A modern, professional, and user-friendly platform for sharing, reading, and man
 Dev-Roadmap/
 ├── public/                # Static assets (images, fonts, etc.)
 ├── src/
-│   ├── app/               # Next.js app directory
+│   ├── app/
 │   │   ├── blogs/         # Blog pages (list, create, edit, detail)
 │   │   ├── explore/       # Roadmap explorer UI
 │   │   ├── profile/       # User profile/portfolio page
 │   │   ├── api/           # API routes (blogs, users, upload, roadmap, etc.)
 │   │   ├── admin/         # Admin panel (roadmap/blog management)
 │   │   ├── auth/          # Auth pages (login, signup, etc.)
+│   │   ├── interview/     # Mock interview pages (dashboard, feedback, etc.)
+│   │   ├── top-interviews/# Top Interviews pages (list, attempt, leaderboard)
 │   │   └── ...            # Other app routes
 │   ├── components/        # UI components (BlogCard, Roadmapcard, RichTextEditor, etc.)
-│   ├── models/            # Mongoose models (blog, user, roadmap, request)
+│   ├── models/            # Mongoose models (blog, user, roadmap, interview, topInterview, ...)
 │   ├── dbConfig/          # Database connection config
 │   ├── helpers/           # Utility/helper functions
 │   └── ...                # More source files
@@ -75,6 +89,12 @@ Dev-Roadmap/
 
 ## 📝 Usage
 
+- **Mock Interviews:**
+  - Go to the Mock Interview section, start an interview, and answer questions by voice or text.
+  - Get instant AI feedback and a score after submitting.
+- **Top Interviews:**
+  - Attempt admin-curated Top Interviews for specific companies/fields.
+  - Compete on the leaderboard and see how you rank.
 - **Read Blogs:** Anyone can browse and read all published blogs.
 - **Request to Write:** Users can request blog writing access; admins approve/reject via notifications.
 - **Create/Edit Blogs:** Approved users and admins can create and edit blogs with a rich text editor and image uploads.
@@ -83,6 +103,7 @@ Dev-Roadmap/
 - **Profile/Portfolio:** Users can view and edit their profile, see roadmap progress, and manage their blog activity.
 - **Admin Panel:** Admins can manage all blog/roadmap requests and delete any blog or roadmap.
 - **Notifications:** See your request status or manage incoming requests as admin.
+- **View History:** See all your past interview attempts and feedback in your profile.
 
 ---
 
@@ -102,13 +123,14 @@ Dev-Roadmap/
 - **Editor:** React Quill (rich text)
 - **Image Upload:** Cloudinary (via backend API)
 - **Notifications:** Custom notification system
+- **AI:** Google Gemini API for question generation and feedback
 - **Other:** Axios, bad-words, react-hot-toast, GSAP, and more
 
 ---
 
 ## 📸 Screenshots
 
-> _Add screenshots/gifs here to showcase the UI and features!_
+> _Add screenshots/gifs here to showcase the new interview and leaderboard features!_
 
 ---
 
