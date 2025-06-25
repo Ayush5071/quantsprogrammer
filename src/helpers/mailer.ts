@@ -53,10 +53,10 @@ const mailOptions = {
                         We're excited to have you on board! Click the link below to ${emailType === 'VERIFY' ? 'verify your email' : 'reset your password'} 
                         and start exploring the platform.
                     </p>
-                    <a href="${domain}/auth/${emailType === 'VERIFY' ? 'verifyemail' : 'resetpassword'}?token=${hashedToken}" 
+                    <a href="${domain}/auth/${emailType === 'VERIFY' ? 'verifyemail' : emailType === 'REMINDVERIFY' ? 'remindverify' : 'resetpassword'}?token=${hashedToken}" 
                        style="display: inline-block; text-decoration: none; color: #fff; background: linear-gradient(to right, #6a11cb, #2575fc); 
                               padding: 12px 20px; font-size: 16px; border-radius: 5px; font-weight: bold;">
-                        ${emailType === 'VERIFY' ? 'Verify Now' : 'Reset Password'}
+                        ${emailType === 'VERIFY' ? 'Verify Now' : emailType === 'REMINDVERIFY' ? 'Remind Verify' : 'Reset Password'}
                     </a>
                     <p style="color: #ccc; font-size: 14px; margin-top: 10px;">
                         This link is valid for 1 hour. Once verified, you can log in and start exploring.
