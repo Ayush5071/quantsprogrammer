@@ -4,6 +4,27 @@ A modern, professional, and user-friendly platform for sharing, reading, and man
 
 ---
 
+# 🆕 Recent Features (2025)
+
+- Modernized all authentication pages with glassmorphism, gradients, accessibility, and robust validation.
+- Unified error/success messaging and improved accessibility across user-facing pages.
+- Improved performance by removing heavy backgrounds and optimizing gradients.
+- Created a Contact Support page with Gemini AI integration and robust error handling.
+- Redesigned profile feedback section: horizontally scrollable cards, modal popup for details, and mobile-friendly scroll.
+- Overhauled Top Interview attempt flow: answers always saved, clear button added, attempts posted to DB for leaderboard.
+- Leaderboard now shows only each user's highest score.
+- Added fixed back button to all major pages (hidden on mobile).
+- Enhanced TTS (text-to-speech) experience: stops on navigation, toggle button for user control.
+- Created /top-interview-history page to display all top interview attempts for the current user.
+- Improved Top Interview History cards and modal visuals.
+- Updated all navbars (desktop, mobile, floating) to include both Top Interviews and Top Interview History.
+- Added dropdown menu for Interview in homepage floating navbar.
+- Fixed hamburger menu: closes on toggle, menu item click, or overlay click; restored alignment and dropdown position.
+- Fixed runtime error in homepage navbar by supporting dropdown navItems and preventing undefined hrefs.
+- Hid scrollbars globally for all pages for a cleaner look.
+
+---
+
 ## ✨ Features
 
 - **AI-Powered Mock Interviews:**
