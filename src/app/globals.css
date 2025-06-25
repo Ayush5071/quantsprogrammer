@@ -213,5 +213,16 @@ body {
 }
 
 
+/* Hide scrollbar for modal content on mobile */
+@media (max-width: 640px) {
+  .hide-scrollbar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Webkit */
+  }
+}
+
 /* Buy me a coffee button */
 

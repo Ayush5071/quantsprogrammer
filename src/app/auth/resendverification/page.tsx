@@ -89,7 +89,7 @@ export default function ResendVerification() {
           </div>
         )}
         <footer className="mt-10 text-xs text-blue-200/80 text-center w-full">
-          Need help? <span className="text-blue-400 font-medium">Contact support</span>.
+          Need help? <a href="/contact-support" className="text-blue-400 font-medium hover:underline">Contact support</a>.
         </footer>
       </div>
     </div>

@@ -139,11 +139,15 @@ export default function SignupPage() {
             <Link href="/auth/login" className="text-blue-400 hover:underline cursor-pointer font-semibold">Login here</Link>
           </p>
         </div>
-        <div className="mt-8 text-center w-full">
-          <Link href="/auth/forgotpassword" className="text-blue-400 hover:underline cursor-pointer font-semibold">Forgot password?</Link>
-        </div>
-        <footer className="mt-10 text-xs text-blue-200/80 text-center w-full">
-          Need help? <span className="text-blue-400 font-medium">Contact support</span>.
+        <footer className="mt-10 text-xs text-blue-200/80 text-center w-full flex flex-col gap-2 items-center">
+          <div>
+            Need help? <a href="/contact-support" className="text-blue-400 font-medium hover:underline">Contact support</a>
+          </div>
+          <div>
+            <a href="/auth/forgotpassword" className="text-blue-400 hover:underline font-medium">Forgot password?</a>
+            <span className="mx-2 text-blue-300">|</span>
+            <a href="/auth/resendverification" className="text-blue-400 hover:underline font-medium">Resend verification</a>
+          </div>
         </footer>
       </div>
     </div>
