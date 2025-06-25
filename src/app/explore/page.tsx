@@ -62,13 +62,13 @@ const page = () => {
 
   return (
     <div className="relative py-4 h-screen text-white bg-gradient-to-b from-black via-gray-900 to-black overflow-x-hidden">
-      {/* Back Arrow */}
+      {/* Back Arrow - top left, only on md+ screens */}
       <button
         onClick={() => router.back()}
-        className="fixed top-6 left-4 flex items-center gap-2 text-blue-400 hover:text-blue-300 hover:underline text-lg md:text-xl px-4 py-2 rounded-lg bg-zinc-900 shadow border-2 border-blue-700 transition-all z-50"
+        className="hidden md:flex fixed top-6 left-4 items-center gap-2 text-blue-400 hover:text-blue-300 hover:underline text-xl md:text-2xl px-6 py-3 rounded-2xl bg-zinc-900 shadow-lg border-2 border-blue-700 transition-all z-50"
         style={{ position: 'fixed', top: '1.5rem', left: '1rem', zIndex: 50 }}
       >
-        <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+        <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
         <span className="hidden sm:inline">Back</span>
       </button>
 

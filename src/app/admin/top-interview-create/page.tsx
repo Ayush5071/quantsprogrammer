@@ -71,6 +71,16 @@ export default function CreateTopInterviewPage() {
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-blue-950 flex flex-col items-center py-12 px-2 md:px-8">
+      {/* Back Button - top left, only on md+ screens */}
+      <button
+        onClick={() => router.back()}
+        className="hidden md:flex fixed top-6 left-4 items-center gap-2 text-blue-400 hover:text-blue-300 hover:underline text-xl md:text-2xl px-6 py-3 rounded-2xl bg-zinc-900 shadow-lg border-2 border-blue-700 transition-all z-50"
+        style={{ position: 'fixed', top: '1.5rem', left: '1rem', zIndex: 50 }}
+      >
+        <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+        <span className="hidden sm:inline">Back</span>
+      </button>
+
       <div className="w-full max-w-2xl bg-zinc-900 border-2 border-blue-900 rounded-3xl shadow-2xl p-8 md:p-12 mt-8">
         <h1 className="text-2xl md:text-3xl font-bold text-blue-400 mb-6">Create Top Interview</h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
