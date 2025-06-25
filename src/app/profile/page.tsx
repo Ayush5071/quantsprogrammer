@@ -8,6 +8,7 @@ import axios from "axios";
 import { toast } from "react-hot-toast";
 import Certificate from "@/components/component/Certificate";
 import ReactConfetti from "react-confetti";
+import InterviewHistory from "./InterviewHistory";
 
 interface User {
   username: string;
@@ -249,6 +250,8 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+        {/* Interview History Section */}
+        <InterviewHistory userId={userData?._id} />
         {/* Actions */}
         <div className="mt-14 flex flex-col md:flex-row gap-6 items-center justify-center">
           <Link

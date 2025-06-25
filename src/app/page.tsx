@@ -31,6 +31,11 @@ export default function Home() {
       link: "/explore",
       icon: <IconMessage className="h-4 w-4 text-white" />,
     },
+    {
+      name: "Interview",
+      link: "/interview",
+      icon: <IconUser className="h-4 w-4 text-white" />,
+    },
   ];
 
   useEffect(() => {

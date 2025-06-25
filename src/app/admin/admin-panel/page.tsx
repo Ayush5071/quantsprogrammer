@@ -45,6 +45,11 @@ const AdminPanel = () => {
         <h1 className="text-5xl font-extrabold text-center text-white mb-10 tracking-tight drop-shadow-lg flex items-center justify-center gap-3">
           <FaUserShield className="text-blue-400" /> Admin Panel
         </h1>
+        {/* Top Interview Admin Actions */}
+        <div className="w-full max-w-5xl mx-auto mb-10 flex flex-col items-end">
+          <a href="/admin/top-interview-create" className="px-6 py-3 bg-pink-700 hover:bg-pink-800 text-white rounded-xl text-lg font-semibold shadow transition-all">Create Top Interview</a>
+          <a href="/top-interviews" className="mt-3 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-lg font-semibold shadow transition-all">View Top Interviews</a>
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full bg-gray-800 rounded-xl shadow-2xl overflow-hidden">
             <thead>
