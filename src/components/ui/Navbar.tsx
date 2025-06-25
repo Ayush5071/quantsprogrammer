@@ -17,12 +17,19 @@ export const FloatingNav = ({
   navItems,
   className,
 }: {
-  navItems: {
-    name: string;
-    link: string;
-    icon?: JSX.Element;
-    group?: string; // Optional group for dropdown
-  }[];
+  navItems: (
+    | {
+        name: string;
+        link: string;
+        icon?: JSX.Element;
+        group?: string;
+      }
+    | {
+        name: string;
+        icon?: JSX.Element;
+        dropdown: { name: string; link: string }[];
+      }
+  )[];
   className?: string;
 }) => {
   const { scrollYProgress } = useScroll();
@@ -34,15 +41,16 @@ export const FloatingNav = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Group nav items by group property
-  const groupedNav: Record<string, typeof navItems> = {};
+  // Group nav items by group property (legacy, not used for dropdowns)
+  const groupedNav: Record<string, any[]> = {};
   navItems.forEach((item) => {
-    if (item.group) {
+    if ("group" in item && item.group) {
       if (!groupedNav[item.group]) groupedNav[item.group] = [];
       groupedNav[item.group].push(item);
     }
   });
-  const mainNav = navItems.filter((item) => !item.group);
+  // Only nav items with a direct link (not dropdowns)
+  const mainNav = navItems.filter((item) => "link" in item && !("dropdown" in item));
 
   useEffect(() => {
     setIsLoggedIn(contextIsLoggedIn);
@@ -112,7 +120,7 @@ export const FloatingNav = ({
         }}
       >
         {/* Hamburger for mobile */}
-        <div className="md:hidden flex items-center">
+        <div className="md:hidden flex items-center flex-1 justify-center">
           <button
             className="p-2 focus:outline-none"
             onClick={() => setMenuOpen((v) => !v)}
@@ -135,83 +143,98 @@ export const FloatingNav = ({
         </div>
         {/* Main nav for desktop */}
         <div className="hidden md:flex items-center gap-4 flex-1 justify-evenly">
-          {mainNav.map((navItem, idx) => (
-            <Link
-              key={`link=${idx}`}
-              href={navItem.link}
-              className={cn(
-                "relative text-neutral-50 items-center flex space-x-auto hover:text-neutral-300"
-              )}
-            >
-              <span className="text-sm md:text-xl !cursor-pointer">
-                {navItem.name}
-              </span>
-            </Link>
-          ))}
-          {/* Dropdowns for grouped links */}
-          {Object.keys(groupedNav).map((group) => (
-            <div className="relative group" key={group}>
-              <button className="text-sm md:text-xl text-neutral-50 flex items-center gap-1 hover:text-neutral-300 px-3 py-2 rounded-lg focus:outline-none">
-                {group}
-                <svg
-                  className="w-4 h-4 ml-1"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-              <div className="absolute left-0 mt-2 w-40 bg-zinc-900 border border-blue-700 rounded-xl shadow-2xl p-2 z-50 hidden group-hover:block">
-                {groupedNav[group].map((item, idx) => (
-                  <Link
-                    key={item.link}
-                    href={item.link}
-                    className="block px-4 py-2 text-white hover:bg-blue-800 rounded"
+          {navItems.map((navItem, idx) =>
+            "link" in navItem ? (
+              <Link
+                key={`link=${idx}`}
+                href={navItem.link}
+                className={cn(
+                  "relative text-neutral-50 items-center flex space-x-auto hover:text-neutral-300"
+                )}
+              >
+                <span className="text-sm md:text-xl !cursor-pointer flex items-center gap-2">
+                  {navItem.icon}
+                  {navItem.name}
+                </span>
+              </Link>
+            ) : "dropdown" in navItem ? (
+              <div className="relative group" key={navItem.name}>
+                <button className="text-sm md:text-xl text-neutral-50 flex items-center gap-1 hover:text-neutral-300 px-3 py-2 rounded-lg focus:outline-none">
+                  {navItem.icon}
+                  {navItem.name}
+                  <svg
+                    className="w-4 h-4 ml-1"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
                   >
-                    {item.name}
-                  </Link>
-                ))}
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div className="absolute left-0 mt-2 w-48 bg-zinc-900 border border-blue-700 rounded-xl shadow-2xl p-2 z-50 hidden group-hover:block">
+                  {navItem.dropdown.map((item, idx) => (
+                    <Link
+                      key={item.link}
+                      href={item.link}
+                      className="block px-4 py-2 text-white hover:bg-blue-800 rounded"
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ) : null
+          )}
         </div>
         {/* Mobile menu dropdown */}
         {menuOpen && (
-          <div
-            ref={menuRef}
-            className="absolute top-16 left-0 w-full bg-zinc-900 border border-blue-700 rounded-xl shadow-2xl p-4 z-[6000] flex flex-col gap-2 md:hidden animate-fade-in"
-          >
-            {mainNav.map((navItem, idx) => (
-              <Link
-                key={`mobile-link=${idx}`}
-                href={navItem.link}
-                className="text-white text-lg py-2 px-2 rounded hover:bg-blue-800"
-                onClick={() => setMenuOpen(false)}
-              >
-                {navItem.name}
-              </Link>
-            ))}
-            {Object.keys(groupedNav).map((group) => (
-              <div key={group} className="mt-2">
-                <div className="text-blue-400 font-bold mb-1">{group}</div>
-                {groupedNav[group].map((item, idx) => (
+          <div className="fixed inset-0 z-[6000] bg-black bg-opacity-60 flex flex-col items-center justify-center">
+            <div
+              ref={menuRef}
+              className="bg-zinc-950 rounded-2xl shadow-2xl border-2 border-blue-900 p-8 w-11/12 max-w-sm mx-auto flex flex-col gap-4"
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: "absolute",
+                top: "calc(100% + 20px)", // 20px below the navbar
+                left: "50%",
+                transform: "translateX(-50%)",
+              }}
+            >
+              {navItems.map((navItem, idx) =>
+                "link" in navItem ? (
                   <Link
-                    key={item.link}
-                    href={item.link}
-                    className="block px-4 py-2 text-white hover:bg-blue-800 rounded"
+                    key={`mobile-link=${idx}`}
+                    href={navItem.link}
+                    className="text-white text-lg py-2 px-4 rounded hover:bg-blue-800 transition"
                     onClick={() => setMenuOpen(false)}
                   >
-                    {item.name}
+                    {navItem.name}
                   </Link>
-                ))}
-              </div>
-            ))}
+                ) : "dropdown" in navItem ? (
+                  <div key={navItem.name} className="flex flex-col gap-1">
+                    <span className="text-blue-400 font-bold mt-2 mb-1 flex items-center gap-2">
+                      {navItem.icon}
+                      {navItem.name}
+                    </span>
+                    {navItem.dropdown.map((item, idx) => (
+                      <Link
+                        key={item.link}
+                        href={item.link}
+                        className="block px-4 py-2 text-white hover:bg-blue-800 rounded"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null
+              )}
+            </div>
           </div>
         )}
         {/* Profile/Login and Admin Panel always at the end */}
