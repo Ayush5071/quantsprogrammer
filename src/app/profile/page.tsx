@@ -138,7 +138,7 @@ export default function ProfilePage() {
     try {
       await axios.get("/api/users/logout");
       toast.success("Logout successful");
-      router.push("/login");
+      router.push("/auth/login");
     } catch (error: any) {
       console.error(error.message);
       toast.error(error.message);

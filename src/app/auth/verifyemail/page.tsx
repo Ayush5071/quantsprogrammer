@@ -4,6 +4,7 @@ import axios from "axios";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion"; // To apply animations to different UI elements
+import { useMemo } from "react";
 
 export default function VerifyEmailPage() {
   const [token, setToken] = useState<string>("");
@@ -34,118 +35,40 @@ export default function VerifyEmailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-black via-gray-900 to-black py-12 flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Starry Background */}
-      <div className="absolute top-0 left-0 w-full h-full z-0">
-        {[...Array(500)].map((_, index) => (
-          <div
-            key={index}
-            className="absolute bg-white rounded-full animate-pulse"
-            style={{
-              top: `${Math.random() * 100}vh`,
-              left: `${Math.random() * 100}vw`,
-              width: `${Math.random() * 2 + 1}px`,
-              height: `${Math.random() * 2 + 1}px`,
-              opacity: Math.random(),
-              animationDuration: `${Math.random() * 3 + 1}s`,
-              animationDelay: `${Math.random() * 2}s`,
-            }}
-          />
-        ))}
+      {/* Optimized Subtle Pattern Background */}
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent pointer-events-none" />
+      {/* Glassmorphism Effect Verify Email Card */}
+      <div className="max-w-md w-full p-12 bg-gradient-to-br from-zinc-900/80 via-blue-900/60 to-purple-900/70 backdrop-blur-2xl border border-blue-400/30 rounded-3xl shadow-2xl z-10 relative flex flex-col items-center animate-fade-in">
+        {/* Logo/Icon */}
+        <div className="mb-6 flex items-center justify-center">
+          <svg className="w-14 h-14 text-blue-300 animate-spin-slow" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-20"/><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" className="opacity-60"/></svg>
+        </div>
+        <h1 className="text-4xl font-extrabold text-center text-white mb-8 drop-shadow-lg tracking-tight font-sans">Email Verification</h1>
+        <hr className="w-1/2 mx-auto mb-8 border-blue-400 opacity-20" />
+        {/* Verification Results */}
+        <div className="space-y-6 w-full">
+          {token && !verified && (
+            <div className="p-3 bg-yellow-500/80 text-black rounded-lg mb-6 text-center font-semibold">Verifying your email address...</div>
+          )}
+          {token && verified && (
+            <div className="p-3 bg-green-500/80 text-white rounded-lg mb-6 text-center font-semibold">Your email is verified!</div>
+          )}
+          {token && !verified && !error && (
+            <div className="p-3 bg-orange-500/80 text-black rounded-lg mb-6 text-center font-semibold">We are validating Token..... resend if not verified in 2min</div>
+          )}
+          {verified && (
+            <div className="text-center">
+              <h2 className="text-2xl text-green-500 font-bold mb-4">Your Email has been Verified Successfully!</h2>
+              <a href="/auth/login">
+                <button className="mt-4 bg-gradient-to-r from-blue-700/90 to-purple-800/90 text-white py-3 px-8 rounded-xl shadow-lg hover:from-blue-800 hover:to-purple-900 transition duration-200 font-semibold">Proceed to Login</button>
+              </a>
+            </div>
+          )}
+        </div>
+        <footer className="mt-10 text-xs text-blue-200/80 text-center w-full">
+          Need help? <span className="text-blue-400 font-medium">Contact support</span>.
+        </footer>
       </div>
-
-      {/* Header Section */}
-      <motion.h1
-        className="text-4xl text-white font-extrabold mb-8 z-10 relative"
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-      >
-        Email Verification
-      </motion.h1>
-
-      {/* Message Display (No Token or Token processing status) */}
-      {token && !verified && (
-        <motion.h2
-          className="p-2 bg-yellow-500 text-black rounded-lg mb-6 z-10 relative"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          Verifying your email address...
-        </motion.h2>
-      )}
-
-      {token && verified && (
-        <motion.h2
-          className="p-2 bg-green-500 text-white rounded-lg mb-6 z-10 relative"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          Your email is verified!
-        </motion.h2>
-      )}
-
-      {token && !verified && !error && (
-        <motion.h2
-          className="p-2 bg-orange-500 text-black rounded-lg mb-6 z-10 relative"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          We are validating Token..... resend if not verified in 2min
-        </motion.h2>
-      )}
-
-      {/* Verification Results */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="space-y-4 z-10 relative"
-      >
-        {verified && (
-          <div className="text-center">
-            <motion.h2
-              className="text-2xl text-green-500 font-bold"
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              Your Email has been Verified Successfully!
-            </motion.h2>
-            <Link href="/auth/login">
-              <motion.button
-                className="mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200"
-                whileHover={{ scale: 1.05 }}
-              >
-                Proceed to Login
-              </motion.button>
-            </Link>
-          </div>
-        )}
-
-        {error && (
-          <div className="text-center">
-            <motion.h2
-              className="text-2xl text-red-500 font-bold"
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              There was an error verifying your email.
-            </motion.h2>
-            <motion.p
-              className="text-lg text-gray-200 mt-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              Please try again later or contact support if the issue persists.
-            </motion.p>
-          </div>
-        )}
-      </motion.div>
 
       {/* Footer Section */}
       <motion.div

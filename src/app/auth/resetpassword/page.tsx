@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState, useEffect, useMemo } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 function ResetPasswordForm() {
@@ -11,106 +11,99 @@ function ResetPasswordForm() {
     const token = searchParams.get("token"); // Extract the token parameter
     const router = useRouter();
 
-    // Create the stars only once when the component is mounted
-    const stars = useMemo(() => {
-        return [...Array(500)].map(() => ({
-            top: Math.random() * 100, // Random vertical position in vh
-            left: Math.random() * 100, // Random horizontal position in vw
-            size: Math.random() * 2 + 1, // Random size of star
-            duration: Math.random() * 3 + 1, // Random animation duration
-            delay: Math.random() * 2, // Random delay for animation
-            opacity: Math.random(), // Random opacity
-        }));
-    }, []);
+    // Memoized submit handler
+    const handleSubmit = useCallback(
+        async (e: React.FormEvent) => {
+            e.preventDefault();
+            setMessage("");
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setMessage("");
+            if (!token) {
+                setMessage("Invalid or missing token.");
+                return;
+            }
+            if (newPassword.length < 6) {
+                setMessage("Password must be at least 6 characters long.");
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                setMessage("Passwords do not match.");
+                return;
+            }
 
-        if (!token) {
-            setMessage("Invalid or missing token.");
-            return;
-        }
+            const res = await fetch("/api/users/password/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token, newPassword, confirmPassword }),
+            });
 
-        const res = await fetch("/api/users/password/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token, newPassword, confirmPassword }),
-        });
-
-        const data = await res.json();
-        if (res.ok) {
-            setMessage(data.message);
-            setTimeout(() => router.push("/login"), 1000); // Navigate to login page
-        } else {
-            setMessage(data.error);
-        }
-    };
+            const data = await res.json();
+            if (res.ok) {
+                setMessage(data.message);
+                setTimeout(() => router.push("/auth/login"), 1000); // Navigate to login page
+            } else {
+                setMessage(data.error);
+            }
+        },
+        [token, newPassword, confirmPassword, router]
+    );
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-black via-gray-900 to-black px-6 relative overflow-hidden">
-            {/* Starry Background */}
-            <div className="absolute top-0 left-0 w-full h-full z-0">
-                {stars.map((star, index) => (
-                    <div
-                        key={index}
-                        className="absolute bg-white rounded-full animate-pulse"
-                        style={{
-                            top: `${star.top}vh`,
-                            left: `${star.left}vw`,
-                            width: `${star.size}px`,
-                            height: `${star.size}px`,
-                            opacity: star.opacity,
-                            animationDuration: `${star.duration}s`,
-                            animationDelay: `${star.delay}s`,
-                        }}
-                    />
-                ))}
-            </div>
-
+        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-zinc-900/80 via-blue-900/60 to-purple-900/70 px-6 relative overflow-hidden">
+            {/* Back Button */}
+            <button
+                onClick={() => router.back()}
+                className="fixed top-6 left-4 flex items-center gap-2 text-blue-300 hover:text-blue-400 hover:underline text-lg md:text-xl px-4 py-2 rounded-lg bg-zinc-900/80 shadow border-2 border-blue-400/40 transition-all z-50"
+                style={{ position: 'fixed', top: '1.5rem', left: '1rem', zIndex: 50 }}
+            >
+                <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                <span className="hidden sm:inline">Back</span>
+            </button>
+            {/* Optimized Subtle Pattern Background */}
+            <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent pointer-events-none" />
             {/* Glassmorphism Effect Reset Password Card */}
-            <div className="max-w-md w-full p-8 bg-white bg-opacity-20 backdrop-blur-md border-2 border-white rounded-xl shadow-xl z-10 relative">
-                <h1 className="text-3xl font-semibold text-center text-indigo-500 mb-6">Reset Your Password</h1>
-
+            <div className="max-w-md w-full p-12 bg-gradient-to-br from-zinc-900/80 via-blue-900/60 to-purple-900/70 backdrop-blur-2xl border border-blue-400/30 rounded-3xl shadow-2xl z-10 relative flex flex-col items-center animate-fade-in">
+                {/* Logo/Icon */}
+                <div className="mb-6 flex items-center justify-center">
+                    <svg className="w-14 h-14 text-blue-300 animate-spin-slow" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" className="opacity-20"/><path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="4" className="opacity-60"/></svg>
+                </div>
+                <h1 className="text-4xl font-extrabold text-center text-white mb-8 drop-shadow-lg tracking-tight font-sans">Reset Your Password</h1>
+                <hr className="w-1/2 mx-auto mb-8 border-blue-400 opacity-20" />
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-8 w-full" autoComplete="off">
                     <div>
-                        <label htmlFor="newPassword" className="block text-sm font-medium text-white mb-2">New Password</label>
+                        <label htmlFor="newPassword" className="block text-base font-semibold text-blue-100 mb-3 tracking-wide">New Password</label>
                         <input
                             id="newPassword"
                             type="password"
                             placeholder="Enter new password"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
-                            className="w-full p-3 border-2 border-white rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-black"
+                            className="w-full p-4 border border-blue-400/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 text-blue-900 bg-white/90 placeholder:text-blue-400/60 shadow-md font-medium"
                             required
                         />
                     </div>
-
                     <div>
-                        <label htmlFor="confirmPassword" className="block text-sm font-medium text-white mb-2">Confirm New Password</label>
+                        <label htmlFor="confirmPassword" className="block text-base font-semibold text-blue-100 mb-3 tracking-wide">Confirm New Password</label>
                         <input
                             id="confirmPassword"
                             type="password"
                             placeholder="Confirm new password"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
-                            className="w-full p-3 border-2 border-white rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-black"
+                            className="w-full p-4 border border-blue-400/40 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-300 text-blue-900 bg-white/90 placeholder:text-blue-400/60 shadow-md font-medium"
                             required
                         />
                     </div>
-
                     <button
                         type="submit"
-                        className="w-full p-3 text-white rounded-lg bg-indigo-600 hover:bg-indigo-700 focus:ring-2 focus:ring-indigo-500"
+                        className="w-full p-4 text-white rounded-xl font-bold text-lg transition-all duration-300 ease-in-out mt-2 mb-2 shadow-lg bg-gradient-to-r from-blue-700/90 to-purple-800/90 hover:from-blue-800 hover:to-purple-900 active:scale-95 focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
                     >
                         Reset Password
                     </button>
                 </form>
-
                 {/* Message */}
                 {message && (
-                    <p className={`mt-4 text-center text-sm ${message.includes("error") ? "text-red-600" : "text-green-600"}`}>
+                    <p className={`mt-6 text-center text-base font-semibold ${message.includes("error") ? "text-red-400" : "text-green-400"}`}>
                         {message}
                     </p>
                 )}

@@ -31,6 +31,9 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
         console.log("token inside ->",hashedToken);
 
 
+// Remove trailing slash from DOMAIN if present
+const domain = process.env.DOMAIN?.replace(/\/$/, "");
+
 const mailOptions = {
     from: process.env.EMAIL_USER, 
     to: email, 
@@ -50,7 +53,7 @@ const mailOptions = {
                         We're excited to have you on board! Click the link below to ${emailType === 'VERIFY' ? 'verify your email' : 'reset your password'} 
                         and start exploring the platform.
                     </p>
-                    <a href="${process.env.DOMAIN}/${emailType === 'VERIFY' ? 'verifyemail' : 'resetpassword'}?token=${hashedToken}" 
+                    <a href="${domain}/auth/${emailType === 'VERIFY' ? 'verifyemail' : 'resetpassword'}?token=${hashedToken}" 
                        style="display: inline-block; text-decoration: none; color: #fff; background: linear-gradient(to right, #6a11cb, #2575fc); 
                               padding: 12px 20px; font-size: 16px; border-radius: 5px; font-weight: bold;">
                         ${emailType === 'VERIFY' ? 'Verify Now' : 'Reset Password'}
