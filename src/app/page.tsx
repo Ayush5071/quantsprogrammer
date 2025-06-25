@@ -33,8 +33,13 @@ export default function Home() {
     },
     {
       name: "Interview",
-      link: "/interview",
       icon: <IconUser className="h-4 w-4 text-white" />,
+      dropdown: [
+        { name: "Mock Interview", link: "/interview" },
+        { name: "Top Interviews", link: "/top-interviews" },
+        { name: "Top Interview History", link: "/top-interview-history" },
+        { name: "Past Interviews", link: "/profile#interview-history" },
+      ],
     },
   ];
 
