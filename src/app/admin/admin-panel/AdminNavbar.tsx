@@ -1,15 +1,16 @@
+
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { FaTachometerAlt, FaMap, FaListAlt, FaBlog, FaUserShield, FaUsers, FaPenFancy, FaClipboardList } from "react-icons/fa";
 
 const adminLinks = [
-  { label: "Dashboard", href: "/admin/admin-panel" },
-  { label: "Create Roadmap", href: "/admin/admin-panel/roadmap-create" },
-  { label: "Manage Roadmaps", href: "/admin/admin-panel/roadmaps" },
-  { label: "Blog Requests", href: "/admin/blog-requests" },
-  { label: "Manage Blogs", href: "/admin/admin-panel/blogs" },
-  { label: "Top Interview Create", href: "/admin/top-interview-create" },
-  { label: "User Management", href: "/admin/admin-panel/users" },
-  // Add more as needed
+  { label: "Dashboard", href: "/admin/admin-panel", icon: <FaTachometerAlt /> },
+  { label: "Create Roadmap", href: "/admin/admin-panel/roadmap-create", icon: <FaMap /> },
+  { label: "Manage Roadmaps", href: "/admin/admin-panel/roadmaps", icon: <FaListAlt /> },
+  { label: "Blog Requests", href: "/admin/blog-requests", icon: <FaPenFancy /> },
+  { label: "Manage Blogs", href: "/admin/admin-panel/blogs", icon: <FaBlog /> },
+  { label: "Top Interview Create", href: "/admin/top-interview-create", icon: <FaClipboardList /> },
+  { label: "User Management", href: "/admin/admin-panel/users", icon: <FaUsers /> },
 ];
 
 const AdminNavbar = () => {
@@ -17,16 +18,16 @@ const AdminNavbar = () => {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className="w-full bg-gradient-to-r from-blue-900 via-gray-900 to-purple-900 py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-50">
-      <div className="text-2xl font-bold text-white tracking-wide cursor-pointer" onClick={() => router.push("/admin/admin-panel")}>Admin Panel</div>
-      <div className="hidden md:flex gap-6">
+    <nav className="w-full bg-white/10 backdrop-blur-xl border-b border-white/20 py-4 px-6 flex items-center justify-between shadow-lg sticky top-0 z-50">
+      <div className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 tracking-wide cursor-pointer flex items-center gap-2" onClick={() => router.push("/admin/admin-panel")}> <FaUserShield className="text-blue-400" /> Admin Panel</div>
+      <div className="hidden md:flex gap-4">
         {adminLinks.map(link => (
           <button
             key={link.href}
-            className="text-white hover:text-blue-300 font-semibold transition-colors"
+            className="flex items-center gap-2 text-white hover:text-blue-300 font-semibold text-lg px-4 py-2 rounded-xl transition-all bg-white/5 hover:bg-blue-900/40 border border-white/10 shadow"
             onClick={() => router.push(link.href)}
           >
-            {link.label}
+            <span className="text-xl">{link.icon}</span> {link.label}
           </button>
         ))}
       </div>
@@ -43,14 +44,14 @@ const AdminNavbar = () => {
           </svg>
         </button>
         {open && (
-          <div className="absolute top-16 right-6 bg-zinc-900 rounded-xl shadow-lg py-4 px-6 flex flex-col gap-4 z-50 border border-blue-800 animate-fade-in">
+          <div className="absolute top-16 right-6 bg-gray-900/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-lg py-4 px-6 flex flex-col gap-4 z-50 animate-fade-in">
             {adminLinks.map(link => (
               <button
                 key={link.href}
-                className="text-white hover:text-blue-300 font-semibold text-lg text-left"
+                className="flex items-center gap-2 text-white hover:text-blue-300 font-semibold text-lg text-left px-3 py-2 rounded-xl bg-white/10 hover:bg-blue-900/60 border border-white/10"
                 onClick={() => { setOpen(false); router.push(link.href); }}
               >
-                {link.label}
+                <span className="text-xl">{link.icon}</span> {link.label}
               </button>
             ))}
           </div>
