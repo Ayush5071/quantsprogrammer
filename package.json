@@ -43,6 +43,7 @@
     "react-quill": "^2.0.0",
     "react-speech-recognition": "^4.0.1",
     "simplex-noise": "^4.0.3",
+    "swr": "^2.3.4",
     "tailwind-merge": "^2.5.5",
     "three": "^0.171.0"
   },
