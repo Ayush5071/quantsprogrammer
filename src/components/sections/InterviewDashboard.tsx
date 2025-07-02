@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import Link from "next/link";
 import useCurrentUser from "@/lib/useCurrentUser";
@@ -8,15 +8,21 @@ import { useState as useReactState } from "react";
 import { useRouter } from "next/navigation";
 
 // Responsive Navbar (replace Navbar import and usage)
-function ResponsiveNavbar() {
+function ResponsiveNavbar({ onNavigate }: { onNavigate: (path: string) => void }) {
   const [open, setOpen] = useReactState(false);
+  
+  const handleLinkClick = (path: string) => {
+    setOpen(false);
+    onNavigate(path);
+  };
+
   return (
     <nav className="w-full bg-zinc-950 border-b-2 border-blue-900 shadow-lg sticky top-0 z-50">
       <div className="max-w-[98vw] w-full mx-auto flex items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 text-2xl font-bold text-blue-400">
+        <button onClick={() => handleLinkClick('/')} className="flex items-center gap-2 text-2xl font-bold text-blue-400">
           <img src="/official_logo.png" alt="Dev Roadmap" className="h-10 w-10 rounded-full" />
           Dev Roadmap
-        </Link>
+        </button>
         <button
           className="md:hidden text-zinc-200 focus:outline-none"
           aria-label={open ? 'Close menu' : 'Open menu'}
@@ -30,14 +36,13 @@ function ResponsiveNavbar() {
         </button>
         {/* Desktop nav */}
         <div className="hidden md:flex gap-8 items-center">
-          <Link href="/" className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Home</Link>
-          <Link href="/explore" className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Explore</Link>
-          <Link href="/blogs" className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Blogs</Link>
-          <Link href="/profile" className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Profile</Link>
-          {/* <Link href="/interview" className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Mock Interview</Link> */}
-          <Link href="/top-interviews" className="text-zinc-200 hover:text-pink-400 font-bold text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Top Interviews</Link>
-          <Link href="/profile#interview-history" className="ml-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold shadow transition-all">Past Interviews</Link>
-          <Link href="/top-interview-history" className="ml-2 px-4 py-2 bg-pink-700 hover:bg-pink-800 text-white rounded-lg font-semibold shadow transition-all">Top Interview History</Link>
+          <button onClick={() => handleLinkClick('/')} className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Home</button>
+          <button onClick={() => handleLinkClick('/explore')} className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Explore</button>
+          <button onClick={() => handleLinkClick('/blogs')} className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Blogs</button>
+          <button onClick={() => handleLinkClick('/profile')} className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Profile</button>
+          <button onClick={() => handleLinkClick('/top-interviews')} className="text-zinc-200 hover:text-pink-400 font-bold text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Top Interviews</button>
+          <button onClick={() => handleLinkClick('/profile#interview-history')} className="ml-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold shadow transition-all">Past Interviews</button>
+          <button onClick={() => handleLinkClick('/top-interview-history')} className="ml-2 px-4 py-2 bg-pink-700 hover:bg-pink-800 text-white rounded-lg font-semibold shadow transition-all">Top Interview History</button>
         </div>
       </div>
       {/* Mobile nav overlay */}
@@ -56,14 +61,13 @@ function ResponsiveNavbar() {
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
-            <Link href="/" className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900" onClick={() => setOpen(false)}>Home</Link>
-            <Link href="/explore" className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900" onClick={() => setOpen(false)}>Explore</Link>
-            <Link href="/blogs" className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900" onClick={() => setOpen(false)}>Blogs</Link>
-            <Link href="/profile" className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900" onClick={() => setOpen(false)}>Profile</Link>
-            {/* <Link href="/interview" className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900" onClick={() => setOpen(false)}>Mock Interview</Link> */}
-            <Link href="/top-interviews" className="text-zinc-200 hover:text-pink-400 font-bold text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900" onClick={() => setOpen(false)}>Top Interviews</Link>
-            <Link href="/profile#interview-history" className="px-4 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold shadow transition-all text-center" onClick={() => setOpen(false)}>Past Interviews</Link>
-            <Link href="/top-interview-history" className="px-4 py-3 bg-pink-700 hover:bg-pink-800 text-white rounded-lg font-semibold shadow transition-all text-center" onClick={() => setOpen(false)}>Top Interview History</Link>
+            <button onClick={() => handleLinkClick('/')} className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900 text-left">Home</button>
+            <button onClick={() => handleLinkClick('/explore')} className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900 text-left">Explore</button>
+            <button onClick={() => handleLinkClick('/blogs')} className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900 text-left">Blogs</button>
+            <button onClick={() => handleLinkClick('/profile')} className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900 text-left">Profile</button>
+            <button onClick={() => handleLinkClick('/top-interviews')} className="text-zinc-200 hover:text-pink-400 font-bold text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900 text-left">Top Interviews</button>
+            <button onClick={() => handleLinkClick('/profile#interview-history')} className="px-4 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold shadow transition-all text-center">Past Interviews</button>
+            <button onClick={() => handleLinkClick('/top-interview-history')} className="px-4 py-3 bg-pink-700 hover:bg-pink-800 text-white rounded-lg font-semibold shadow transition-all text-center">Top Interview History</button>
           </div>
         </>
       )}
@@ -100,6 +104,10 @@ export default function InterviewDashboard() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const router = useRouter();
   const [ttsEnabled, setTtsEnabled] = useState(true);
+  const [textAnswer, setTextAnswer] = useState(''); // Manual typing answer
+  const [inputMode, setInputMode] = useState<'speech' | 'text' | 'both'>('both'); // Allow both by default
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
 
   // SpeechRecognition hook
   const {
@@ -108,6 +116,10 @@ export default function InterviewDashboard() {
     resetTranscript,
     browserSupportsSpeechRecognition
   } = useSpeechRecognition();
+
+  // Mobile/iOS STT support check
+  const isIOS = typeof window !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = typeof window !== 'undefined' && /Android/.test(navigator.userAgent);
 
   // Text-to-Speech: Speak the question when it appears
   const speakQuestion = (text: string) => {
@@ -156,6 +168,7 @@ export default function InterviewDashboard() {
     setAiThinking(false);
     setCurrentQuestion(1);
     setAnswers([]);
+    setTextAnswer(''); // Clear both inputs initially
     // Fetch questions from Gemini API
     const res = await fetch("/api/interview/ask", {
       method: "POST",
@@ -168,7 +181,11 @@ export default function InterviewDashboard() {
     setStep(1);
     setLoading(false);
     resetTranscript();
-    SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+    setTextAnswer(''); // Clear both inputs
+    // Start speech recognition automatically if supported
+    if (browserSupportsSpeechRecognition && !isIOS) {
+      SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+    }
   };
 
   // When question changes, speak it
@@ -176,15 +193,19 @@ export default function InterviewDashboard() {
     if (question) speakQuestion(question);
   }, [question]);
 
-  // Submit answer (speech-to-text)
+  // Submit answer (combines speech-to-text and typed text)
   const submitAnswer = async () => {
-    if (!transcript) return;
+    // Combine transcript and typed text - both can be used simultaneously
+    const combinedAnswer = [transcript, textAnswer].filter(Boolean).join(' ').trim();
+    if (!combinedAnswer) return;
+    
     setLoading(true);
     // Save answer
     const updatedAnswers = [...answers];
-    updatedAnswers[currentQuestion - 1] = transcript;
+    updatedAnswers[currentQuestion - 1] = combinedAnswer;
     setAnswers(updatedAnswers);
     setLoading(false);
+    
     if (currentQuestion < numQuestions) {
       setCurrentQuestion(currentQuestion + 1);
       setQuestion(questions[currentQuestion]);
@@ -193,7 +214,10 @@ export default function InterviewDashboard() {
       setScore(null);
       setAiThinking(false);
       resetTranscript();
-      SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+      setTextAnswer(''); // Clear both speech and text for next question
+      if (browserSupportsSpeechRecognition && !isIOS) {
+        SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+      }
     } else {
       // On last question, after saving answer, show submit button
       setStep(3); // Interview finished, show submit button
@@ -211,7 +235,10 @@ export default function InterviewDashboard() {
       setScore(null);
       setAiThinking(false);
       resetTranscript();
-      SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+      setTextAnswer(''); // Clear both speech and text for next question
+      if (browserSupportsSpeechRecognition && !isIOS) {
+        SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+      }
     } else {
       setStep(3); // Interview finished
       SpeechRecognition.stopListening();
@@ -260,6 +287,7 @@ export default function InterviewDashboard() {
     setAiThinking(false);
     setAnswers([]);
     resetTranscript();
+    setTextAnswer(''); // Clear both speech and text
     SpeechRecognition.stopListening();
     if (mediaStream) {
       mediaStream.getTracks().forEach(track => track.stop());
@@ -270,13 +298,79 @@ export default function InterviewDashboard() {
   // Top Interviews Section banner state
   const [showTopBanner, setShowTopBanner] = useState(true);
 
-  if (!browserSupportsSpeechRecognition) {
-    return <div>Your browser does not support speech recognition. Please use Chrome or Edge.</div>;
-  }
+  // Show warning for unsupported devices but still allow text input
+  const speechNotSupported = !browserSupportsSpeechRecognition || isIOS;
+
+  // Navigation protection logic
+  useEffect(() => {
+    // Prevent browser refresh/close during interview
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (step !== 0 && step !== 4) { // If interview is in progress
+        e.preventDefault();
+        e.returnValue = 'You have an interview in progress. Are you sure you want to leave? Your progress will be lost.';
+        return 'You have an interview in progress. Are you sure you want to leave? Your progress will be lost.';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [step]);
+
+  // Browser back button protection
+  useEffect(() => {
+    if (step !== 0 && step !== 4) {
+      // Add a dummy history entry to catch back button
+      const currentUrl = window.location.href;
+      window.history.pushState(null, '', currentUrl);
+      
+      const handlePopState = (e: PopStateEvent) => {
+        e.preventDefault();
+        // Push state again to prevent actual navigation
+        window.history.pushState(null, '', currentUrl);
+        setShowWarningModal(true);
+        setPendingNavigation(() => () => window.history.back());
+      };
+
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, [step]);
+
+  // Custom navigation warning function
+  const handleNavigation = (navigationFn: () => void) => {
+    if (step !== 0 && step !== 4) { // If interview is in progress
+      setShowWarningModal(true);
+      setPendingNavigation(() => navigationFn);
+    } else {
+      navigationFn(); // Allow navigation if not in interview
+    }
+  };
+
+  // Confirm navigation
+  const confirmNavigation = () => {
+    if (pendingNavigation) {
+      // Stop speech recognition and clean up
+      SpeechRecognition.stopListening();
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+      }
+      // Remove the history protection temporarily
+      window.removeEventListener('popstate', () => {});
+      pendingNavigation();
+    }
+    setShowWarningModal(false);
+    setPendingNavigation(null);
+  };
+
+  // Cancel navigation
+  const cancelNavigation = () => {
+    setShowWarningModal(false);
+    setPendingNavigation(null);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-blue-950 flex flex-col">
-      <ResponsiveNavbar />
+      <ResponsiveNavbar onNavigate={(path) => handleNavigation(() => router.push(path))} />
       <main className="flex-1 flex flex-col items-center justify-center px-2 py-8 md:py-16">
         {/* Top Interviews Section Banner (removable) */}
         {showTopBanner && (
@@ -292,9 +386,9 @@ export default function InterviewDashboard() {
               </button>
               <h2 className="text-3xl md:text-4xl font-bold text-blue-300 mb-2">Top Interviews</h2>
               <p className="text-zinc-200 mb-4">Challenge yourself with the best interviews curated by our admins. Attempt for a score out of 100 and get detailed feedback!</p>
-              <Link href="/top-interviews" className="self-start px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-lg font-semibold shadow transition-all">View & Attempt Top Interviews</Link>
+              <button onClick={() => handleNavigation(() => router.push('/top-interviews'))} className="self-start px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-lg font-semibold shadow transition-all">View & Attempt Top Interviews</button>
               {user?.role === 'admin' && (
-                <Link href="/admin/top-interview-create" className="self-start px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-lg font-semibold shadow transition-all">Create Top Interview</Link>
+                <button onClick={() => handleNavigation(() => router.push('/admin/top-interview-create'))} className="self-start px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-lg font-semibold shadow transition-all">Create Top Interview</button>
               )}
             </div>
           </div>
@@ -336,23 +430,102 @@ export default function InterviewDashboard() {
             <h2 className="text-3xl md:text-4xl font-bold text-zinc-200 mb-2">Your Side</h2>
             <div className="w-full flex flex-col gap-2">
               <video ref={videoRef} autoPlay playsInline muted className="rounded-xl w-full max-w-xs mb-2 border-2 border-blue-800 shadow-lg" />
-              {/* Only show transcript after interview starts */}
-              {step !== 0 && (
-                <div className="w-full p-3 bg-zinc-800 rounded border border-zinc-700 text-zinc-200 text-base min-h-[48px]">
-                  {transcript ? `You are saying: ${transcript}` : "Say something and it will appear here..."}
+              
+              {/* Speech Recognition Info */}
+              {step !== 0 && speechNotSupported && (
+                <div className="mb-4 p-3 bg-blue-900/50 border border-blue-600 rounded-lg text-blue-200 text-sm">
+                  ℹ️ Speech recognition is not supported on your device. You can still type your answers below.
                 </div>
               )}
-              {/* Hide answer/submit controls when setting up interview */}
+
+              {/* Both Input Methods Available Simultaneously */}
               {step !== 0 && (
-                <div className="flex flex-wrap gap-3 mt-2">
-                  <button className="py-2 px-4 rounded bg-zinc-700 text-white font-bold hover:bg-zinc-800 transition" onClick={resetTranscript}>Clear Answer</button>
+                <div className="space-y-4">
+                  {/* Speech-to-Text Display (always show if supported) */}
+                  {!speechNotSupported && (
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-blue-300 mb-2">
+                        🎤 Speech Recognition {listening ? '(Listening...)' : '(Ready)'}
+                      </label>
+                      <div className={`w-full p-3 bg-zinc-800 rounded border border-zinc-700 text-zinc-200 text-base min-h-[60px] ${listening ? 'ring-2 ring-blue-400' : ''}`}>
+                        {transcript ? `Speech: ${transcript}` : "Say something and it will appear here..."}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Manual Text Input (always available) */}
+                  <div className="w-full">
+                    <label className="block text-sm font-medium text-blue-300 mb-2">
+                      ⌨️ Type Your Answer
+                    </label>
+                    <textarea
+                      value={textAnswer}
+                      onChange={(e) => setTextAnswer(e.target.value)}
+                      placeholder="Type your answer here..."
+                      className="w-full p-3 bg-zinc-800 rounded border border-zinc-700 text-zinc-200 text-base min-h-[120px] resize-none"
+                      rows={5}
+                    />
+                  </div>
+                  
+                  {/* Combined Answer Preview */}
+                  {(transcript || textAnswer) && (
+                    <div className="w-full">
+                      <label className="block text-sm font-medium text-green-300 mb-2">
+                        📝 Final Answer Preview
+                      </label>
+                      <div className="w-full p-3 bg-green-900/20 border border-green-700 rounded text-green-200 text-base min-h-[60px]">
+                        {[transcript, textAnswer].filter(Boolean).join(' ').trim() || "Your combined answer will appear here..."}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Answer Controls */}
+              {step !== 0 && (
+                <div className="flex flex-wrap gap-3 mt-4">
+                  <button 
+                    className="py-2 px-4 rounded bg-zinc-700 text-white font-bold hover:bg-zinc-800 transition" 
+                    onClick={() => {
+                      resetTranscript();
+                      setTextAnswer('');
+                    }}
+                  >
+                    Clear All
+                  </button>
+                  {!speechNotSupported && (
+                    <button 
+                      className="py-2 px-4 rounded bg-zinc-700 text-white font-bold hover:bg-zinc-800 transition" 
+                      onClick={resetTranscript}
+                    >
+                      Clear Speech
+                    </button>
+                  )}
+                  <button 
+                    className="py-2 px-4 rounded bg-zinc-700 text-white font-bold hover:bg-zinc-800 transition" 
+                    onClick={() => setTextAnswer('')}
+                  >
+                    Clear Text
+                  </button>
                   {currentQuestion < numQuestions ? (
                     <>
-                      <button className="py-2 px-4 rounded bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 text-white font-bold hover:scale-105 transition" onClick={submitAnswer} disabled={!transcript || loading}>Save & Next</button>
+                      <button 
+                        className="py-2 px-4 rounded bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 text-white font-bold hover:scale-105 transition" 
+                        onClick={submitAnswer} 
+                        disabled={(!transcript && !textAnswer) || loading}
+                      >
+                        Save & Next
+                      </button>
                       <button className="py-2 px-4 rounded bg-yellow-700 text-white font-bold hover:bg-yellow-800 transition" onClick={skipQuestion}>Skip</button>
                     </>
                   ) : (
-                    <button className="py-2 px-4 rounded bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 text-white font-bold hover:scale-105 transition" onClick={submitAnswer} disabled={!transcript || loading}>Save Answer</button>
+                    <button 
+                      className="py-2 px-4 rounded bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 text-white font-bold hover:scale-105 transition" 
+                      onClick={submitAnswer} 
+                      disabled={(!transcript && !textAnswer) || loading}
+                    >
+                      Save Answer
+                    </button>
                   )}
                 </div>
               )}
@@ -398,6 +571,56 @@ export default function InterviewDashboard() {
           </div>
         </div>
       </main>
+
+      {/* Navigation Warning Modal */}
+      {showWarningModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 rounded-xl shadow-2xl border-2 border-red-600 max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-red-400">Warning: Interview in Progress</h3>
+            </div>
+            
+            <p className="text-zinc-200 mb-6 leading-relaxed">
+              You have an active interview session. If you leave now, <strong className="text-red-300">your progress will be lost</strong> and you'll need to start over.
+            </p>
+            
+            <div className="text-sm text-zinc-400 mb-6 bg-zinc-800 p-3 rounded-lg">
+              <div className="flex justify-between">
+                <span>Topic:</span>
+                <span className="text-blue-300">{topic || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Progress:</span>
+                <span className="text-blue-300">{currentQuestion} of {numQuestions} questions</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Answers saved:</span>
+                <span className="text-blue-300">{answers.filter(a => a && a !== '(skipped)').length}</span>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={cancelNavigation}
+                className="flex-1 px-4 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold transition-all"
+              >
+                Stay & Continue
+              </button>
+              <button
+                onClick={confirmNavigation}
+                className="flex-1 px-4 py-3 bg-red-700 hover:bg-red-800 text-white rounded-lg font-semibold transition-all"
+              >
+                Leave Anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
