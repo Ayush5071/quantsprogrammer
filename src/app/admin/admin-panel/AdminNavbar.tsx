@@ -5,8 +5,9 @@ const adminLinks = [
   { label: "Dashboard", href: "/admin/admin-panel" },
   { label: "Create Roadmap", href: "/admin/admin-panel/roadmap-create" },
   { label: "Manage Roadmaps", href: "/admin/admin-panel/roadmaps" },
-  { label: "Blog Requests", href: "/admin/admin-panel/blog-requests" },
+  { label: "Blog Requests", href: "/admin/blog-requests" },
   { label: "Manage Blogs", href: "/admin/admin-panel/blogs" },
+  { label: "Top Interview Create", href: "/admin/top-interview-create" },
   { label: "User Management", href: "/admin/admin-panel/users" },
   // Add more as needed
 ];
@@ -31,7 +32,12 @@ const AdminNavbar = () => {
       </div>
       {/* Mobile menu */}
       <div className="md:hidden flex items-center">
-        <button onClick={() => setOpen(!open)} className="text-white focus:outline-none">
+        <button 
+          onClick={() => setOpen(!open)} 
+          className="text-white focus:outline-none"
+          aria-label="Toggle mobile menu"
+          title="Toggle mobile menu"
+        >
           <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
