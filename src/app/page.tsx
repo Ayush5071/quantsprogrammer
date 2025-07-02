@@ -17,7 +17,6 @@ import InterviewPreparation from "@/components/sections/InterviewPreparation";
 import FAQ from "@/components/sections/FAQ";
 // import Testimonials from "@/components/sections/Testimonials";
 import CertificateShowcase from "@/components/sections/CertificateShowcase";
-import CompletePlatform from "@/components/sections/CompletePlatform";
 import useLocomotiveScroll from "@/hooks/useLocomotiveScroll";
 
 export default function Home() {
@@ -67,19 +66,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    gsap.to(".star", {
-      opacity: 0.8,
-      duration: 2,
-      repeat: -1,
-      yoyo: true,
-      ease: "sine.inOut",
-      stagger: {
-        amount: 1,
-        from: "random",
-      },
-    });
-
-    // Bounce effect for the button
+    // Bounce effect for the button only
     gsap.fromTo(
       ".coffee-btn",
       { scale: 1 },
@@ -106,21 +93,7 @@ export default function Home() {
         <Loading />
       ) : (
         <div className="relative bg-gradient-to-b from-black via-blue-900 to-black overflow-x-hidden" data-scroll-container>
-          <div className="absolute top-0 left-0 w-full h-full z-0">
-            {[...Array(600)].map((_, index) => (
-              <div
-                key={index}
-                className="star absolute bg-white rounded-full"
-                style={{
-                  top: `${Math.random() * 500}vh`,
-                  left: `${Math.random() * 100}vw`,
-                  width: `${Math.random() * 1.5 + 0.5}px`,
-                  height: `${Math.random() * 1.5 + 0.5}px`,
-                  opacity: Math.random() * 0.7,
-                }}
-              />
-            ))}
-          </div>
+          {/* Star background removed for cleaner look */}
 
           {/* Buy Me a Coffee Button */}
 
@@ -129,8 +102,8 @@ export default function Home() {
             <FloatingNav navItems={navItems} />
             {/* Hero Page - Now full 100vh */}
             {/* Other sections for users who scroll */}
-            <div className="pt-8">
-               <HeroPage />
+            <div className="">
+            <HeroPage />
               {/* Platform Overview Section: Four main modules */}
               <PlatformOverview />
               {/* Interview Preparation Section: Comprehensive prep materials */}
@@ -139,12 +112,8 @@ export default function Home() {
               <CompensationSection />
               {/* New Features Section: Category-based platform features */}
               <FeaturesSection />
-              {/* Complete Development Platform: Comprehensive platform overview */}
-              <CompletePlatform />
               {/* Certificate Showcase Section: Sample certificate display */}
               <CertificateShowcase />
-              {/* Testimonials Section: Community feedback and success stories */}
-              {/* <Testimonials /> */}
               {/* FAQ Section with glassmorphism */}
               <FAQ />
             <Footer />

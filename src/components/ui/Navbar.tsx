@@ -115,8 +115,8 @@ export const FloatingNav = ({
           "flex w-[95vw] max-w-2xl font-Sfpro md:max-w-xl lg:min-w-fit fixed z-[5000] top-4 md:top-6 inset-x-0 mx-auto px-4 py-3 md:py-4 xl:py-4 rounded-2xl md:rounded-3xl border shadow-2xl items-center justify-between space-x-auto transition-all duration-300",
           // Enhanced glassmorphism design based on scroll
           scrollYProgress.get() > 0.05 
-            ? "bg-black/80 backdrop-blur-xl border-white/25 shadow-black/30" 
-            : "bg-black/60 backdrop-blur-lg border-white/20 shadow-black/20",
+            ? "bg-white/20 backdrop-blur-xl border-blue-200/30 shadow-blue-900/30" 
+            : "bg-white/10 backdrop-blur-lg border-blue-100/20 shadow-blue-900/20",
           className
         )}
         style={{
