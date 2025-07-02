@@ -18,9 +18,10 @@ const useLocomotiveScroll = () => {
         scroll = new LocomotiveScroll({
           el: scrollEl,
           smooth: true,
-          lerp: 0.08,
-          multiplier: 1,
+          lerp: 0.12, // Increased from 0.08 for more responsive scrolling
+          multiplier: 1.5, // Increased from 1 for higher scroll sensitivity
           class: "is-reveal",
+          reloadOnContextChange: true,
         });
         const handleResize = () => {
           if (scroll && typeof scroll.update === "function") {
