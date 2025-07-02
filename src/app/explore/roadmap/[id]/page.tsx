@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
 import ReactConfetti from "react-confetti";
 import Certificate from "@/components/component/Certificate";
@@ -229,215 +230,397 @@ const RoadmapDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-black text-white px-0 md:px-0 py-0 flex flex-col items-center justify-start relative overflow-x-hidden">
+    <section className="w-full min-h-screen flex flex-col items-center justify-start px-4 sm:px-6 md:px-8 relative overflow-hidden">
+      {/* Enhanced Background Effects - matching hero section */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-blue-900 to-black"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.15),transparent_50%)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(37,99,235,0.12),transparent_50%)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(29,78,216,0.08),transparent_70%)]"></div>
+      
+      {/* Animated Grid Pattern */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="h-full w-full bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black,transparent)]"></div>
+      </div>
+
       {showConfetti && <ReactConfetti width={typeof window !== 'undefined' ? window.innerWidth : 1920} height={typeof window !== 'undefined' ? window.innerHeight : 1080} recycle={false} numberOfPieces={400} />}
+      
+      {/* Congratulations Modal */}
       {showCertModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-          <div className="bg-zinc-900 rounded-2xl p-8 shadow-2xl border-2 border-blue-700 flex flex-col items-center">
-            <h2 className="text-2xl font-bold text-blue-400 mb-4">Congratulations!</h2>
-            <p className="text-lg text-zinc-200 mb-6">You've completed this roadmap!<br/>Download your certificate from your profile.</p>
-            <button className="mt-2 px-6 py-3 bg-blue-700 text-white rounded-xl text-lg font-semibold shadow hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all" onClick={() => setShowCertModal(false)}>Close</button>
-          </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="p-8 bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl max-w-md mx-4"
+          >
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-4">Congratulations!</h2>
+              <p className="text-zinc-300 mb-6">You've completed this roadmap!<br/>Download your certificate from your profile.</p>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl shadow-lg transition-all duration-300"
+                onClick={() => setShowCertModal(false)}
+              >
+                Close
+              </motion.button>
+            </div>
+          </motion.div>
         </div>
       )}
-      <div className="w-full flex items-center justify-between px-4 md:px-8 pt-8 pb-2 z-10">
-        <button
-          className="fixed top-6 left-4 flex items-center gap-2 text-blue-400 hover:text-blue-300 hover:underline text-lg md:text-xl px-4 py-2 rounded-lg bg-zinc-900 shadow border-2 border-blue-700 transition-all z-50"
-          style={{ position: 'fixed', top: '1.5rem', left: '1rem', zIndex: 50 }}
-          onClick={() => router.back()}
-        >
-          <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-          <span className="hidden sm:inline">Back</span>
-        </button>
-        <div></div>
-      </div>
-      <div className="w-full max-w-5xl mx-auto mt-8 md:mt-20 px-2 md:px-8 z-10">
-        <h1 className="text-3xl md:text-5xl font-extrabold mb-8 text-center text-zinc-100 tracking-tight drop-shadow-lg uppercase">{roadmap.title}</h1>
-        {roadmap.description && <p className="mb-10 text-lg md:text-2xl text-zinc-300 text-center max-w-3xl mx-auto font-light drop-shadow">{roadmap.description}</p>}
-        <div className="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div className="text-base md:text-lg text-blue-200 text-center md:text-left">Created by: {roadmap.createdBy}</div>
-          <div className="w-full md:w-1/3">
-            <div className="h-3 w-full bg-gradient-to-r from-blue-900 via-purple-900 to-pink-900 rounded-full overflow-hidden border-2 border-blue-700">
-              <div className="h-full bg-gradient-to-r from-blue-400 via-pink-400 to-purple-400 shadow-lg transition-all duration-500" style={{ width: `${percent}%` }}></div>
+
+      {/* Back Button */}
+      <motion.button
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
+        onClick={() => router.back()}
+        className="fixed top-6 left-6 z-30 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg text-sm font-semibold text-white hover:bg-white/15 transition-all duration-300 shadow-lg"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span className="hidden sm:inline">Back</span>
+      </motion.button>
+      <div className="relative z-10 max-w-5xl mx-auto w-full flex flex-col justify-start py-8 pt-24 sm:pt-32">
+        {/* Hero-style Header */}
+        <div className="text-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            {/* Trust Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full text-sm text-zinc-300 mb-6 hover:bg-white/15 transition-all duration-300">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Learning Roadmap</span>
             </div>
-            <div className="text-xs text-pink-200 mt-1 text-right">{percent}% complete</div>
-          </div>
-        </div>
-        {roadmap.phases && roadmap.phases.length > 0 ? (
-          <div className="w-full">
-            {roadmap.phases.map((phase: any, idx: number) => (
-              <div key={idx} className="mb-8 md:mb-10 w-full">
-                <button
-                  className={`w-full flex items-center justify-between px-4 md:px-10 py-4 md:py-7 rounded-2xl md:rounded-3xl shadow-2xl border-2 border-blue-700 hover:border-pink-400 bg-gradient-to-r from-blue-900 via-gray-900 to-purple-900 transition-all duration-300 focus:outline-none ${openPhase === idx ? "ring-2 ring-pink-400" : ""}`}
-                  onClick={() => setOpenPhase(openPhase === idx ? null : idx)}
-                  aria-expanded={openPhase === idx ? 'true' : 'false'}
-                >
-                  <span className="text-lg md:text-3xl font-bold text-zinc-200 tracking-wide flex items-center gap-2">
-                    {isAdmin ? (
-                      <EditableField value={phase.title} onChange={v => handleEditPhaseTitle(idx, v)} placeholder="Phase Title" />
-                    ) : (
-                      phase.title
-                    )}
-                    {isAdmin && (
-                      <button onClick={e => { e.stopPropagation(); handleDeletePhase(idx); }} className="ml-2 text-red-400 hover:text-red-600 text-lg" title="Delete Phase">✕</button>
-                    )}
-                  </span>
-                  <svg
-                    className={`w-6 h-6 md:w-8 md:h-8 transform transition-transform duration-300 ${openPhase === idx ? "rotate-90" : "rotate-0"}`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-                <div
-                  className={`overflow-hidden transition-all duration-500 ${openPhase === idx ? "max-h-[2000px] opacity-100 py-6 md:py-10" : "max-h-0 opacity-0 py-0"}`}
-                  style={{ willChange: "max-height, opacity, padding" }}
-                >
-                  {openPhase === idx && (
-                    <>
-                      {phase.tasks && phase.tasks.length > 0 ? (
-                        <ul className="list-none space-y-4 md:space-y-6">
-                          {phase.tasks.map((task: any, tIdx: number) => (
-                            <li key={tIdx} className="relative group rounded-2xl px-4 md:px-8 py-5 border-2 border-blue-700 hover:border-blue-400 transition-transform duration-300">
-                              <label className="flex items-start md:items-center gap-3 w-full cursor-pointer z-10 relative">
-                                <span className="inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full border-2 border-blue-400 bg-zinc-900 shadow-md transition-all duration-200 mr-2">
-                                  <input
-                                    type="checkbox"
-                                    checked={progress.completedTasks.includes(task.title)}
-                                    onChange={(e) => handleCheck("task", task.title, e.target.checked)}
-                                    className="appearance-none w-5 h-5 md:w-6 md:h-6 rounded-full checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-400 transition-all duration-200"
-                                    disabled={progressLoading}
-                                    title={`Mark task '${task.title}' as complete`}
-                                  />
-                                  {progress.completedTasks.includes(task.title) && (
-                                    <svg className="absolute w-4 h-4 text-white pointer-events-none" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                                  )}
-                                </span>
-                                <span className="font-semibold text-base md:text-2xl break-words max-w-xs md:max-w-2xl text-blue-100 select-none">
-                                  {isAdmin ? (
-                                    <EditableField value={task.title} onChange={v => handleEditTask(idx, tIdx, "title", v)} placeholder="Task Title" />
-                                  ) : task.title}
-                                </span>
-                                {isAdmin ? (
-                                  <EditableField value={task.link} onChange={v => handleEditTask(idx, tIdx, "link", v)} placeholder="Task Link" className="ml-2 text-blue-400 underline text-sm md:text-lg break-all bg-transparent border-0 border-b border-blue-400" />
-                                ) : (
-                                  task.link && (
-                                    <a
-                                      href={task.link}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="ml-auto px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-lg shadow border border-blue-700 transition-all text-sm md:text-base"
-                                    >
-                                      Open Resource
-                                      <svg className="inline-block ml-2 w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7a2 2 0 002-2v-7" /></svg>
-                                    </a>
-                                  )
-                                )}
-                                {isAdmin && (
-                                  <button onClick={e => { e.preventDefault(); handleDeleteTask(idx, tIdx); }} className="ml-2 text-red-400 hover:text-red-600 text-lg" title="Delete Task">✕</button>
-                                )}
-                              </label>
-                            </li>
-                          ))}
-                          {isAdmin && (
-                            <li>
-                              <button onClick={() => handleAddTask(idx)} className="w-full py-2 bg-zinc-900 text-blue-400 rounded-lg font-semibold hover:bg-zinc-800 transition shadow border-2 border-blue-700 hover:border-blue-400">+ Add Task</button>
-                            </li>
-                          )}
-                        </ul>
-                      ) : (
-                        <div className="text-zinc-400 text-sm md:text-lg">No tasks in this phase.</div>
-                      )}
-                      {/* Assignments Section */}
-                      {phase.assignments && phase.assignments.length > 0 && (
-                        <ul className="list-none space-y-4 md:space-y-6 mt-6 md:mt-10">
-                          {phase.assignments.map((assignment: any, aIdx: number) => (
-                            <li key={aIdx} className="relative group rounded-2xl px-4 md:px-8 py-5 border-2 border-purple-700 hover:border-purple-400 transition-transform duration-300 bg-zinc-950">
-                              <label className="flex items-start md:items-center gap-3 w-full cursor-pointer z-10 relative">
-                                <span className="inline-flex items-center justify-center w-7 h-7 md:w-8 md:h-8 rounded-full border-2 border-purple-400 bg-zinc-950 shadow-md transition-all duration-200 mr-2">
-                                  <input
-                                    type="checkbox"
-                                    checked={progress.completedAssignments.includes(assignment.title)}
-                                    onChange={(e) => handleCheck("assignment", assignment.title, e.target.checked)}
-                                    className="appearance-none w-5 h-5 md:w-6 md:h-6 rounded-full checked:bg-purple-500 checked:border-purple-500 focus:ring-2 focus:ring-purple-400 transition-all duration-200"
-                                    disabled={progressLoading}
-                                    title={`Mark assignment '${assignment.title}' as complete`}
-                                  />
-                                  {progress.completedAssignments.includes(assignment.title) && (
-                                    <svg className="absolute w-4 h-4 text-white pointer-events-none" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-                                  )}
-                                </span>
-                                <span className="font-semibold text-base md:text-2xl break-words max-w-xs md:max-w-2xl text-purple-100 select-none">
-                                  {isAdmin ? (
-                                    <EditableField value={assignment.title} onChange={v => handleEditAssignment(idx, aIdx, "title", v)} placeholder="Assignment Title" />
-                                  ) : assignment.title}
-                                </span>
-                                {isAdmin ? (
-                                  <EditableField value={assignment.link} onChange={v => handleEditAssignment(idx, aIdx, "link", v)} placeholder="Assignment Link" className="ml-2 text-purple-400 underline text-sm md:text-lg break-all bg-transparent border-0 border-b border-purple-400" />
-                                ) : (
-                                  assignment.link && (
-                                    <a
-                                      href={assignment.link}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="ml-auto px-4 py-2 bg-purple-700 hover:bg-purple-800 text-white font-semibold rounded-lg shadow border border-purple-700 transition-all text-sm md:text-base"
-                                    >
-                                      Open Assignment
-                                      <svg className="inline-block ml-2 w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7a2 2 0 002-2v-7" /></svg>
-                                    </a>
-                                  )
-                                )}
-                                {isAdmin && (
-                                  <button onClick={e => { e.preventDefault(); handleDeleteAssignment(idx, aIdx); }} className="ml-2 text-red-400 hover:text-red-600 text-lg" title="Delete Assignment">✕</button>
-                                )}
-                              </label>
-                            </li>
-                          ))}
-                          {isAdmin && (
-                            <li>
-                              <button onClick={() => handleAddAssignment(idx)} className="w-full py-2 bg-zinc-950 text-purple-400 rounded-lg font-semibold hover:bg-zinc-900 transition shadow border-2 border-purple-700 hover:border-purple-400">+ Add Assignment</button>
-                            </li>
-                          )}
-                        </ul>
-                      )}
-                      {phase.folderLink && (
-                        <div className="mt-4 flex justify-end">
-                          <a
-                            href={phase.folderLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-5 py-2 bg-blue-700 hover:bg-blue-800 text-white font-semibold rounded-lg shadow border border-blue-800 transition-all text-base"
-                          >
-                            Open Roadmap Folder
-                            <svg className="inline-block ml-2 w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7a2 2 0 002-2v-7" /></svg>
-                          </a>
-                        </div>
-                      )}
-                    </>
-                  )}
+            
+            {/* Main Heading */}
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-blue-300 mb-6 leading-tight tracking-tight text-center">
+              {roadmap.title}
+            </h1>
+            
+            {/* Description */}
+            {roadmap.description && (
+              <p className="text-base sm:text-lg md:text-xl text-zinc-300 font-medium max-w-3xl mx-auto mb-8 leading-relaxed px-4 text-center">
+                {roadmap.description}
+              </p>
+            )}
+
+            {/* Progress Section */}
+            <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
+              <div className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl">
+                <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-400"></div>
+                <span className="text-sm text-zinc-300">Created by {roadmap.createdBy}</span>
+              </div>
+              
+              <div className="flex items-center gap-4 p-4 bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl min-w-[200px]">
+                <div className="flex-1">
+                  <div className="h-2 bg-gradient-to-r from-zinc-700 to-zinc-800 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${percent}%` }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      className="h-full bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 shadow-lg"
+                    />
+                  </div>
+                  <div className="text-xs text-zinc-400 mt-1 text-right">{percent}% complete</div>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-zinc-400 text-center text-base md:text-xl">No phases added to this roadmap yet.</div>
-        )}
-        {isAdmin && (
-          <div className="mt-8 flex justify-center">
-            <button onClick={handleAddPhase} className="px-6 py-3 bg-gradient-to-r from-blue-900 via-gray-900 to-purple-900 text-pink-200 rounded-2xl font-bold shadow-lg hover:bg-pink-600 transition-transform border-2 border-blue-700 hover:border-pink-400">+ Add Phase</button>
-          </div>
-        )}
-        {/* Add Download Certificate button if 100% complete */}
-        {percent === 100 && user && (
-          <div className="flex flex-col items-center justify-center mt-8">
-            <Certificate user={user} roadmap={roadmap} percent={100} />
-          </div>
-        )}
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Phases Section */}
+        <div className="w-full">
+          {roadmap.phases && roadmap.phases.length > 0 ? (
+            <div className="space-y-6">
+              {roadmap.phases.map((phase: any, idx: number) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: idx * 0.1 }}
+                  className="group"
+                >
+                  <button
+                    className={`w-full flex items-center justify-between p-6 bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-lg border border-white/10 hover:border-white/20 rounded-2xl transition-all duration-500 shadow-xl ${openPhase === idx ? "ring-2 ring-blue-400/50" : ""}`}
+                    onClick={() => setOpenPhase(openPhase === idx ? null : idx)}
+                    aria-expanded={openPhase === idx ? "true" : "false"}
+                  >
+                    <span className="text-xl md:text-2xl font-bold text-white flex items-center gap-3">
+                      {isAdmin ? (
+                        <EditableField value={phase.title} onChange={v => handleEditPhaseTitle(idx, v)} placeholder="Phase Title" />
+                      ) : (
+                        phase.title
+                      )}
+                      {isAdmin && (
+                        <button onClick={e => { e.stopPropagation(); handleDeletePhase(idx); }} className="ml-2 text-red-400 hover:text-red-600 text-lg" title="Delete Phase">✕</button>
+                      )}
+                    </span>
+                    <motion.svg
+                      animate={{ rotate: openPhase === idx ? 90 : 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="w-6 h-6 text-blue-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </motion.svg>
+                  </button>
+                  
+                  <motion.div
+                    initial={false}
+                    animate={{
+                      height: openPhase === idx ? "auto" : 0,
+                      opacity: openPhase === idx ? 1 : 0,
+                    }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    {openPhase === idx && (
+                      <div className="p-6 mt-4 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl">
+                        {/* Tasks Section */}
+                        {phase.tasks && phase.tasks.length > 0 ? (
+                          <div className="space-y-4">
+                            <h4 className="text-lg font-semibold text-blue-300 mb-4 flex items-center gap-2">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              Tasks
+                            </h4>
+                            <div className="space-y-3">
+                              {phase.tasks.map((task: any, tIdx: number) => (
+                                <motion.div
+                                  key={tIdx}
+                                  initial={{ opacity: 0, x: -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: tIdx * 0.1 }}
+                                  className="p-4 bg-gradient-to-r from-blue-900/30 to-blue-800/30 backdrop-blur-lg border border-blue-500/30 rounded-xl hover:border-blue-400/50 transition-all duration-300"
+                                >
+                                  <label className="flex items-center gap-4 w-full cursor-pointer">
+                                    <div className="relative">
+                                      <input
+                                        type="checkbox"
+                                        checked={progress.completedTasks.includes(task.title)}
+                                        onChange={(e) => handleCheck("task", task.title, e.target.checked)}
+                                        className="w-5 h-5 rounded border-2 border-blue-400 bg-transparent checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-400 transition-all duration-200"
+                                        disabled={progressLoading}
+                                      />
+                                      {progress.completedTasks.includes(task.title) && (
+                                        <svg className="absolute inset-0 w-5 h-5 text-white pointer-events-none" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                      )}
+                                    </div>
+                                    <div className="flex-1 flex items-center justify-between gap-4">
+                                      <span className="font-medium text-white text-sm md:text-base">
+                                        {isAdmin ? (
+                                          <EditableField value={task.title} onChange={v => handleEditTask(idx, tIdx, "title", v)} placeholder="Task Title" />
+                                        ) : task.title}
+                                      </span>
+                                      <div className="flex items-center gap-2">
+                                        {isAdmin ? (
+                                          <EditableField value={task.link} onChange={v => handleEditTask(idx, tIdx, "link", v)} placeholder="Task Link" className="text-blue-400 underline text-sm break-all bg-transparent border-0 border-b border-blue-400" />
+                                        ) : (
+                                          task.link && (
+                                            <a
+                                              href={task.link}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-all duration-200 flex items-center gap-1"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
+                                              Open
+                                              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                              </svg>
+                                            </a>
+                                          )
+                                        )}
+                                        {isAdmin && (
+                                          <button onClick={e => { e.preventDefault(); handleDeleteTask(idx, tIdx); }} className="text-red-400 hover:text-red-600 text-sm" title="Delete Task">✕</button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </label>
+                                </motion.div>
+                              ))}
+                              {isAdmin && (
+                                <div>
+                                  <button onClick={() => handleAddTask(idx)} className="w-full py-3 bg-blue-900/30 border border-blue-500/30 text-blue-400 rounded-lg font-medium hover:bg-blue-800/30 hover:border-blue-400/50 transition-all duration-300 flex items-center justify-center gap-2">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Add Task
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-zinc-400 text-sm">No tasks in this phase.</div>
+                        )}
+                        
+                        {/* Assignments Section */}
+                        {phase.assignments && phase.assignments.length > 0 && (
+                          <div className="space-y-4 mt-8">
+                            <h4 className="text-lg font-semibold text-purple-300 mb-4 flex items-center gap-2">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                              </svg>
+                              Assignments
+                            </h4>
+                            <div className="space-y-3">
+                              {phase.assignments.map((assignment: any, aIdx: number) => (
+                                <motion.div
+                                  key={aIdx}
+                                  initial={{ opacity: 0, x: -20 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: aIdx * 0.1 }}
+                                  className="p-4 bg-gradient-to-r from-purple-900/30 to-purple-800/30 backdrop-blur-lg border border-purple-500/30 rounded-xl hover:border-purple-400/50 transition-all duration-300"
+                                >
+                                  <label className="flex items-center gap-4 w-full cursor-pointer">
+                                    <div className="relative">
+                                      <input
+                                        type="checkbox"
+                                        checked={progress.completedAssignments.includes(assignment.title)}
+                                        onChange={(e) => handleCheck("assignment", assignment.title, e.target.checked)}
+                                        className="w-5 h-5 rounded border-2 border-purple-400 bg-transparent checked:bg-purple-500 checked:border-purple-500 focus:ring-2 focus:ring-purple-400 transition-all duration-200"
+                                        disabled={progressLoading}
+                                      />
+                                      {progress.completedAssignments.includes(assignment.title) && (
+                                        <svg className="absolute inset-0 w-5 h-5 text-white pointer-events-none" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                      )}
+                                    </div>
+                                    <div className="flex-1 flex items-center justify-between gap-4">
+                                      <span className="font-medium text-white text-sm md:text-base">
+                                        {isAdmin ? (
+                                          <EditableField value={assignment.title} onChange={v => handleEditAssignment(idx, aIdx, "title", v)} placeholder="Assignment Title" />
+                                        ) : assignment.title}
+                                      </span>
+                                      <div className="flex items-center gap-2">
+                                        {isAdmin ? (
+                                          <EditableField value={assignment.link} onChange={v => handleEditAssignment(idx, aIdx, "link", v)} placeholder="Assignment Link" className="text-purple-400 underline text-sm break-all bg-transparent border-0 border-b border-purple-400" />
+                                        ) : (
+                                          assignment.link && (
+                                            <a
+                                              href={assignment.link}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-all duration-200 flex items-center gap-1"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
+                                              Open
+                                              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                              </svg>
+                                            </a>
+                                          )
+                                        )}
+                                        {isAdmin && (
+                                          <button onClick={e => { e.preventDefault(); handleDeleteAssignment(idx, aIdx); }} className="text-red-400 hover:text-red-600 text-sm" title="Delete Assignment">✕</button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </label>
+                                </motion.div>
+                              ))}
+                              {isAdmin && (
+                                <div>
+                                  <button onClick={() => handleAddAssignment(idx)} className="w-full py-3 bg-purple-900/30 border border-purple-500/30 text-purple-400 rounded-lg font-medium hover:bg-purple-800/30 hover:border-purple-400/50 transition-all duration-300 flex items-center justify-center gap-2">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                    Add Assignment
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Folder Link */}
+                        {phase.folderLink && (
+                          <div className="mt-6 flex justify-end">
+                            <a
+                              href={phase.folderLink}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-base flex items-center gap-2"
+                            >
+                              Open Roadmap Folder
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7a2 2 0 002-2v-7" />
+                              </svg>
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </motion.div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center py-20"
+            >
+              <div className="p-12 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl max-w-md mx-auto">
+                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">No Phases Yet</h3>
+                <p className="text-zinc-300">This roadmap is being developed. Check back soon!</p>
+              </div>
+            </motion.div>
+          )}
+          
+          {/* Admin Controls */}
+          {isAdmin && (
+            <div className="mt-8 flex justify-center">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={handleAddPhase}
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Add Phase
+              </motion.button>
+            </div>
+          )}
+          
+          {/* Certificate Section */}
+          {percent === 100 && user && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="flex flex-col items-center justify-center mt-12"
+            >
+              <Certificate user={user} roadmap={roadmap} percent={100} />
+            </motion.div>
+          )}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
