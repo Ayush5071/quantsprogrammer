@@ -287,6 +287,7 @@ const RoadmapDetailPage = () => {
         </svg>
         <span className="hidden sm:inline">Back</span>
       </motion.button>
+
       <div className="relative z-10 max-w-5xl mx-auto w-full flex flex-col justify-start py-8 pt-24 sm:pt-32">
         {/* Hero-style Header */}
         <div className="text-center mb-16">
@@ -396,9 +397,9 @@ const RoadmapDetailPage = () => {
                               </svg>
                               Tasks
                             </h4>
-                            <div className="space-y-3">
+                            <ul className="list-none space-y-3">
                               {phase.tasks.map((task: any, tIdx: number) => (
-                                <motion.div
+                                <motion.li
                                   key={tIdx}
                                   initial={{ opacity: 0, x: -20 }}
                                   animate={{ opacity: 1, x: 0 }}
@@ -451,19 +452,19 @@ const RoadmapDetailPage = () => {
                                       </div>
                                     </div>
                                   </label>
-                                </motion.div>
+                                </motion.li>
                               ))}
                               {isAdmin && (
-                                <div>
+                                <li>
                                   <button onClick={() => handleAddTask(idx)} className="w-full py-3 bg-blue-900/30 border border-blue-500/30 text-blue-400 rounded-lg font-medium hover:bg-blue-800/30 hover:border-blue-400/50 transition-all duration-300 flex items-center justify-center gap-2">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                     </svg>
                                     Add Task
                                   </button>
-                                </div>
+                                </li>
                               )}
-                            </div>
+                            </ul>
                           </div>
                         ) : (
                           <div className="text-zinc-400 text-sm">No tasks in this phase.</div>
@@ -478,9 +479,9 @@ const RoadmapDetailPage = () => {
                               </svg>
                               Assignments
                             </h4>
-                            <div className="space-y-3">
+                            <ul className="list-none space-y-3">
                               {phase.assignments.map((assignment: any, aIdx: number) => (
-                                <motion.div
+                                <motion.li
                                   key={aIdx}
                                   initial={{ opacity: 0, x: -20 }}
                                   animate={{ opacity: 1, x: 0 }}
@@ -533,19 +534,19 @@ const RoadmapDetailPage = () => {
                                       </div>
                                     </div>
                                   </label>
-                                </motion.div>
+                                </motion.li>
                               ))}
                               {isAdmin && (
-                                <div>
+                                <li>
                                   <button onClick={() => handleAddAssignment(idx)} className="w-full py-3 bg-purple-900/30 border border-purple-500/30 text-purple-400 rounded-lg font-medium hover:bg-purple-800/30 hover:border-purple-400/50 transition-all duration-300 flex items-center justify-center gap-2">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                                     </svg>
                                     Add Assignment
                                   </button>
-                                </div>
+                                </li>
                               )}
-                            </div>
+                            </ul>
                           </div>
                         )}
                         

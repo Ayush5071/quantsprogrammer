@@ -1,11 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo, useMemo, useCallback } from "react";
 import { HeroPage } from "@/components/sections/HeroPage";
 import { Footer } from "@/components/sections/Footer";
 import { IconMessage, IconUser, IconCoffee } from "@tabler/icons-react";
 import { FloatingNav } from "@/components/ui/Navbar";
-// import { Context } from "@/components/sections/context";
-// import { SecondSection } from "@/components/sections/secondSection";
 import { gsap } from "gsap";
 import Loading from "@/components/ui/Loading";
 import Head from "next/head";
@@ -15,15 +13,25 @@ import PlatformOverview from "@/components/sections/PlatformOverview";
 import CompensationSection from "@/components/sections/CompensationSection";
 import InterviewPreparation from "@/components/sections/InterviewPreparation";
 import FAQ from "@/components/sections/FAQ";
-// import Testimonials from "@/components/sections/Testimonials";
 import CertificateShowcase from "@/components/sections/CertificateShowcase";
 import useLocomotiveScroll from "@/hooks/useLocomotiveScroll";
+
+// Memoized Components for better performance
+const MemoizedHeroPage = memo(HeroPage);
+const MemoizedPlatformOverview = memo(PlatformOverview);
+const MemoizedInterviewPreparation = memo(InterviewPreparation);
+const MemoizedCompensationSection = memo(CompensationSection);
+const MemoizedFeaturesSection = memo(FeaturesSection);
+const MemoizedCertificateShowcase = memo(CertificateShowcase);
+const MemoizedFAQ = memo(FAQ);
+const MemoizedFooter = memo(Footer);
 
 export default function Home() {
   useLocomotiveScroll();
   const [loading, setLoading] = useState(true);
 
-  const navItems = [
+  // Memoized nav items to prevent recreation on every render
+  const navItems = useMemo(() => [
     {
       name: "About",
       link: "/about",
@@ -51,14 +59,15 @@ export default function Home() {
         { name: "Past Interviews", link: "/profile#interview-history" },
       ],
     },
-  ];
+  ], []);
 
-  useEffect(() => {
+  // Memoized loading effect callback
+  const handleLoadingEffect = useCallback(() => {
     const hasVisited = localStorage.getItem("hasVisited");
     if (!hasVisited) {
       setLoading(true);
       localStorage.setItem("hasVisited", "true");
-      const timer = setTimeout(() => setLoading(false), 2000);
+      const timer = setTimeout(() => setLoading(false), 1500); // Reduced from 2000ms
       return () => clearTimeout(timer);
     } else {
       setLoading(false);
@@ -66,19 +75,26 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // Bounce effect for the button only
-    gsap.fromTo(
-      ".coffee-btn",
-      { scale: 1 },
-      {
-        scale: 1.1,
-        duration: 1,
-        repeat: -1,
-        yoyo: true,
-        ease: "power1.inOut",
-      }
-    );
-  }, []);
+    return handleLoadingEffect();
+  }, [handleLoadingEffect]);
+
+  // Simplified GSAP animation - reduced intensity
+  useEffect(() => {
+    const coffeeBtn = document.querySelector(".coffee-btn");
+    if (coffeeBtn) {
+      gsap.fromTo(
+        coffeeBtn,
+        { scale: 1 },
+        {
+          scale: 1.05, // Reduced from 1.1
+          duration: 2, // Increased duration for smoother animation
+          repeat: -1,
+          yoyo: true,
+          ease: "power1.inOut",
+        }
+      );
+    }
+  }, [loading]); // Only run after loading is complete
 
 
   return (
@@ -93,30 +109,18 @@ export default function Home() {
         <Loading />
       ) : (
         <div className="relative bg-gradient-to-b from-black via-blue-900 to-black overflow-x-hidden" data-scroll-container>
-          {/* Star background removed for cleaner look */}
-
-          {/* Buy Me a Coffee Button */}
-
           {/* Components */}
           <div className="relative z-10 min-h-screen flex flex-col">
             <FloatingNav navItems={navItems} />
-            {/* Hero Page - Now full 100vh */}
-            {/* Other sections for users who scroll */}
             <div className="">
-            <HeroPage />
-              {/* Platform Overview Section: Four main modules */}
-              <PlatformOverview />
-              {/* Interview Preparation Section: Comprehensive prep materials */}
-              <InterviewPreparation />
-              {/* Compensation Data Section: Salary insights and company data */}
-              <CompensationSection />
-              {/* New Features Section: Category-based platform features */}
-              <FeaturesSection />
-              {/* Certificate Showcase Section: Sample certificate display */}
-              <CertificateShowcase />
-              {/* FAQ Section with glassmorphism */}
-              <FAQ />
-            <Footer />
+              <MemoizedHeroPage />
+              <MemoizedPlatformOverview />
+              <MemoizedInterviewPreparation />
+              <MemoizedCompensationSection />
+              <MemoizedFeaturesSection />
+              <MemoizedCertificateShowcase />
+              <MemoizedFAQ />
+              <MemoizedFooter />
             </div>
           </div>
         </div>

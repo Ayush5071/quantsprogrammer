@@ -1,7 +1,9 @@
 import React from "react";
 import Image from "next/image";
+import useCurrentUser from "@/lib/useCurrentUser";
 
 export default function CertificateShowcase() {
+  const user = useCurrentUser();
   return (
     <section className="w-full py-20 px-4 md:px-8 flex flex-col items-center relative overflow-hidden">
       {/* Enhanced Background Effects - matching HeroPage/Footer style */}
@@ -120,20 +122,29 @@ export default function CertificateShowcase() {
             Choose a roadmap, track your progress, and earn your first certificate. 
             Join thousands of developers building their careers with Dev Roadmap.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
-              onClick={() => window.location.href = '/explore'}
-              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button 
+            onClick={() => window.location.href = '/explore'}
+            className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+          >
+            Browse Roadmaps
+          </button>
+          {user ? (
+            <button
+              onClick={() => window.location.href = '/profile'}
+              className="px-8 py-3 border-2 border-blue-500 text-blue-400 font-bold rounded-xl hover:bg-blue-500/10 transition-all duration-200"
             >
-              Browse Roadmaps
+              Go to Profile
             </button>
-            <button 
+          ) : (
+            <button
               onClick={() => window.location.href = '/auth/signup'}
               className="px-8 py-3 border-2 border-purple-500 text-purple-400 font-bold rounded-xl hover:bg-purple-500/10 transition-all duration-200"
             >
               Create Account
             </button>
-          </div>
+          )}
+        </div>
         </div>
       </div>
     </section>
