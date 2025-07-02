@@ -1,4 +1,5 @@
 import React from "react";
+import useCurrentUser from "@/lib/useCurrentUser";
 import { motion } from "framer-motion";
 import {
   FaHtml5,
@@ -20,6 +21,7 @@ import {
 } from "react-icons/fa";
 
 export function Footer() {
+  const user = useCurrentUser();
   const navItems = [
     { name: "About", link: "/#about", icon: <FaUsers className="h-4 w-4" /> },
     { name: "Blog & Facts", link: "/blogs", icon: <FaCode className="h-4 w-4" /> },
@@ -141,6 +143,13 @@ export function Footer() {
                 whileHover={{ scale: 1.05, y: -2 }}
                 whileTap={{ scale: 0.95 }}
                 className="group relative px-6 py-3 sm:px-8 sm:py-4 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl font-semibold text-white shadow-2xl shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 text-sm sm:text-base"
+                onClick={() => {
+                  if (user) {
+                    window.location.href = '/explore';
+                  } else {
+                    window.location.href = '/auth/signup';
+                  }
+                }}
               >
                 <span className="relative z-10 flex items-center justify-center gap-2 sm:gap-3">
                   Start Your Journey

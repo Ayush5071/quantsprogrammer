@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 interface RoadmapCardProps {
   heading: string;
   description: string;
@@ -14,51 +16,62 @@ export function Roadmapcard({
   linkedIn,
 }: RoadmapCardProps) {
   return (
-    <div className="relative h-72 w-full max-w-xs md:max-w-md flex flex-col p-4 sm:p-6 bg-zinc-900 rounded-3xl shadow-xl border-2 border-blue-800 hover:border-blue-400 transition-all duration-300 overflow-hidden group">
-      <div className="flex flex-col h-full justify-between">
-        <div>
-          <p className="text-xl sm:text-2xl md:text-3xl font-extrabold font-bebas text-blue-200 mb-2 line-clamp-2 break-words tracking-wide">
-            {heading}
-          </p>
-          <p className="text-neutral-300 font-Sfpro text-xs sm:text-sm md:text-base line-clamp-3 break-words opacity-90 mb-4">
-            {description}
-          </p>
+    <motion.div
+      whileHover={{ scale: 1.02, y: -5 }}
+      className="group relative p-8 bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-lg border border-white/10 rounded-2xl hover:border-white/20 transition-all duration-500 shadow-xl cursor-pointer h-80 flex flex-col"
+    >
+      {/* Background Gradient Effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-purple-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500 rounded-2xl" />
+      
+      <div className="relative z-10 flex flex-col h-full">
+        {/* Header */}
+        <div className="flex items-start gap-4 mb-6">
+          <div className="p-3 bg-gradient-to-br from-blue-600/20 to-purple-600/20 border border-white/20 rounded-xl group-hover:scale-110 transition-transform duration-300">
+            <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h3 className="text-xl md:text-2xl font-bold text-white mb-2 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-blue-200 transition-all duration-300 line-clamp-2">
+              {heading}
+            </h3>
+            <p className="text-zinc-300 text-sm md:text-base leading-relaxed group-hover:text-zinc-200 transition-colors duration-300 line-clamp-3">
+              {description || "Start your learning journey with this comprehensive roadmap."}
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-auto gap-2 sm:gap-0">
-          <div className="text-xs md:text-sm text-zinc-400 flex items-center gap-2">
-            <span>Curated by</span>
+
+        {/* Author Info */}
+        <div className="flex items-center gap-3 p-3 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all duration-300 mb-6 mt-auto">
+          <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 flex-shrink-0" />
+          <span className="text-sm text-zinc-300 group-hover:text-zinc-200 transition-colors duration-300">
+            Curated by{" "}
             <a
               href={linkedIn}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-400 hover:underline font-semibold break-all"
+              className="text-blue-400 hover:text-blue-300 font-medium hover:underline transition-colors duration-200"
+              onClick={(e) => e.stopPropagation()}
             >
               {author}
             </a>
-          </div>
-          <a
-            href={link}
-            className="flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-blue-800 hover:bg-blue-600 text-white font-bold rounded-xl shadow hover:scale-105 transition-transform border border-blue-900 text-xs sm:text-sm"
-          >
-            Explore
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-4 h-4 sm:w-5 sm:h-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M17.25 6.75L21 12m0 0l-3.75 5.25M21 12H3"
-              />
-            </svg>
-          </a>
+          </span>
         </div>
+
+        {/* Action Button */}
+        <motion.a
+          href={link}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          Explore Roadmap
+          <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </motion.a>
       </div>
-      <div className="absolute inset-0 pointer-events-none rounded-3xl border-2 border-blue-900 opacity-20"></div>
-    </div>
+    </motion.div>
   );
 }
