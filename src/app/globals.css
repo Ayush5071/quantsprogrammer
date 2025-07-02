@@ -1,6 +1,18 @@
+/* Moon bounce animation for glassmorphism moon accent */
+.animate-moon-bounce {
+  animation: moonBounce 3.5s cubic-bezier(0.4,0,0.2,1) infinite alternate;
+}
+@keyframes moonBounce {
+  0% { transform: translate(-50%, 0) scale(1); filter: blur(0px); }
+  60% { transform: translate(-50%, -18px) scale(1.08); filter: blur(1.5px); }
+  100% { transform: translate(-50%, -10px) scale(1.04); filter: blur(1px); }
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Locomotive Scroll CSS */
+@import 'locomotive-scroll/dist/locomotive-scroll.css';
 
 /* Mobile viewport optimizations */
 html {

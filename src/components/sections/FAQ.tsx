@@ -54,26 +54,34 @@ const faqData = [
 ];
 
 const FAQ = () => (
-  <section className="w-full py-16 px-4 md:px-8 relative overflow-hidden">
-    {/* Enhanced Background Effects - matching main page style */}
+  <section className="w-full min-h-screen flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 relative overflow-hidden">
+    {/* Enhanced Background Effects - matching HeroPage exactly */}
     <div className="absolute inset-0 bg-gradient-to-b from-black via-blue-900 to-black"></div>
     <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.15),transparent_50%)]"></div>
     <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(37,99,235,0.12),transparent_50%)]"></div>
     <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(29,78,216,0.08),transparent_70%)]"></div>
     
-    {/* Animated Grid Pattern - matching main page */}
+    {/* Animated Grid Pattern - matching HeroPage exactly */}
     <div className="absolute inset-0 opacity-20">
       <div className="h-full w-full bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black,transparent)]"></div>
     </div>
     
-    <div className="max-w-6xl mx-auto relative z-10">
-      <h2 className="text-4xl md:text-5xl font-extrabold bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 bg-clip-text text-transparent text-center mb-4">
-        Frequently Asked Questions
-      </h2>
-      <p className="text-lg text-zinc-300 text-center mb-12 max-w-2xl mx-auto">
-        Everything you need to know about Dev Roadmap's features and how to get started
-      </p>
-      <div className="space-y-6">
+    <div className="relative z-10 max-w-7xl mx-auto w-full py-16">
+      {/* Main FAQ Content */}
+      <div className="text-center mb-12">
+        <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-blue-300 mb-6 leading-[0.85] tracking-tight">
+          Frequently Asked
+          <br />
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600">
+            Questions
+          </span>
+        </h2>
+        <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-zinc-300 font-medium max-w-2xl md:max-w-4xl mx-auto mb-8 leading-relaxed px-4">
+          Everything you need to know about Dev Roadmap's features and how to get started
+        </p>
+      </div>
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16">
         {faqData.map((faq, idx) => (
           <details
             key={idx}
@@ -96,12 +104,12 @@ const FAQ = () => (
         ))}
       </div>
       
-      <div className="text-center mt-12">
+      <div className="text-center">
         <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8 max-w-md mx-auto">
-          <p className="text-zinc-400 mb-4">Still have questions?</p>
+          <p className="text-zinc-300 mb-6 text-lg">Still have questions?</p>
           <button 
             onClick={() => window.location.href = '/contact-support'}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-blue-900 transition-all duration-200 shadow-lg hover:shadow-xl"
+            className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold rounded-xl shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 text-lg hover:from-blue-500 hover:to-blue-700 hover:scale-105"
           >
             Contact Support
           </button>
