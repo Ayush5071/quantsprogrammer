@@ -1,29 +1,50 @@
 import { useEffect } from "react";
-import "locomotive-scroll/dist/locomotive-scroll.css";
 
 const useLocomotiveScroll = () => {
   useEffect(() => {
-    if (typeof window === "undefined" || typeof document === "undefined") return;
-    let scroll: any;
-    import("locomotive-scroll")
-      .then((LocomotiveScrollModule) => {
+    if (typeof window === "undefined") return;
+    let scroll: any = null;
+    let isMounted = true;
+
+    const initLocomotiveScroll = async () => {
+      try {
+        const LocomotiveScrollModule = await import("locomotive-scroll");
         const LocomotiveScroll = LocomotiveScrollModule.default;
-        const scrollEl = document.querySelector("[data-scroll-container]");
-        // Fix: Only proceed if scrollEl is an HTMLElement (for TS/JS safety)
-        if (!scrollEl || !(scrollEl instanceof (window.HTMLElement || HTMLElement)))
+        const scrollEl = document.querySelector("[data-scroll-container]") as HTMLElement;
+        if (!scrollEl) {
+          console.warn("Locomotive Scroll: No element with [data-scroll-container] found");
           return;
+        }
         scroll = new LocomotiveScroll({
           el: scrollEl,
           smooth: true,
           lerp: 0.08,
           multiplier: 1,
           class: "is-reveal",
-          // Use type assertion to bypass TypeScript strict checking for device options
-        } as any);
-      })
-      .catch(() => {});
+        });
+        const handleResize = () => {
+          if (scroll && typeof scroll.update === "function") {
+            scroll.update();
+          }
+        };
+        window.addEventListener("resize", handleResize);
+        // Clean up on unmount
+        if (isMounted) {
+          return () => {
+            window.removeEventListener("resize", handleResize);
+          };
+        }
+      } catch (error) {
+        console.warn("Failed to initialize Locomotive Scroll:", error);
+      }
+    };
+    const timeoutId = setTimeout(initLocomotiveScroll, 100);
     return () => {
-      if (scroll && typeof scroll.destroy === "function") scroll.destroy();
+      isMounted = false;
+      clearTimeout(timeoutId);
+      if (scroll && typeof scroll.destroy === "function") {
+        scroll.destroy();
+      }
     };
   }, []);
 };

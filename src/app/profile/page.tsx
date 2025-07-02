@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -25,7 +25,45 @@ interface User {
   isAdmin?: boolean;
 }
 
+// Cache management
+const cache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Enhanced cached fetch with improved error handling
+const cachedFetch = async (url: string, options?: RequestInit) => {
+  const cacheKey = `${url}_${JSON.stringify(options)}`;
+  const cached = cache.get(cacheKey);
+  
+  if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+    return cached.data;
+  }
+  
+  try {
+    const response = await fetch(url, options);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    cache.set(cacheKey, {
+      data,
+      timestamp: Date.now()
+    });
+    
+    return data;
+  } catch (error) {
+    console.error(`Error fetching ${url}:`, error);
+    throw error;
+  }
+};
+
 export default function ProfilePage() {
+  // All hooks and logic above
+
+  // All hooks and logic above
+
   const router = useRouter();
   const [userData, setUserData] = useState<User | null>(null);
   const [frontendCheckedItems, setFrontendCheckedItems] = useState<string[]>([]);
@@ -44,42 +82,45 @@ export default function ProfilePage() {
   const [blogRequest, setBlogRequest] = useState<any>(null);
   const [canCreateBlog, setCanCreateBlog] = useState(false);
 
-  useEffect(() => {
-    const fetchUserDetails = async () => {
-      try {
-        const res = await axios.get("/api/users/me");
-        setUserData(res.data.user);
-      } catch (error: any) {
-        console.error(error.message);
-        toast.error("Failed to fetch user details");
-      }
-    };
-    const fetchRoadmapsAndProgress = async () => {
-      setLoadingRoadmaps(true);
-      try {
-        const res = await fetch("/api/roadmap/fetchall");
-        const data = await res.json();
-        setRoadmaps(data.roadmaps || []);
-        // Fetch progress for each roadmap
-        const progressObj: Record<string, { completedTasks: string[]; completedAssignments: string[] }> = {};
-        for (const roadmap of data.roadmaps) {
-          try {
-            const progressRes = await fetch(`/api/roadmap/progress?roadmapId=${roadmap._id}`);
-            const progressData = await progressRes.json();
-            progressObj[roadmap._id] = progressData.progress || { completedTasks: [], completedAssignments: [] };
-          } catch {
-            progressObj[roadmap._id] = { completedTasks: [], completedAssignments: [] };
-          }
+  // Cached user data fetching
+  const fetchUserDetails = useCallback(async () => {
+    try {
+      const res = await axios.get("/api/users/me");
+      setUserData(res.data.user);
+    } catch (error: any) {
+      console.error(error.message);
+      toast.error("Failed to fetch user details");
+    }
+  }, []);
+
+  // Cached roadmaps and progress fetching
+  const fetchRoadmapsAndProgress = useCallback(async () => {
+    setLoadingRoadmaps(true);
+    try {
+      const data = await cachedFetch("/api/roadmap/fetchall");
+      setRoadmaps(data.roadmaps || []);
+      
+      // Fetch progress for each roadmap with caching
+      const progressObj: Record<string, { completedTasks: string[]; completedAssignments: string[] }> = {};
+      for (const roadmap of data.roadmaps) {
+        try {
+          const progressData = await cachedFetch(`/api/roadmap/progress?roadmapId=${roadmap._id}`);
+          progressObj[roadmap._id] = progressData.progress || { completedTasks: [], completedAssignments: [] };
+        } catch {
+          progressObj[roadmap._id] = { completedTasks: [], completedAssignments: [] };
         }
-        setProgressMap(progressObj);
-      } catch (error) {
-        console.error("Error fetching roadmaps or progress", error);
       }
-      setLoadingRoadmaps(false);
-    };
+      setProgressMap(progressObj);
+    } catch (error) {
+      console.error("Error fetching roadmaps or progress", error);
+    }
+    setLoadingRoadmaps(false);
+  }, []);
+
+  useEffect(() => {
     fetchUserDetails();
     fetchRoadmapsAndProgress();
-  }, []);
+  }, [fetchUserDetails, fetchRoadmapsAndProgress]);
 
   useEffect(() => {
     if (userData) setEditData(userData);
@@ -145,24 +186,21 @@ export default function ProfilePage() {
     }
   };
 
+  // --- All hooks and logic above ---
+
+  // --- Main Render ---
+  // Main Render
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900 relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-purple-900/10 to-pink-900/10" />
-      <div className="absolute top-0 left-0 w-full h-full">
-        {[...Array(100)].map((_, index) => (
-          <div
-            key={index}
-            className="absolute bg-white rounded-full opacity-20 animate-pulse"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              width: `${Math.random() * 3 + 1}px`,
-              height: `${Math.random() * 3 + 1}px`,
-              animationDelay: `${Math.random() * 2}s`,
-            }}
-          />
-        ))}
+    <div className="min-h-screen w-full flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 relative overflow-hidden">
+      {/* Enhanced Background Effects - matching HeroPage exactly */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black via-blue-900 to-black"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.15),transparent_50%)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(37,99,235,0.12),transparent_50%)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(29,78,216,0.08),transparent_70%)]"></div>
+      
+      {/* Animated Grid Pattern - matching HeroPage exactly */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="h-full w-full bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black,transparent)]"></div>
       </div>
 
       {/* Back Button */}
@@ -179,24 +217,38 @@ export default function ProfilePage() {
         <span className="hidden sm:inline">Back</span>
       </motion.button>
 
-      <div className="relative z-10 py-20 px-4 md:px-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
+      <div className="relative z-10 max-w-7xl mx-auto w-full py-16">
+        {/* Header - matching hero section style */}
+        <div className="text-center mb-12">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="text-center mb-12"
+            transition={{ duration: 0.8 }}
+            className="mb-6 sm:mb-8"
           >
-            <h1 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
-              Your Profile
+            {/* Trust Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full text-sm text-zinc-300 mb-4 sm:mb-6 hover:bg-white/15 transition-all duration-300">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Your Developer Profile</span>
+            </div>
+            
+            {/* Main Heading - Hero style */}
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-blue-300 mb-4 sm:mb-6 leading-[0.85] tracking-tight text-center">
+              Master Your
+              <br />
+              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600">
+                Tech Journey
+              </span>
             </h1>
-            <p className="text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto">
-              Manage your account, track progress, and customize your learning experience
+            
+            {/* Subtitle */}
+            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-zinc-300 font-medium max-w-2xl md:max-w-4xl mx-auto mb-6 sm:mb-8 leading-relaxed px-4 text-center">
+              Track progress, manage learning paths, and accelerate your development career
             </p>
           </motion.div>
+        </div>
 
-          <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-8">
             {/* Profile Card */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -399,7 +451,7 @@ export default function ProfilePage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.3 }}
-            className="mt-8"
+            className="mt-12"
           >
             <InterviewHistory userId={userData?._id} />
           </motion.div>
@@ -409,23 +461,38 @@ export default function ProfilePage() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.4 }}
-            className="mt-8 flex flex-col sm:flex-row gap-4 justify-center"
+            className="mt-12 text-center bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 md:p-8 shadow-xl"
           >
-            <Link
-              href="/auth/forgotpassword"
-              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-xl hover:from-blue-500 hover:to-cyan-500 transition-all duration-300 text-center shadow-lg hover:shadow-blue-500/25"
-            >
-              Change Password
-            </Link>
-            <button
-              onClick={logout}
-              className="px-8 py-4 bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold rounded-xl hover:from-red-500 hover:to-pink-500 transition-all duration-300 shadow-lg hover:shadow-red-500/25"
-            >
-              Logout
-            </button>
+            <h3 className="text-xl md:text-2xl font-bold text-white mb-3 md:mb-4">
+              Ready to Advance Your Career?
+            </h3>
+            <p className="text-zinc-300 mb-6 max-w-2xl mx-auto text-base">
+              Access all the tools you need to accelerate your tech journey.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                href="/auth/forgotpassword"
+                className="px-8 py-4 bg-white/10 backdrop-blur-lg border border-white/20 text-white font-semibold rounded-xl hover:bg-white/20 transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+                Change Password
+              </Link>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={logout}
+                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl shadow-xl hover:shadow-blue-500/25 transition-all duration-300 flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Logout
+              </motion.button>
+            </div>
           </motion.div>
         </div>
       </div>
-    </div>
   );
 }

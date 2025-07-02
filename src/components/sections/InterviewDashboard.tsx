@@ -10,68 +10,69 @@ import { useRouter } from "next/navigation";
 // Responsive Navbar (replace Navbar import and usage)
 function ResponsiveNavbar({ onNavigate }: { onNavigate: (path: string) => void }) {
   const [open, setOpen] = useReactState(false);
-  
   const handleLinkClick = (path: string) => {
     setOpen(false);
     onNavigate(path);
   };
 
   return (
-    <nav className="w-full bg-zinc-950 border-b-2 border-blue-900 shadow-lg sticky top-0 z-50">
-      <div className="max-w-[98vw] w-full mx-auto flex items-center justify-between px-4 py-3">
-        <button onClick={() => handleLinkClick('/')} className="flex items-center gap-2 text-2xl font-bold text-blue-400">
-          <img src="/official_logo.png" alt="Dev Roadmap" className="h-10 w-10 rounded-full" />
-          Dev Roadmap
-        </button>
+    <div className="navbar-outer fixed top-0 left-0 z-50 w-full flex justify-center">
+      <div className="flex items-center justify-between w-full max-w-4xl px-4 py-3">
+        {/* No logo for interview navbar */}
+        <div className="flex-1" />
+        {/* Hamburger for mobile */}
         <button
-          className="md:hidden text-zinc-200 focus:outline-none"
+          className="md:hidden text-white focus:outline-none bg-white/10 border border-white/20 rounded-xl p-2 shadow-lg hover:bg-white/20 transition-all"
           aria-label={open ? 'Close menu' : 'Open menu'}
           onClick={() => setOpen(!open)}
         >
-          {open ? (
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-          ) : (
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-          )}
+          <span className="sr-only">Menu</span>
+          <div className="relative w-8 h-8 flex flex-col justify-center items-center">
+            <span className={`block h-1 w-7 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 ${open ? 'rotate-45 translate-y-2' : ''}`}></span>
+            <span className={`block h-1 w-7 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 my-1 transition-all duration-300 ${open ? 'opacity-0' : ''}`}></span>
+            <span className={`block h-1 w-7 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 ${open ? '-rotate-45 -translate-y-2' : ''}`}></span>
+          </div>
         </button>
         {/* Desktop nav */}
-        <div className="hidden md:flex gap-8 items-center">
-          <button onClick={() => handleLinkClick('/')} className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Home</button>
-          <button onClick={() => handleLinkClick('/explore')} className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Explore</button>
-          <button onClick={() => handleLinkClick('/blogs')} className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Blogs</button>
-          <button onClick={() => handleLinkClick('/profile')} className="text-zinc-200 hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Profile</button>
-          <button onClick={() => handleLinkClick('/top-interviews')} className="text-zinc-200 hover:text-pink-400 font-bold text-lg transition-colors px-2 py-1 rounded-lg hover:bg-zinc-900">Top Interviews</button>
-          <button onClick={() => handleLinkClick('/profile#interview-history')} className="ml-2 px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold shadow transition-all">Past Interviews</button>
-          <button onClick={() => handleLinkClick('/top-interview-history')} className="ml-2 px-4 py-2 bg-pink-700 hover:bg-pink-800 text-white rounded-lg font-semibold shadow transition-all">Top Interview History</button>
+        <div className="hidden md:flex gap-6 items-center bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl px-6 py-2 shadow-lg">
+          <button onClick={() => handleLinkClick('/')} className="text-white hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-white/10">Home</button>
+          <button onClick={() => handleLinkClick('/explore')} className="text-white hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-white/10">Explore</button>
+          <button onClick={() => handleLinkClick('/blogs')} className="text-white hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-white/10">Blogs</button>
+          <button onClick={() => handleLinkClick('/profile')} className="text-white hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-white/10">Profile</button>
+          <button onClick={() => handleLinkClick('/top-interviews')} className="text-white hover:text-pink-400 font-bold text-lg transition-colors px-2 py-1 rounded-lg hover:bg-white/10">Top Interviews</button>
+          <button onClick={() => handleLinkClick('/profile#interview-history')} className="ml-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg font-semibold shadow transition-all">Past Interviews</button>
+          <button onClick={() => handleLinkClick('/top-interview-history')} className="ml-2 px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-700 text-white rounded-lg font-semibold shadow transition-all">Top Interview History</button>
         </div>
       </div>
       {/* Mobile nav overlay */}
       {open && (
-        <>
+        <div className="fixed inset-0 z-50 flex flex-col">
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm opacity-100 transition-opacity duration-300"
             onClick={() => setOpen(false)}
             aria-label="Close menu backdrop"
           />
-          <div className="fixed top-0 left-0 w-full bg-zinc-950 border-b-2 border-blue-900 shadow-lg z-50 animate-slideDown flex flex-col gap-6 px-8 py-8">
+          <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl mx-4 mt-4 p-8 flex flex-col gap-6 makeopaque opacity-100 transition-opacity duration-300">
             <button
-              className="self-end text-zinc-200 mb-4 focus:outline-none"
+              className="self-end text-white mb-4 focus:outline-none bg-white/10 border border-white/20 rounded-xl p-2 shadow-lg hover:bg-white/20 transition-all"
               aria-label="Close menu"
               onClick={() => setOpen(false)}
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
             </button>
-            <button onClick={() => handleLinkClick('/')} className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900 text-left">Home</button>
-            <button onClick={() => handleLinkClick('/explore')} className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900 text-left">Explore</button>
-            <button onClick={() => handleLinkClick('/blogs')} className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900 text-left">Blogs</button>
-            <button onClick={() => handleLinkClick('/profile')} className="text-zinc-200 hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900 text-left">Profile</button>
-            <button onClick={() => handleLinkClick('/top-interviews')} className="text-zinc-200 hover:text-pink-400 font-bold text-xl transition-colors px-2 py-2 rounded-lg hover:bg-zinc-900 text-left">Top Interviews</button>
-            <button onClick={() => handleLinkClick('/profile#interview-history')} className="px-4 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold shadow transition-all text-center">Past Interviews</button>
-            <button onClick={() => handleLinkClick('/top-interview-history')} className="px-4 py-3 bg-pink-700 hover:bg-pink-800 text-white rounded-lg font-semibold shadow transition-all text-center">Top Interview History</button>
+            <button onClick={() => handleLinkClick('/')} className="text-white hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-white/10 text-left">Home</button>
+            <button onClick={() => handleLinkClick('/explore')} className="text-white hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-white/10 text-left">Explore</button>
+            <button onClick={() => handleLinkClick('/blogs')} className="text-white hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-white/10 text-left">Blogs</button>
+            <button onClick={() => handleLinkClick('/profile')} className="text-white hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-white/10 text-left">Profile</button>
+            <button onClick={() => handleLinkClick('/top-interviews')} className="text-white hover:text-pink-400 font-bold text-xl transition-colors px-2 py-2 rounded-lg hover:bg-white/10 text-left">Top Interviews</button>
+            <button onClick={() => handleLinkClick('/profile#interview-history')} className="px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg font-semibold shadow transition-all text-center">Past Interviews</button>
+            <button onClick={() => handleLinkClick('/top-interview-history')} className="px-4 py-3 bg-gradient-to-r from-pink-600 to-purple-700 text-white rounded-lg font-semibold shadow transition-all text-center">Top Interview History</button>
           </div>
-        </>
+        </div>
       )}
-    </nav>
+
+      </div>
+
   );
 }
 
@@ -369,42 +370,47 @@ export default function InterviewDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-blue-950 flex flex-col">
-      <ResponsiveNavbar onNavigate={(path) => handleNavigation(() => router.push(path))} />
-      <main className="flex-1 flex flex-col items-center justify-center px-2 py-8 md:py-16">
-        {/* Top Interviews Section Banner (removable) */}
-        {showTopBanner && (
-          <div className="w-full max-w-5xl mx-auto mb-12 relative">
-            <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-purple-900 rounded-3xl shadow-2xl border-2 border-blue-400 p-6 md:p-10 flex flex-col gap-6">
-              <button
-                className="absolute top-4 right-4 text-blue-200 hover:text-white text-2xl font-bold focus:outline-none"
-                aria-label="Close banner"
-                onClick={() => setShowTopBanner(false)}
-                type="button"
-              >
-                &times;
-              </button>
-              <h2 className="text-3xl md:text-4xl font-bold text-blue-300 mb-2">Top Interviews</h2>
-              <p className="text-zinc-200 mb-4">Challenge yourself with the best interviews curated by our admins. Attempt for a score out of 100 and get detailed feedback!</p>
-              <button onClick={() => handleNavigation(() => router.push('/top-interviews'))} className="self-start px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-lg font-semibold shadow transition-all">View & Attempt Top Interviews</button>
-              {user?.role === 'admin' && (
-                <button onClick={() => handleNavigation(() => router.push('/admin/top-interview-create'))} className="self-start px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-lg font-semibold shadow transition-all">Create Top Interview</button>
-              )}
-            </div>
+    <div className="min-h-screen w-full flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 md:pt-16 relative overflow-hidden bg-gradient-to-b from-black via-blue-900 to-black">
+      {/* Enhanced Background Effects - matching ProfilePage */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.15),transparent_50%)] pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(37,99,235,0.12),transparent_50%)] pointer-events-none"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(29,78,216,0.08),transparent_70%)] pointer-events-none"></div>
+      {/* Animated Grid Pattern - matching ProfilePage */}
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
+        <div className="h-full w-full bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black,transparent)]"></div>
+      </div>
+      <div className="relative z-10 w-full max-w-7xl mx-auto py-8 md:py-16">
+        <ResponsiveNavbar onNavigate={(path) => handleNavigation(() => router.push(path))} />
+        {/* Trust Badge/Header */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full text-sm text-zinc-300 mb-4 hover:bg-white/15 transition-all duration-300">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+            <span>AI Interview Practice</span>
           </div>
-        )}
-        <div className="w-full max-w-5xl mx-auto flex flex-col md:flex-row gap-10 md:gap-16 bg-zinc-900/90 rounded-3xl shadow-2xl border-2 border-blue-900 p-6 md:p-12 mt-8">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-blue-300 mb-4 sm:mb-6 leading-[0.85] tracking-tight text-center">
+            Master Technical
+            <br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600">
+              Interviews
+            </span>
+          </h1>
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-zinc-300 font-medium max-w-2xl md:max-w-4xl mx-auto mb-6 sm:mb-8 leading-relaxed px-4 text-center">
+            Practice real interview questions, get instant feedback, and track your progress with our AI-powered system.
+          </p>
+        </div>
+        {/* Main Dashboard Card */}
+        <div className="grid md:grid-cols-2 gap-10 md:gap-16 bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl shadow-2xl p-6 md:p-12">
           {/* AI Side */}
-          <div className="flex-1 flex flex-col items-center md:items-start gap-6">
+          <div className="flex flex-col items-center md:items-start gap-6">
             <div className="w-full flex flex-col gap-2">
               <h2 className="text-3xl md:text-4xl font-bold text-blue-400 mb-2">AI Interviewer</h2>
-              <div className={`bg-zinc-800 rounded-xl p-4 border border-blue-800 text-zinc-200 min-h-[80px] shadow-inner flex items-center gap-3 ${isSpeaking ? 'ring-2 ring-blue-400 animate-pulse' : ''}`}>
+              <div className={`bg-white/10 rounded-2xl p-4 border border-blue-800 text-zinc-200 min-h-[80px] shadow-inner flex items-center gap-3 ${isSpeaking ? 'ring-2 ring-blue-400 animate-pulse' : ''}`}> 
                 {isSpeaking && <span className="w-3 h-3 rounded-full bg-blue-400 animate-pulse mr-2" />}
                 {question ? (
                   <>
                     <span className="text-lg">{question}</span>
                     <button
-                      className={`ml-2 p-1 rounded-full border transition-all ${ttsEnabled ? 'bg-blue-700 border-blue-400 text-white' : 'bg-zinc-800 border-zinc-500 text-zinc-300'}`}
+                      className={`ml-2 p-1 rounded-full border transition-all ${ttsEnabled ? 'bg-blue-700 border-blue-400 text-white' : 'bg-white/10 border-zinc-500 text-zinc-300'}`}
                       onClick={() => setTtsEnabled(v => !v)}
                       title={ttsEnabled ? 'Disable Text-to-Speech' : 'Enable Text-to-Speech'}
                       type="button"
@@ -426,18 +432,16 @@ export default function InterviewDashboard() {
             </div>
           </div>
           {/* User Side */}
-          <div className="flex-1 flex flex-col items-center md:items-start gap-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-zinc-200 mb-2">Your Side</h2>
+          <div className="flex flex-col items-center md:items-start gap-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Your Side</h2>
             <div className="w-full flex flex-col gap-2">
-              <video ref={videoRef} autoPlay playsInline muted className="rounded-xl w-full max-w-xs mb-2 border-2 border-blue-800 shadow-lg" />
-              
+              <video ref={videoRef} autoPlay playsInline muted className="rounded-2xl w-full max-w-xs mb-2 border-2 border-blue-800 shadow-lg" />
               {/* Speech Recognition Info */}
               {step !== 0 && speechNotSupported && (
                 <div className="mb-4 p-3 bg-blue-900/50 border border-blue-600 rounded-lg text-blue-200 text-sm">
                   ℹ️ Speech recognition is not supported on your device. You can still type your answers below.
                 </div>
               )}
-
               {/* Both Input Methods Available Simultaneously */}
               {step !== 0 && (
                 <div className="space-y-4">
@@ -447,12 +451,11 @@ export default function InterviewDashboard() {
                       <label className="block text-sm font-medium text-blue-300 mb-2">
                         🎤 Speech Recognition {listening ? '(Listening...)' : '(Ready)'}
                       </label>
-                      <div className={`w-full p-3 bg-zinc-800 rounded border border-zinc-700 text-zinc-200 text-base min-h-[60px] ${listening ? 'ring-2 ring-blue-400' : ''}`}>
+                      <div className={`w-full p-3 bg-white/10 rounded border border-zinc-700 text-zinc-200 text-base min-h-[60px] ${listening ? 'ring-2 ring-blue-400' : ''}`}>
                         {transcript ? `Speech: ${transcript}` : "Say something and it will appear here..."}
                       </div>
                     </div>
                   )}
-                  
                   {/* Manual Text Input (always available) */}
                   <div className="w-full">
                     <label className="block text-sm font-medium text-blue-300 mb-2">
@@ -462,11 +465,10 @@ export default function InterviewDashboard() {
                       value={textAnswer}
                       onChange={(e) => setTextAnswer(e.target.value)}
                       placeholder="Type your answer here..."
-                      className="w-full p-3 bg-zinc-800 rounded border border-zinc-700 text-zinc-200 text-base min-h-[120px] resize-none"
+                      className="w-full p-3 bg-white/10 rounded border border-zinc-700 text-zinc-200 text-base min-h-[120px] resize-none"
                       rows={5}
                     />
                   </div>
-                  
                   {/* Combined Answer Preview */}
                   {(transcript || textAnswer) && (
                     <div className="w-full">
@@ -480,12 +482,11 @@ export default function InterviewDashboard() {
                   )}
                 </div>
               )}
-              
               {/* Answer Controls */}
               {step !== 0 && (
                 <div className="flex flex-wrap gap-3 mt-4">
                   <button 
-                    className="py-2 px-4 rounded bg-zinc-700 text-white font-bold hover:bg-zinc-800 transition" 
+                    className="py-2 px-4 rounded-lg bg-white/10 text-white font-bold hover:bg-blue-700 transition border border-blue-700" 
                     onClick={() => {
                       resetTranscript();
                       setTextAnswer('');
@@ -495,7 +496,7 @@ export default function InterviewDashboard() {
                   </button>
                   {!speechNotSupported && (
                     <button 
-                      className="py-2 px-4 rounded bg-zinc-700 text-white font-bold hover:bg-zinc-800 transition" 
+                      className="py-2 px-4 rounded-lg bg-white/10 text-white font-bold hover:bg-blue-700 transition border border-blue-700" 
                       onClick={resetTranscript}
                     >
                       Clear Speech
@@ -570,7 +571,6 @@ export default function InterviewDashboard() {
             )}
           </div>
         </div>
-      </main>
 
       {/* Navigation Warning Modal */}
       {showWarningModal && (
@@ -621,6 +621,7 @@ export default function InterviewDashboard() {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 }

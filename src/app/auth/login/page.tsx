@@ -49,7 +49,8 @@ export default function LoginPage() {
         // console.log("Login success:", response.data);
 
         toast.success("Login successful! Redirecting...");
-        localStorage.setItem("token", response.data.token);
+        // Token is already set as httpOnly cookie by the API
+        // localStorage.setItem("token", response.data.token);
         router.push("/");
       } catch (error: any) {
         console.error("Login failed:", error.response?.data?.error || error.message);

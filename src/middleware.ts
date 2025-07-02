@@ -9,44 +9,42 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Interview-related routes
-  const isInterviewRoute = path.startsWith('/interview') || path.startsWith('/top-interviews');
+  // Interview-related routes that require authentication
+  const isInterviewRoute = path.startsWith('/interview') || 
+                          path.startsWith('/top-interviews') || 
+                          path.includes('interview-history') ||
+                          path.startsWith('/prepare-interviews') ||
+                          path.startsWith('/placement-data');
 
-  // Public paths that should redirect to profile if logged in
-  const isPublicPath = path === '/login' || path === '/signup';
+  // Public paths that should redirect to home if logged in
+  const isPublicPath = path === '/auth/login' || path === '/auth/signup';
   
   // Login-required page should redirect logged-in users to home
   const isLoginRequired = path === '/auth/login-required';
 
-  // Try to get token from cookies (standard) and from headers (edge case)
-  let token = request.cookies.get("token")?.value;
-  if (!token) {
-    // Some deployments may send cookies in headers
-    const cookieHeader = request.headers.get('cookie');
-    if (cookieHeader) {
-      const match = cookieHeader.match(/token=([^;]+)/);
-      if (match) token = match[1];
-    }
-  }
+  // Get token from cookies - simplified approach
+  const token = request.cookies.get("token")?.value;
+  
+  // Simple token presence check (we'll let the API validate the token properly)
+  const hasToken = Boolean(token && token.length > 10);
 
-  // Debug logging to console (temporary)
+  // Debug logging (remove in production)
   console.log('Middleware Debug:', {
     path,
     isInterviewRoute,
-    token: token ? 'present' : 'absent',
-    cookieHeader: request.headers.get('cookie'),
-    cookies: Object.fromEntries(request.cookies.getAll().map(c => [c.name, c.value]))
+    hasToken,
+    tokenLength: token?.length || 0
   });
 
-  // Redirect logged-in users away from public pages
-  if ((isPublicPath || isLoginRequired) && token) {
+  // Redirect logged-in users away from auth pages
+  if ((isPublicPath || isLoginRequired) && hasToken) {
+    console.log('Redirecting authenticated user away from auth page');
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // Block interview routes for not-logged-in users ONLY
-  if (isInterviewRoute && !token) {
-    console.log('Redirecting to login-required for path:', path);
-    // Redirect to a beautiful themed page for login-required
+  // Block interview routes for users without tokens
+  if (isInterviewRoute && !hasToken) {
+    console.log('Redirecting unauthenticated user to login-required for path:', path);
     return NextResponse.redirect(new URL('/auth/login-required', request.url));
   }
 

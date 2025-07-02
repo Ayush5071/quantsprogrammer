@@ -171,6 +171,7 @@ export function HeroPage() {
             </div>
           </motion.div>
         </div>
+
       </div>
     </section>
   );
