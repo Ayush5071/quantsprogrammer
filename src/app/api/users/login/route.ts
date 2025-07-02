@@ -59,7 +59,14 @@ export async function POST(request: NextRequest) {
       token, // Add token to response body for client-side use
     });
 
-    response.cookies.set("token", token, {});
+    // Set cookie with proper options for security and accessibility
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 86400, // 1 day in seconds
+      path: "/",
+    });
 
     return response;
   } catch (error: any) {

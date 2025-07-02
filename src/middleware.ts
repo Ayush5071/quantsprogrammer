@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import jwt from 'jsonwebtoken';
 
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -9,44 +10,54 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Interview-related routes
-  const isInterviewRoute = path.startsWith('/interview') || path.startsWith('/top-interviews');
+  // Interview-related routes that require authentication
+  const isInterviewRoute = path.startsWith('/interview') || 
+                          path.startsWith('/top-interviews') || 
+                          path.includes('interview-history') ||
+                          path.startsWith('/prepare-interviews') ||
+                          path.startsWith('/placement-data');
 
-  // Public paths that should redirect to profile if logged in
-  const isPublicPath = path === '/login' || path === '/signup';
+  // Public paths that should redirect to home if logged in
+  const isPublicPath = path === '/auth/login' || path === '/auth/signup';
   
   // Login-required page should redirect logged-in users to home
   const isLoginRequired = path === '/auth/login-required';
 
-  // Try to get token from cookies (standard) and from headers (edge case)
+  // Try to get token from cookies
   let token = request.cookies.get("token")?.value;
-  if (!token) {
-    // Some deployments may send cookies in headers
-    const cookieHeader = request.headers.get('cookie');
-    if (cookieHeader) {
-      const match = cookieHeader.match(/token=([^;]+)/);
-      if (match) token = match[1];
+  
+  // Validate token if present
+  let isValidToken = false;
+  if (token) {
+    try {
+      jwt.verify(token, process.env.TOKEN_SECRET!);
+      isValidToken = true;
+    } catch (error) {
+      console.log('Invalid token detected, clearing it');
+      isValidToken = false;
+      // Clear invalid token
+      const response = NextResponse.next();
+      response.cookies.delete('token');
     }
   }
 
-  // Debug logging to console (temporary)
+  // Debug logging (remove in production)
   console.log('Middleware Debug:', {
     path,
     isInterviewRoute,
     token: token ? 'present' : 'absent',
-    cookieHeader: request.headers.get('cookie'),
-    cookies: Object.fromEntries(request.cookies.getAll().map(c => [c.name, c.value]))
+    isValidToken,
+    userAgent: request.headers.get('user-agent')?.slice(0, 50)
   });
 
-  // Redirect logged-in users away from public pages
-  if ((isPublicPath || isLoginRequired) && token) {
+  // Redirect logged-in users away from auth pages
+  if ((isPublicPath || isLoginRequired) && isValidToken) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // Block interview routes for not-logged-in users ONLY
-  if (isInterviewRoute && !token) {
+  // Block interview routes for users without valid tokens
+  if (isInterviewRoute && !isValidToken) {
     console.log('Redirecting to login-required for path:', path);
-    // Redirect to a beautiful themed page for login-required
     return NextResponse.redirect(new URL('/auth/login-required', request.url));
   }
 
