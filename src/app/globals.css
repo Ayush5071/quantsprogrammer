@@ -2,6 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Mobile viewport optimizations */
+html {
+  /* Handle safe areas for mobile devices */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Prevent horizontal scroll on mobile */
+body {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Smooth scrolling and mobile optimization */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -234,4 +255,26 @@ body {
 }
 
 /* Buy me a coffee button */
+
+/* Fade-in animation for login-required page heading */
+.animate-fade-in {
+  animation: fadeIn 1.2s cubic-bezier(0.4,0,0.2,1) 1;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Custom breakpoint for very small devices */
+@media (max-width: 375px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 320px) {
+  html {
+    font-size: 13px;
+  }
+}
 
