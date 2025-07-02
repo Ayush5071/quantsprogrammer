@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import "./globals.css";
 import { Analytics } from '@vercel/analytics/next';
 import { CheckedDataProvider } from "@/context/checkedDataContext";
+import { DataCacheProvider } from "@/context/DataCacheContext";
 import { Toaster } from "react-hot-toast";
 import dynamic from "next/dynamic";
 
@@ -69,11 +70,13 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
       </head>
       <body className={`antialiased notallow`}>
-        <CheckedDataProvider>
-            <Toaster position="top-right" reverseOrder={false} />
-            <NotificationIcon />
-            {children}
-        </CheckedDataProvider>
+        <DataCacheProvider>
+          <CheckedDataProvider>
+              <Toaster position="top-right" reverseOrder={false} />
+              <NotificationIcon />
+              {children}
+          </CheckedDataProvider>
+        </DataCacheProvider>
         <Analytics />
       </body>
     </html>
