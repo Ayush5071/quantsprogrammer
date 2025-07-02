@@ -91,26 +91,11 @@ const BlogSection = () => {
   const canCreateBlog = user && (user.isAdmin || (blogRequest && blogRequest.status === "accepted"));
 
   return (
-    <div className="relative overflow-x-hidden min-h-screen text-white bg-gradient-to-b from-black via-gray-900 to-black">
-      {/* Request Button */}
-      {user && !user.isAdmin && (!blogRequest || blogRequest.status === "rejected" || blogRequest.status === "pending") && (
-        <button
-          className="fixed top-8 right-8 z-30 px-6 py-3 bg-blue-700 text-white rounded-xl text-lg font-semibold shadow hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all"
-          onClick={handleRequest}
-        >
-          {blogRequest && blogRequest.status === "pending" ? "Request Pending" : "Request to Write Blog"}
-        </button>
-      )}
-      {/* Create Blog Button for eligible users */}
-      {canCreateBlog && (
-        <button
-          className="fixed top-8 left-8 z-30 px-6 py-3 bg-gradient-to-r from-blue-700 via-blue-600 to-purple-700 text-white rounded-2xl text-lg font-bold shadow-lg hover:from-blue-800 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all border-2 border-blue-400 hover:border-purple-400"
-          onClick={() => window.location.href = '/blogs/create'}
-        >
-          + Create Blog
-        </button>
-      )}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-0">
+    <div className="relative overflow-x-hidden min-h-screen text-white bg-gradient-to-br from-blue-950 via-zinc-900 to-purple-950">
+      {/* Animated grid overlay for glassmorphism effect */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-blue-200/10 to-purple-300/10 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.08)_0,transparent_60%),radial-gradient(circle_at_80%_80%,rgba(0,255,255,0.07)_0,transparent_70%)]" />
         {[...Array(50)].map((_, index) => (
           <div
             key={index}
@@ -121,28 +106,48 @@ const BlogSection = () => {
               width: `${Math.random() * 2 + 1}px`,
               height: `${Math.random() * 2 + 1}px`,
               opacity: 0.5,
+              filter: 'blur(0.5px)'
             }}
           />
         ))}
       </div>
-      <div className="absolute top-0 left-1/2 transform -translate-x-1/2 moon z-10 h-48 w-48 rounded-full bg-gradient-to-br from-gray-300 via-white to-blue-200 shadow-2xl border-4 border-white"></div>
-      <div className="relative z-20 text-center py-16">
-        <h1 className="text-5xl font-bebas lg:text-7xl xl:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-teal-400">
+
+      {/* Glassy moon accent */}
+      {/* Animated moon accent, styled to match interview page */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 z-10 h-48 w-48 rounded-full bg-gradient-to-br from-blue-400 via-white to-purple-400 shadow-2xl border-4 border-blue-200/40 opacity-90 backdrop-blur-2xl animate-moon-bounce" />
+/* Add moon bounce animation to global styles if not present */
+
+      {/* Request Button */}
+      {user && !user.isAdmin && (!blogRequest || blogRequest.status === "rejected" || blogRequest.status === "pending") && (
+        <button
+          className="fixed top-8 right-8 z-30 px-6 py-3 bg-gradient-to-r from-blue-700 via-blue-500 to-purple-700 text-white rounded-2xl text-lg font-bold shadow-lg hover:from-blue-800 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all border-2 border-blue-400 hover:border-purple-400 backdrop-blur-xl"
+          onClick={handleRequest}
+        >
+          {blogRequest && blogRequest.status === "pending" ? "Request Pending" : "Request to Write Blog"}
+        </button>
+      )}
+      {/* Create Blog Button for eligible users */}
+      {canCreateBlog && (
+        <button
+          className="fixed top-8 left-8 z-30 px-6 py-3 bg-gradient-to-r from-blue-700 via-blue-600 to-purple-700 text-white rounded-2xl text-lg font-bold shadow-lg hover:from-blue-800 hover:to-purple-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all border-2 border-blue-400 hover:border-purple-400 backdrop-blur-xl"
+          onClick={() => window.location.href = '/blogs/create'}
+        >
+          + Create Blog
+        </button>
+      )}
+
+      <div className="relative z-20 text-center py-20 px-4">
+        <h1 className="text-5xl font-bebas lg:text-7xl xl:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-teal-400 drop-shadow-lg">
           Discover the Cosmos of Tech Blogs
         </h1>
-        <p className="text-xl font-serif text-gray-400 mt-4">
+        <p className="text-xl font-serif text-gray-300 mt-4 max-w-2xl mx-auto">
           Dive into insightful blogs about web development, machine learning, hackathons, and everything tech!
         </p>
       </div>
-      <div className="relative z-20 py-8 px-4 sm:px-6 lg:px-12">
+
+      <div className="relative z-20 py-8 px-2 sm:px-6 lg:px-16 flex justify-center">
         <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
-          style={{
-            background: "inherit",
-            boxShadow: "inset 0px 0px 10px rgba(255, 255, 255, 0.1)",
-            borderRadius: "8px",
-            padding: "1rem",
-          }}
+          className="w-full max-w-7xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 glass-panel p-8 rounded-3xl shadow-2xl border border-white/20 backdrop-blur-2xl bg-white/10"
         >
           {blogs.map((blog: any, index: number) => (
             <BlogCard
