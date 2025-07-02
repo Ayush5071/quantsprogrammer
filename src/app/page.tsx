@@ -128,9 +128,9 @@ export default function Home() {
           <div className="relative z-10 min-h-screen flex flex-col">
             <FloatingNav navItems={navItems} />
             {/* Hero Page - Now full 100vh */}
-            <HeroPage />
             {/* Other sections for users who scroll */}
             <div className="pt-8">
+               <HeroPage />
               {/* Platform Overview Section: Four main modules */}
               <PlatformOverview />
               {/* Interview Preparation Section: Comprehensive prep materials */}
@@ -147,8 +147,8 @@ export default function Home() {
               {/* <Testimonials /> */}
               {/* FAQ Section with glassmorphism */}
               <FAQ />
-            </div>
             <Footer />
+            </div>
           </div>
         </div>
       )}
