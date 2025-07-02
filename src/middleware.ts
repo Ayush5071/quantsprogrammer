@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import jwt from 'jsonwebtoken';
 
 export function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -23,41 +22,29 @@ export function middleware(request: NextRequest) {
   // Login-required page should redirect logged-in users to home
   const isLoginRequired = path === '/auth/login-required';
 
-  // Try to get token from cookies
-  let token = request.cookies.get("token")?.value;
+  // Get token from cookies - simplified approach
+  const token = request.cookies.get("token")?.value;
   
-  // Validate token if present
-  let isValidToken = false;
-  if (token) {
-    try {
-      jwt.verify(token, process.env.TOKEN_SECRET!);
-      isValidToken = true;
-    } catch (error) {
-      console.log('Invalid token detected, clearing it');
-      isValidToken = false;
-      // Clear invalid token
-      const response = NextResponse.next();
-      response.cookies.delete('token');
-    }
-  }
+  // Simple token presence check (we'll let the API validate the token properly)
+  const hasToken = Boolean(token && token.length > 10);
 
   // Debug logging (remove in production)
   console.log('Middleware Debug:', {
     path,
     isInterviewRoute,
-    token: token ? 'present' : 'absent',
-    isValidToken,
-    userAgent: request.headers.get('user-agent')?.slice(0, 50)
+    hasToken,
+    tokenLength: token?.length || 0
   });
 
   // Redirect logged-in users away from auth pages
-  if ((isPublicPath || isLoginRequired) && isValidToken) {
+  if ((isPublicPath || isLoginRequired) && hasToken) {
+    console.log('Redirecting authenticated user away from auth page');
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // Block interview routes for users without valid tokens
-  if (isInterviewRoute && !isValidToken) {
-    console.log('Redirecting to login-required for path:', path);
+  // Block interview routes for users without tokens
+  if (isInterviewRoute && !hasToken) {
+    console.log('Redirecting unauthenticated user to login-required for path:', path);
     return NextResponse.redirect(new URL('/auth/login-required', request.url));
   }
 
