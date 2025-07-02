@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
         console.log("Updated user:", user);
 
         // Build the reset URL
-        const resetUrl = `${process.env.DOMAIN}/resetpassword?token=${resetToken}`;
+        const resetUrl = `${process.env.DOMAIN}/auth/resetpassword?token=${resetToken}`;
         console.log("Reset URL:", resetUrl);
 
         // Create a transporter for nodemailer

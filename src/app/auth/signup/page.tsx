@@ -47,7 +47,7 @@ export default function SignupPage() {
       setLoading(true);
       const response = await axios.post("/api/users/signup", user);
       toast.success("Signup successful!");
-      router.push("/remindverify");
+      router.push("/auth/remindverify");
     } catch (error: any) {
       toast.error(error.message || "An error occurred during signup.");
     } finally {
