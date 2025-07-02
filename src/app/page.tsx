@@ -9,10 +9,15 @@ import { FloatingNav } from "@/components/ui/Navbar";
 import { gsap } from "gsap";
 import Loading from "@/components/ui/Loading";
 import Head from "next/head";
-import WhyDevRoadmap from "@/components/sections/WhyDevRoadmap";
 import KeyFeatures from "@/components/sections/KeyFeatures";
+import FeaturesSection from "@/components/sections/FeaturesSection";
+import PlatformOverview from "@/components/sections/PlatformOverview";
+import CompensationSection from "@/components/sections/CompensationSection";
+import InterviewPreparation from "@/components/sections/InterviewPreparation";
 import FAQ from "@/components/sections/FAQ";
-import Testimonials from "@/components/sections/Testimonials";
+// import Testimonials from "@/components/sections/Testimonials";
+import CertificateShowcase from "@/components/sections/CertificateShowcase";
+import CompletePlatform from "@/components/sections/CompletePlatform";
 import useLocomotiveScroll from "@/hooks/useLocomotiveScroll";
 
 export default function Home() {
@@ -22,7 +27,7 @@ export default function Home() {
   const navItems = [
     {
       name: "About",
-      link: "/#about",
+      link: "/about",
       icon: <IconUser className="h-4 w-4 text-white" />,
     },
     {
@@ -40,8 +45,10 @@ export default function Home() {
       icon: <IconUser className="h-4 w-4 text-white" />,
       dropdown: [
         { name: "Mock Interview", link: "/interview" },
+        { name: "Prepare for Interviews", link: "/prepare-interviews" },
         { name: "Top Interviews", link: "/top-interviews" },
         { name: "Top Interview History", link: "/top-interview-history" },
+        { name: "Compensation Data", link: "/placement-data" },
         { name: "Past Interviews", link: "/profile#interview-history" },
       ],
     },
@@ -86,9 +93,6 @@ export default function Home() {
     );
   }, []);
 
-  const openContributionLink = () => {
-    window.open("https://buymeacoffee.com/Ayush5071", "_blank");
-  };
 
   return (
     <>
@@ -119,39 +123,32 @@ export default function Home() {
           </div>
 
           {/* Buy Me a Coffee Button */}
-          <div className="relative bg-gradient-to-b from-black via-blue-900 to-black overflow-x-hidden">
-      {/* Buy Me a Coffee Button */}
-      <div
-        className="fixed z-50 bottom-6 right-6 w-16 h-16 hover:w-48 bg-gradient-to-br from-purple-600 to-indigo-800 flex items-center justify-center text-white cursor-pointer shadow-lg coffee-btn transition-all duration-300 ease-in-out group"
-        onClick={openContributionLink}
-      >
-        {/* Coffee Icon */}
-        <IconCoffee className="h-8 w-8 absolute group-hover:relative group-hover:translate-x-0 transition-all duration-300 ease-in-out z-[60]" />
 
-        {/* Text revealed on hover inside the div */}
-        <div className="ml-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out text-white text-base font-semibold">
-          <p>Buy me a coffee</p>
-        </div>
-      </div>
-    </div>
           {/* Components */}
           <div className="relative z-10 min-h-screen flex flex-col">
             <FloatingNav navItems={navItems} />
-            {/* Add top padding to push HeroPage below navbar */}
-            <div className="pt-16 md:pt-20 lg:pt-24 flex-1">
-              <HeroPage />
-              {/* Why Dev Roadmap Section: Problems & Solution */}
-              <WhyDevRoadmap />
-              {/* Key Features Section: Features List */}
-              <KeyFeatures />
-              {/* FAQ Section */}
+            {/* Hero Page - Now full 100vh */}
+            {/* Other sections for users who scroll */}
+            <div className="pt-8">
+               <HeroPage />
+              {/* Platform Overview Section: Four main modules */}
+              <PlatformOverview />
+              {/* Interview Preparation Section: Comprehensive prep materials */}
+              <InterviewPreparation />
+              {/* Compensation Data Section: Salary insights and company data */}
+              <CompensationSection />
+              {/* New Features Section: Category-based platform features */}
+              <FeaturesSection />
+              {/* Complete Development Platform: Comprehensive platform overview */}
+              <CompletePlatform />
+              {/* Certificate Showcase Section: Sample certificate display */}
+              <CertificateShowcase />
+              {/* Testimonials Section: Community feedback and success stories */}
+              {/* <Testimonials /> */}
+              {/* FAQ Section with glassmorphism */}
               <FAQ />
-              {/* Testimonials Section */}
-              <Testimonials />
-              {/* <SecondSection /> */}
-              {/* <Context /> */}
-            </div>
             <Footer />
+            </div>
           </div>
         </div>
       )}

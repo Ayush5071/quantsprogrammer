@@ -3,31 +3,55 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 
+/**
+ * NotificationIcon component for admin users only.
+ * Shows blog requests that need admin approval/rejection.
+ */
 export default function NotificationIcon() {
   const [show, setShow] = useState(false);
   const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    axios.get("/api/users/me").then(res => setUser(res.data.user)).catch(() => setUser(null));
+    // Only fetch user data if component is mounted
+    setIsChecking(true);
+    axios.get("/api/users/me")
+      .then(res => {
+        const userData = res.data?.user;
+        console.log('NotificationIcon: User data received:', { 
+          userData: userData ? { _id: userData._id, isAdmin: userData.isAdmin, role: userData.role } : null 
+        });
+        // Strict admin check - only set user if they are definitely admin
+        if (userData && userData._id && (userData.isAdmin === true || userData.role === 'admin')) {
+          console.log('NotificationIcon: User is admin, showing notification icon');
+          setUser(userData);
+        } else {
+          console.log('NotificationIcon: User is not admin, hiding notification icon');
+          setUser(null);
+        }
+      })
+      .catch((error) => {
+        // If API call fails (user not logged in, etc.), don't show notification
+        console.log('NotificationIcon: User check failed:', error.response?.status);
+        setUser(null);
+      })
+      .finally(() => setIsChecking(false));
   }, []);
 
   useEffect(() => {
-    if (show && user?.isAdmin) {
+    // Only admin users should see and fetch blog requests
+    if (show && user && user._id && (user.isAdmin === true || user.role === 'admin')) {
       setLoading(true);
       axios.get("/api/blogs/request/admin").then(res => {
         setRequests(res.data.requests || []);
         setLoading(false);
-      }).catch(() => setLoading(false));
-    }
-    if (show && !user?.isAdmin && user?._id) {
-      setLoading(true);
-      axios.get(`/api/blogs/request?userId=${user._id}`).then(res => {
-        setRequests(res.data.request ? [res.data.request] : []);
+      }).catch(() => {
+        setRequests([]);
         setLoading(false);
-      }).catch(() => setLoading(false));
+      });
     }
   }, [show, user]);
 
@@ -43,7 +67,11 @@ export default function NotificationIcon() {
     setActionLoading(null);
   };
 
-  if (!user) return null; // Only show notification icon if user is logged in
+  if (isChecking) return null; // Don't show anything while checking user status
+  
+  if (!user) return null; // Don't show if no user or not admin
+  
+  if (!user.isAdmin && user.role !== 'admin') return null; // Double check admin status
 
   return (
     <div className="fixed top-32 md:top-20 right-4 z-[100] ">
@@ -74,7 +102,7 @@ export default function NotificationIcon() {
                   <span className="text-white font-semibold">User ID: {req.userId}</span>
                   <span className="text-gray-400 text-xs">Requested At: {new Date(req.requestedAt).toLocaleString()}</span>
                   <span className="text-blue-400 text-xs mt-1 mb-2">Status: {req.status}</span>
-                  {user?.isAdmin && (
+                  {user && user._id && (user.isAdmin === true || user.role === 'admin') && (
                     <div className="flex gap-2 mt-1 flex-wrap">
                       <button
                         className="px-3 py-1 bg-green-700 text-white rounded hover:bg-green-800 text-xs disabled:opacity-60"

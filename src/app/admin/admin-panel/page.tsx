@@ -4,23 +4,42 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { FaUserShield, FaEnvelope, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import AdminNavbar from "./AdminNavbar";
+import useCurrentUser from "@/lib/useCurrentUser";
 
 const AdminPanel = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
+  const user = useCurrentUser();
+
+  // Check if user is admin
+  useEffect(() => {
+    if (user === null) {
+      // Still loading user data
+      return;
+    }
+    if (user === false || (!user?.isAdmin && user?.role !== 'admin')) {
+      // Not logged in or not admin
+      setError("Access denied. Admin privileges required.");
+      setLoading(false);
+      return;
+    }
+  }, [user]);
 
   useEffect(() => {
-    axios.get("/api/admin/admin-panel")
-      .then((response) => {
-        setUsers(response.data.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError("Failed to fetch user data.");
-        setLoading(false);
-      });
-  }, []);
+    // Only fetch data if user is admin
+    if (user && (user.isAdmin || user.role === 'admin')) {
+      axios.get("/api/admin/admin-panel")
+        .then((response) => {
+          setUsers(response.data.data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          setError("Failed to fetch user data.");
+          setLoading(false);
+        });
+    }
+  }, [user]);
 
   if (loading) {
     return (

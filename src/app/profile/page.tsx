@@ -146,126 +146,284 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-zinc-950 py-12 px-2 md:px-8">
-      {/* Removed: Confetti and Modal */}
-      {/* Back Button - top left, only on md+ screens */}
-      <button
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-purple-900/10 to-pink-900/10" />
+      <div className="absolute top-0 left-0 w-full h-full">
+        {[...Array(100)].map((_, index) => (
+          <div
+            key={index}
+            className="absolute bg-white rounded-full opacity-20 animate-pulse"
+            style={{
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              width: `${Math.random() * 3 + 1}px`,
+              height: `${Math.random() * 3 + 1}px`,
+              animationDelay: `${Math.random() * 2}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Back Button */}
+      <motion.button
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.5 }}
         onClick={() => router.back()}
-        className="hidden md:flex fixed top-6 left-4 items-center gap-2 text-blue-400 hover:text-blue-300 hover:underline text-xl md:text-2xl px-6 py-3 rounded-2xl bg-zinc-900 shadow-lg border-2 border-blue-700 transition-all z-50"
-        style={{ position: 'fixed', top: '1.5rem', left: '1rem', zIndex: 50 }}
+        className="fixed top-6 left-4 z-50 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white hover:bg-white/20 transition-all duration-300"
       >
-        <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
         <span className="hidden sm:inline">Back</span>
-      </button>
-      <div className="w-full max-w-6xl mx-auto mt-12 md:mt-24">
-        <div className="flex flex-col md:flex-row gap-12 items-start justify-between bg-zinc-900 rounded-3xl shadow-2xl p-10 md:p-16 border-2 border-blue-900">
-          {/* Profile Avatar and Info */}
-          <div className="flex flex-col items-center md:items-start gap-8 flex-1 w-full">
-            <div className="w-40 h-40 rounded-full bg-zinc-800 flex items-center justify-center text-6xl font-extrabold shadow-lg border-4 border-blue-900 text-blue-300">
-              {userData?.username?.[0]}
-            </div>
-            <div className="text-center md:text-left w-full">
-              {editMode ? (
-                <>
-                  <input name="fullName" value={editData?.fullName || ""} onChange={handleEditChange} placeholder="Full Name" className="w-full mb-4 px-4 py-3 rounded-lg bg-zinc-800 text-zinc-100 border border-zinc-700 text-lg" />
-                  <input name="address" value={editData?.address || ""} onChange={handleEditChange} placeholder="Address" className="w-full mb-4 px-4 py-3 rounded-lg bg-zinc-800 text-zinc-100 border border-zinc-700 text-lg" />
-                  <input name="age" value={editData?.age || ""} onChange={handleEditChange} placeholder="Age" className="w-full mb-4 px-4 py-3 rounded-lg bg-zinc-800 text-zinc-100 border border-zinc-700 text-lg" />
-                  <input name="college" value={editData?.college || ""} onChange={handleEditChange} placeholder="College" className="w-full mb-4 px-4 py-3 rounded-lg bg-zinc-800 text-zinc-100 border border-zinc-700 text-lg" />
-                  <input name="gender" value={editData?.gender || ""} onChange={handleEditChange} placeholder="Gender" className="w-full mb-4 px-4 py-3 rounded-lg bg-zinc-800 text-zinc-100 border border-zinc-700 text-lg" />
-                  <input name="contactNumber" value={editData?.contactNumber || ""} onChange={handleEditChange} placeholder="Contact Number" className="w-full mb-4 px-4 py-3 rounded-lg bg-zinc-800 text-zinc-100 border border-zinc-700 text-lg" />
-                  <input value={userData?.email} disabled className="w-full mb-4 px-4 py-3 rounded-lg bg-zinc-900 text-zinc-400 border border-zinc-800 cursor-not-allowed text-lg" />
-                  <div className="flex gap-4 mt-4">
-                    <button onClick={handleSave} className="px-6 py-3 bg-blue-700 text-white rounded-xl text-lg hover:bg-blue-800">Save</button>
-                    <button onClick={() => setEditMode(false)} className="px-6 py-3 bg-zinc-700 text-white rounded-xl text-lg hover:bg-zinc-800">Cancel</button>
-                    {canCreateBlog && (
-                      <button onClick={() => router.push('/blogs/create')} className="px-6 py-3 bg-green-700 text-white rounded-xl text-lg hover:bg-green-800">Create Blog</button>
-                    )}
+      </motion.button>
+
+      <div className="relative z-10 py-20 px-4 md:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-12"
+          >
+            <h1 className="text-4xl md:text-6xl font-extrabold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4">
+              Your Profile
+            </h1>
+            <p className="text-lg md:text-xl text-zinc-300 max-w-2xl mx-auto">
+              Manage your account, track progress, and customize your learning experience
+            </p>
+          </motion.div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            {/* Profile Card */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.1 }}
+              className="lg:col-span-1"
+            >
+              <div className="p-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl">
+                {/* Avatar */}
+                <div className="text-center mb-8">
+                  <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-4xl font-bold text-white shadow-2xl mb-4">
+                    {userData?.username?.[0]?.toUpperCase()}
                   </div>
-                </>
-              ) : (
-                <>
-                  <h2 className="text-4xl md:text-5xl font-bold mb-4 text-zinc-100">{userData?.fullName || userData?.username}</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4 mt-6 text-lg">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-zinc-400">Email</span>
-                      <span className="text-base md:text-lg text-zinc-200 font-medium">{userData?.email}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-zinc-400">Address</span>
-                      <span className="text-base md:text-lg text-zinc-200 font-medium">{userData?.address || '-'}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-zinc-400">Age</span>
-                      <span className="text-base md:text-lg text-zinc-200 font-medium">{userData?.age || '-'}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-zinc-400">College</span>
-                      <span className="text-base md:text-lg text-zinc-200 font-medium">{userData?.college || '-'}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-zinc-400">Gender</span>
-                      <span className="text-base md:text-lg text-zinc-200 font-medium">{userData?.gender || '-'}</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xs text-zinc-400">Contact Number</span>
-                      <span className="text-base md:text-lg text-zinc-200 font-medium">{userData?.contactNumber || '-'}</span>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    {userData?.fullName || userData?.username}
+                  </h2>
+                  <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-semibold ${
+                    userData?.isVerified 
+                      ? "bg-green-500/20 text-green-400 border border-green-500/30" 
+                      : "bg-orange-500/20 text-orange-400 border border-orange-500/30"
+                  }`}>
+                    {userData?.isVerified ? "✓ Verified" : "⚠ Not Verified"}
+                  </span>
+                </div>
+
+                {/* Profile Information */}
+                {editMode ? (
+                  <div className="space-y-4">
+                    <input
+                      name="fullName"
+                      value={editData?.fullName || ""}
+                      onChange={handleEditChange}
+                      placeholder="Full Name"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-zinc-400 focus:border-purple-500 focus:outline-none"
+                    />
+                    <input
+                      name="address"
+                      value={editData?.address || ""}
+                      onChange={handleEditChange}
+                      placeholder="Address"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-zinc-400 focus:border-purple-500 focus:outline-none"
+                    />
+                    <input
+                      name="age"
+                      value={editData?.age || ""}
+                      onChange={handleEditChange}
+                      placeholder="Age"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-zinc-400 focus:border-purple-500 focus:outline-none"
+                    />
+                    <input
+                      name="college"
+                      value={editData?.college || ""}
+                      onChange={handleEditChange}
+                      placeholder="College"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-zinc-400 focus:border-purple-500 focus:outline-none"
+                    />
+                    <input
+                      name="gender"
+                      value={editData?.gender || ""}
+                      onChange={handleEditChange}
+                      placeholder="Gender"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-zinc-400 focus:border-purple-500 focus:outline-none"
+                    />
+                    <input
+                      name="contactNumber"
+                      value={editData?.contactNumber || ""}
+                      onChange={handleEditChange}
+                      placeholder="Contact Number"
+                      className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white placeholder-zinc-400 focus:border-purple-500 focus:outline-none"
+                    />
+                    <input
+                      value={userData?.email}
+                      disabled
+                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg text-gray-400 cursor-not-allowed"
+                    />
+                    
+                    <div className="flex gap-3 pt-4">
+                      <button
+                        onClick={handleSave}
+                        className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-lg hover:from-green-500 hover:to-emerald-500 transition-all duration-300"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditMode(false)}
+                        className="flex-1 px-4 py-3 bg-gray-600 text-white font-semibold rounded-lg hover:bg-gray-500 transition-all duration-300"
+                      >
+                        Cancel
+                      </button>
                     </div>
                   </div>
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mt-4">
-                    <p className={`px-6 py-2 rounded-full text-sm font-semibold inline-block ${userData?.isVerified ? "bg-blue-700 text-white" : "bg-zinc-700 text-zinc-300"}`}>{userData?.isVerified ? "Verified" : "Not Verified"}</p>
-                    <button onClick={() => setEditMode(true)} className="px-6 py-3 bg-blue-700 text-white rounded-xl text-lg font-semibold shadow hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 transition-all w-full md:w-auto md:ml-4 mt-4 md:mt-0 flex items-center justify-center">
-                      <svg className="inline-block w-5 h-5 mr-2 -mt-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m-2 2h6a2 2 0 002-2v-6a2 2 0 00-2-2H7a2 2 0 00-2 2v6a2 2 0 002 2z" /></svg>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 gap-4">
+                      {[
+                        { label: "Email", value: userData?.email },
+                        { label: "Address", value: userData?.address || "Not provided" },
+                        { label: "Age", value: userData?.age || "Not provided" },
+                        { label: "College", value: userData?.college || "Not provided" },
+                        { label: "Gender", value: userData?.gender || "Not provided" },
+                        { label: "Contact", value: userData?.contactNumber || "Not provided" }
+                      ].map((item, index) => (
+                        <div key={item.label} className="p-3 bg-white/5 rounded-lg border border-white/10">
+                          <p className="text-xs text-zinc-400 mb-1">{item.label}</p>
+                          <p className="text-white font-medium">{item.value}</p>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => setEditMode(true)}
+                      className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-500 hover:to-purple-500 transition-all duration-300 flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6-6m2 2l-6 6m-2 2h6a2 2 0 002-2v-6a2 2 0 00-2-2H7a2 2 0 00-2 2v6a2 2 0 002 2z" />
+                      </svg>
                       Edit Profile
                     </button>
+
+                    {canCreateBlog && (
+                      <button
+                        onClick={() => router.push('/blogs/create')}
+                        className="w-full px-4 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white font-semibold rounded-lg hover:from-green-500 hover:to-teal-500 transition-all duration-300 flex items-center justify-center gap-2"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Create Blog
+                      </button>
+                    )}
                   </div>
-                </>
-              )}
-            </div>
+                )}
+              </div>
+            </motion.div>
+
+            {/* Progress Section */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.7, delay: 0.2 }}
+              className="lg:col-span-2"
+            >
+              <div className="p-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl">
+                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                  </div>
+                  Roadmap Progress
+                </h3>
+
+                {loadingRoadmaps ? (
+                  <div className="flex justify-center items-center h-32">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+                  </div>
+                ) : progressData.length === 0 ? (
+                  <div className="text-center text-zinc-400 py-12">
+                    <svg className="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <p className="text-lg">No roadmaps found</p>
+                    <p className="text-sm">Start learning with our interactive roadmaps!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6 max-h-96 overflow-y-auto custom-scrollbar">
+                    {progressData.map((item, idx) => (
+                      <motion.div
+                        key={idx}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: idx * 0.1 }}
+                        className="p-6 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-all duration-300"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-lg font-semibold text-white">{item.label}</h4>
+                          <span className="text-2xl font-bold text-purple-400">{item.percent}%</span>
+                        </div>
+                        <div className="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${item.percent}%` }}
+                            transition={{ duration: 1, delay: idx * 0.2 }}
+                            className="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"
+                          />
+                        </div>
+                        <div className="mt-2 text-sm text-zinc-400">
+                          {item.percent === 100 ? "Completed! 🎉" : `${100 - item.percent}% remaining`}
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
           </div>
-          {/* Progress Section */}
-          <div className="flex-1 w-full flex flex-col gap-10 max-h-[70vh] overflow-y-auto custom-scrollbar">
-            <h3 className="text-2xl md:text-3xl font-bold text-zinc-200 mb-4 text-center md:text-left">Roadmap Progress</h3>
-            <div className="space-y-8">
-              {loadingRoadmaps ? (
-                <div className="flex justify-center items-center h-24">
-                  <svg className="animate-spin h-10 w-10 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                  </svg>
-                </div>
-              ) : progressData.length === 0 ? (
-                <div className="text-center text-zinc-400 text-lg">No roadmaps found.</div>
-              ) : progressData.map((item, idx) => (
-                <div key={idx} className="w-full mb-12">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-zinc-300 text-lg md:text-xl">{item.label}</span>
-                    <span className="font-bold text-xl text-blue-400">{item.percent}%</span>
-                  </div>
-                  <div className="w-full h-6 rounded-full bg-zinc-800 overflow-hidden shadow-inner mb-4">
-                    <div className="h-6 rounded-full bg-blue-900 transition-all duration-500" style={{ width: `${item.percent}%` }} />
-                  </div>
-                  {item.percent === 100 && userData && userData.fullName && userData.address && userData.age && userData.college && userData.gender && userData.contactNumber && null}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        {/* Interview History Section */}
-        <InterviewHistory userId={userData?._id} />
-        {/* Actions */}
-        <div className="mt-14 flex flex-col md:flex-row gap-6 items-center justify-center">
-          <Link
-            href="/auth/forgotpassword"
-            className="px-8 py-4 text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl shadow text-lg"
+
+          {/* Interview History Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="mt-8"
           >
-            Change Password
-          </Link>
-          <button
-            onClick={logout}
-            className="px-8 py-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-2xl shadow text-lg"
+            <InterviewHistory userId={userData?._id} />
+          </motion.div>
+
+          {/* Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
+            className="mt-8 flex flex-col sm:flex-row gap-4 justify-center"
           >
-            Logout
-          </button>
+            <Link
+              href="/auth/forgotpassword"
+              className="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold rounded-xl hover:from-blue-500 hover:to-cyan-500 transition-all duration-300 text-center shadow-lg hover:shadow-blue-500/25"
+            >
+              Change Password
+            </Link>
+            <button
+              onClick={logout}
+              className="px-8 py-4 bg-gradient-to-r from-red-600 to-pink-600 text-white font-semibold rounded-xl hover:from-red-500 hover:to-pink-500 transition-all duration-300 shadow-lg hover:shadow-red-500/25"
+            >
+              Logout
+            </button>
+          </motion.div>
         </div>
       </div>
     </div>

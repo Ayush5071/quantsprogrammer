@@ -79,6 +79,7 @@ export const FloatingNav = ({
       if (scrollYProgress.get() < 0.05) {
         setVisible(true);
       } else {
+        // Hide on scroll down, show on scroll up
         setVisible(direction < 0);
       }
     }
@@ -107,63 +108,92 @@ export const FloatingNav = ({
           opacity: visible ? 1 : 0,
         }}
         transition={{
-          duration: 0.2,
+          duration: 0.3,
+          ease: [0.25, 0.46, 0.45, 0.94]
         }}
         className={cn(
-          "flex w-[95vw] max-w-2xl font-Sfpro md:max-w-xl lg:min-w-fit fixed z-[5000] top-10 inset-x-0 mx-auto px-3 py-3 md:py-4 xl:py-4 rounded-full border border-black/.1 shadow-[0px_2px_3px_-1px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(25,28,33,0.02),0px_0px_0px_1px_rgba(25,28,33,0.08)] items-center justify-between space-x-auto bg-neutral-950",
+          "flex w-[95vw] max-w-2xl font-Sfpro md:max-w-xl lg:min-w-fit fixed z-[5000] top-4 md:top-6 inset-x-0 mx-auto px-4 py-3 md:py-4 xl:py-4 rounded-2xl md:rounded-3xl border shadow-2xl items-center justify-between space-x-auto transition-all duration-300",
+          // Enhanced glassmorphism design based on scroll
+          scrollYProgress.get() > 0.05 
+            ? "bg-black/80 backdrop-blur-xl border-white/25 shadow-black/30" 
+            : "bg-black/60 backdrop-blur-lg border-white/20 shadow-black/20",
           className
         )}
         style={{
-          backdropFilter: "blur(16px) saturate(180%)",
-          borderRadius: "12px",
-          border: "1px solid neutral-500",
+          backdropFilter: "blur(20px) saturate(180%)",
         }}
       >
         {/* Hamburger for mobile */}
-        <div className="md:hidden flex items-center flex-1 justify-center">
-          <button
-            className="p-2 focus:outline-none"
+        <div className="md:hidden flex items-center flex-1 justify-between">
+          <motion.button
+            className="p-2 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 hover:bg-white/20 hover:border-white/30 focus:outline-none transition-all duration-300"
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="Open navigation menu"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <svg
-              className="w-7 h-7 text-white"
+            <motion.svg
+              className="w-6 h-6 text-white"
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
               viewBox="0 0 24 24"
+              animate={{ rotate: menuOpen ? 180 : 0 }}
+              transition={{ duration: 0.3 }}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-            </svg>
-          </button>
+              {menuOpen ? (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              ) : (
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              )}
+            </motion.svg>
+          </motion.button>
         </div>
         {/* Main nav for desktop */}
         <div className="hidden md:flex items-center gap-4 flex-1 justify-evenly">
           {navItems.map((navItem, idx) =>
             "link" in navItem ? (
-              <Link
+              <motion.div
                 key={`link=${idx}`}
-                href={navItem.link}
-                className={cn(
-                  "relative text-neutral-50 items-center flex space-x-auto hover:text-neutral-300"
-                )}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: idx * 0.1 }}
+                whileHover={{ scale: 1.05 }}
               >
-                <span className="text-sm md:text-xl !cursor-pointer flex items-center gap-2">
-                  {navItem.icon}
-                  {navItem.name}
-                </span>
-              </Link>
+                <Link
+                  href={navItem.link}
+                  className={cn(
+                    "relative text-neutral-50 items-center flex space-x-auto hover:text-white transition-all duration-300 px-3 py-2 rounded-xl hover:bg-white/10 backdrop-blur-sm border border-transparent hover:border-white/20"
+                  )}
+                >
+                  <span className="text-sm md:text-base !cursor-pointer flex items-center gap-2 font-medium">
+                    <span className="group-hover:scale-110 transition-transform duration-300">
+                      {navItem.icon}
+                    </span>
+                    {navItem.name}
+                  </span>
+                  {/* Enhanced hover effect */}
+                  <div className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 scale-x-0 hover:scale-x-100 transition-transform duration-300 rounded-full"></div>
+                </Link>
+              </motion.div>
             ) : "dropdown" in navItem ? (
               <div className="relative group" key={navItem.name}>
-                <button className="text-sm md:text-xl text-neutral-50 flex items-center gap-1 hover:text-neutral-300 px-3 py-2 rounded-lg focus:outline-none">
+                <motion.button 
+                  className="text-sm md:text-base text-neutral-50 flex items-center gap-2 hover:text-white px-3 py-2 rounded-xl focus:outline-none group-hover:bg-white/10 backdrop-blur-sm border border-transparent group-hover:border-white/20 transition-all duration-300 font-medium"
+                  whileHover={{ scale: 1.05 }}
+                >
                   {navItem.icon}
                   {navItem.name}
                   <svg
-                    className="w-4 h-4 ml-1"
+                    className="w-4 h-4 ml-1 transition-transform duration-200 group-hover:rotate-180"
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
@@ -175,17 +205,35 @@ export const FloatingNav = ({
                       d="M19 9l-7 7-7-7"
                     />
                   </svg>
-                </button>
-                <div className="absolute left-0 mt-2 w-48 bg-zinc-900 border border-blue-700 rounded-xl shadow-2xl p-2 z-50 hidden group-hover:block">
-                  {navItem.dropdown.map((item, idx) => (
-                    <Link
-                      key={item.link}
-                      href={item.link}
-                      className="block px-4 py-2 text-white hover:bg-blue-800 rounded"
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
+                </motion.button>
+                <div className="absolute left-0 mt-2 w-64 bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl shadow-black/30 p-3 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform group-hover:translate-y-0 translate-y-2">
+                  <div className="space-y-1">
+                    {navItem.dropdown.map((item, idx) => (
+                      <motion.div
+                        key={item.link}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: idx * 0.05 }}
+                      >
+                        <Link
+                          href={item.link}
+                          className="flex items-center gap-3 px-4 py-3 text-white hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 rounded-xl transition-all duration-200 group/item border border-transparent hover:border-blue-400/30"
+                        >
+                          <div className="w-2 h-2 bg-blue-400 rounded-full opacity-0 group-hover/item:opacity-100 transition-opacity duration-200"></div>
+                          <span className="text-sm font-medium">{item.name}</span>
+                          <motion.div
+                            className="ml-auto opacity-0 group-hover/item:opacity-100"
+                            whileHover={{ x: 3 }}
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                          </motion.div>
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                  <div className="absolute -top-2 left-6 w-4 h-4 bg-black/80 border-l border-t border-white/20 transform rotate-45"></div>
                 </div>
               </div>
             ) : null
@@ -216,21 +264,24 @@ export const FloatingNav = ({
                     {navItem.name}
                   </Link>
                 ) : "dropdown" in navItem ? (
-                  <div key={navItem.name} className="flex flex-col gap-1">
-                    <span className="text-blue-400 font-bold mt-2 mb-1 flex items-center gap-2">
+                  <div key={navItem.name} className="flex flex-col gap-2">
+                    <div className="text-blue-400 font-bold mt-3 mb-2 flex items-center gap-2 px-2">
                       {navItem.icon}
-                      {navItem.name}
-                    </span>
-                    {navItem.dropdown.map((item, idx) => (
-                      <Link
-                        key={item.link}
-                        href={item.link}
-                        className="block px-4 py-2 text-white hover:bg-blue-800 rounded"
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        {item.name}
-                      </Link>
-                    ))}
+                      <span className="text-lg">{navItem.name}</span>
+                    </div>
+                    <div className="bg-white/5 rounded-xl p-2 space-y-1">
+                      {navItem.dropdown.map((item, idx) => (
+                        <Link
+                          key={item.link}
+                          href={item.link}
+                          className="flex items-center gap-3 px-4 py-3 text-white hover:bg-gradient-to-r hover:from-blue-600/20 hover:to-purple-600/20 rounded-lg transition-all duration-200 group"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <div className="w-2 h-2 bg-blue-400 rounded-full opacity-60 group-hover:opacity-100 transition-opacity"></div>
+                          <span className="text-sm font-medium">{item.name}</span>
+                        </Link>
+                      ))}
+                    </div>
                   </div>
                 ) : null
               )}
