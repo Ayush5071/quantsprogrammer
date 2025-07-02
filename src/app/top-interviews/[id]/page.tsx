@@ -449,7 +449,7 @@ export default function AttemptTopInterviewPage() {
                 Leave Anyway
               </button>
             </div>
-          </div>
+           </div>
         </div>
       )}
     </div>
