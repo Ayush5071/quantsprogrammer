@@ -21,7 +21,7 @@ export default function CreateTopInterviewPage() {
   const [success, setSuccess] = useState("");
 
   if (user === null) return <div className="text-blue-400 min-h-screen flex items-center justify-center">Loading...</div>;
-  if (!user?.isAdmin) return <div className="text-red-400 min-h-screen flex items-center justify-center">Access denied</div>;
+  if (!user || (!user.isAdmin && user.role !== 'admin')) return <div className="text-red-400 min-h-screen flex items-center justify-center">Access denied. Admin privileges required.</div>;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
