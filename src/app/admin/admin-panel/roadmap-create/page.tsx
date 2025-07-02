@@ -1,7 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AdminNavbar from "../AdminNavbar";
+import useCurrentUser from "@/lib/useCurrentUser";
 
 interface Task {
   title: string;
@@ -25,23 +26,40 @@ const RoadmapCreate = () => {
   const [phaseTitle, setPhaseTitle] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(true);
   const [showTaskModal, setShowTaskModal] = useState<{ open: boolean; phaseIdx: number | null; type: "task" | "assignment" | null }>({ open: false, phaseIdx: null, type: null });
   const [taskForm, setTaskForm] = useState({ title: "", link: "" });
+  const user = useCurrentUser();
 
-  // Admin check (JWT in localStorage)
-  let isAdmin = false;
-  if (typeof window !== "undefined") {
-    try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        isAdmin = payload.isAdmin === true;
-      }
-    } catch {}
+  // Check if user is admin
+  useEffect(() => {
+    if (user === null) {
+      // Still loading user data
+      return;
+    }
+    if (user === false || (!user?.isAdmin && user?.role !== 'admin')) {
+      // Not logged in or not admin
+      setError("Access denied. Admin privileges required.");
+      setLoading(false);
+      return;
+    }
+    setLoading(false);
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-black">
+        <div className="text-xl font-semibold text-white animate-pulse">Loading...</div>
+      </div>
+    );
   }
 
-  if (!isAdmin) {
-    return <div className="text-red-400 text-2xl p-8">Only admin can create roadmaps.</div>;
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-black">
+        <div className="text-xl font-semibold text-red-400">{error}</div>
+      </div>
+    );
   }
 
   const addPhase = () => {
