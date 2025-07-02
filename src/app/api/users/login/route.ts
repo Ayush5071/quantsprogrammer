@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     // Set cookie with proper options for security and accessibility
     response.cookies.set("token", token, {
-      httpOnly: true,
+      httpOnly: false, // Temporarily disabled for debugging
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 86400, // 1 day in seconds
