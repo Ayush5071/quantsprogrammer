@@ -22,6 +22,8 @@ export default function AttemptTopInterviewPage() {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [showBackModal, setShowBackModal] = useState(false);
   const [ttsEnabled, setTtsEnabled] = useState(true);
+  const [showWarningModal, setShowWarningModal] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
 
   // SpeechRecognition hook
   const {
@@ -30,6 +32,10 @@ export default function AttemptTopInterviewPage() {
     resetTranscript,
     browserSupportsSpeechRecognition
   } = useSpeechRecognition();
+
+  // Mobile/iOS STT support check
+  const isIOS = typeof window !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const isAndroid = typeof window !== 'undefined' && /Android/.test(navigator.userAgent);
 
   // Text-to-Speech: Speak the question when it appears
   const speakQuestion = (text: string) => {
@@ -93,6 +99,42 @@ export default function AttemptTopInterviewPage() {
     }
     // eslint-disable-next-line
   }, [currentQuestion, step, interview, ttsEnabled]);
+
+  // Navigation protection logic
+  useEffect(() => {
+    // Prevent browser refresh/close during interview
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (step === 1) { // If interview is in progress
+        e.preventDefault();
+        e.returnValue = 'You have a top interview in progress. Are you sure you want to leave? Your progress will be lost.';
+        return 'You have a top interview in progress. Are you sure you want to leave? Your progress will be lost.';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [step]);
+
+  // Browser back button protection
+  useEffect(() => {
+    if (step === 1) {
+      // Add a dummy history entry to catch back button
+      const currentUrl = window.location.href;
+      window.history.pushState(null, '', currentUrl);
+      
+      const handlePopState = (e: PopStateEvent) => {
+        e.preventDefault();
+        // Push state again to prevent actual navigation
+        window.history.pushState(null, '', currentUrl);
+        setShowWarningModal(true);
+        // Set pending navigation to go back to the top interviews page
+        setPendingNavigation(() => () => router.push('/top-interviews'));
+      };
+
+      window.addEventListener('popstate', handlePopState);
+      return () => window.removeEventListener('popstate', handlePopState);
+    }
+  }, [step, router]);
 
   // Helper to ensure answer is always saved before navigation
   const syncAnswer = (value: string) => {
@@ -191,6 +233,44 @@ export default function AttemptTopInterviewPage() {
     SpeechRecognition.stopListening();
   };
 
+  // Custom navigation warning function
+  const handleNavigation = (navigationFn: () => void) => {
+    if (step === 1) { // If interview is in progress
+      setShowWarningModal(true);
+      setPendingNavigation(() => navigationFn);
+    } else {
+      navigationFn(); // Allow navigation if not in interview
+    }
+  };
+
+  // Confirm navigation
+  const confirmNavigation = () => {
+    if (pendingNavigation) {
+      // Stop speech recognition and clean up
+      SpeechRecognition.stopListening();
+      stopTTS();
+      if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+      }
+      
+      // Clear the step to allow navigation without triggering protection
+      setStep(0);
+      
+      // Execute the pending navigation
+      setTimeout(() => {
+        pendingNavigation();
+      }, 100);
+    }
+    setShowWarningModal(false);
+    setPendingNavigation(null);
+  };
+
+  // Cancel navigation
+  const cancelNavigation = () => {
+    setShowWarningModal(false);
+    setPendingNavigation(null);
+  };
+
   // --- New: Show details first, then start interview ---
   if (loading) return <div className="text-blue-400">Loading...</div>;
   if (!interview) return <div className="text-zinc-400">Interview not found.</div>;
@@ -201,7 +281,7 @@ export default function AttemptTopInterviewPage() {
       <>
         {/* Back Button - top left, only on md+ screens */}
         <button
-          onClick={() => router.back()}
+          onClick={() => handleNavigation(() => router.push('/top-interviews'))}
           className="hidden md:flex fixed top-6 left-4 items-center gap-2 text-blue-400 hover:text-blue-300 hover:underline text-xl md:text-2xl px-6 py-3 rounded-2xl bg-zinc-900 shadow-lg border-2 border-blue-700 transition-all z-50"
           style={{ position: 'fixed', top: '1.5rem', left: '1rem', zIndex: 50 }}
         >
@@ -231,7 +311,7 @@ export default function AttemptTopInterviewPage() {
     <div className="flex flex-col md:flex-row w-full min-h-screen bg-zinc-950">
       {/* Back Button - top left, only on md+ screens */}
       <button
-        onClick={() => router.back()}
+        onClick={() => handleNavigation(() => router.push('/top-interviews'))}
         className="hidden md:flex fixed top-6 left-4 items-center gap-2 text-blue-400 hover:text-blue-300 hover:underline text-xl md:text-2xl px-6 py-3 rounded-2xl bg-zinc-900 shadow-lg border-2 border-blue-700 transition-all z-50"
         style={{ position: 'fixed', top: '1.5rem', left: '1rem', zIndex: 50 }}
       >
@@ -318,10 +398,60 @@ export default function AttemptTopInterviewPage() {
             <div className="font-semibold text-blue-300 mb-2 text-center md:text-left">Feedback:</div>
             <div className="text-zinc-100 whitespace-pre-line mb-4 text-center md:text-left">{feedback}</div>
             <div className="text-blue-400 font-bold text-lg mb-4 text-center md:text-left">Score: {score}/100</div>
-            <button className="w-full md:w-auto px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold shadow transition-all" onClick={() => router.push("/top-interviews")}>Back to Top Interviews</button>
+            <button className="w-full md:w-auto px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold shadow transition-all" onClick={() => handleNavigation(() => router.push("/top-interviews"))}>Back to Top Interviews</button>
           </div>
         )}
       </div>
+
+      {/* Navigation Warning Modal */}
+      {showWarningModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 rounded-xl shadow-2xl border-2 border-red-600 max-w-md w-full p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-red-400">Warning: Top Interview in Progress</h3>
+            </div>
+            
+            <p className="text-zinc-200 mb-6 leading-relaxed">
+              You have an active top interview session. If you leave now, <strong className="text-red-300">your progress will be lost</strong> and you'll need to start over.
+            </p>
+            
+            <div className="text-sm text-zinc-400 mb-6 bg-zinc-800 p-3 rounded-lg">
+              <div className="flex justify-between">
+                <span>Interview:</span>
+                <span className="text-blue-300">{interview?.title || 'N/A'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Progress:</span>
+                <span className="text-blue-300">{currentQuestion + 1} of {interview?.questions?.length || 0} questions</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Answers saved:</span>
+                <span className="text-blue-300">{answers.filter(a => a && a.trim() !== '').length}</span>
+              </div>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={cancelNavigation}
+                className="flex-1 px-4 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold transition-all"
+              >
+                Stay & Continue
+              </button>
+              <button
+                onClick={confirmNavigation}
+                className="flex-1 px-4 py-3 bg-red-700 hover:bg-red-800 text-white rounded-lg font-semibold transition-all"
+              >
+                Leave Anyway
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
