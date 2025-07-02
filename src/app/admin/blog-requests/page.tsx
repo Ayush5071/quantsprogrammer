@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import useCurrentUser from "@/lib/useCurrentUser";
 
 interface BlogRequest {
   _id: string;
@@ -13,19 +14,38 @@ interface BlogRequest {
 export default function BlogRequestsAdmin() {
   const [requests, setRequests] = useState<BlogRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
+  const user = useCurrentUser();
+
+  // Check if user is admin
+  useEffect(() => {
+    if (user === null) {
+      // Still loading user data
+      return;
+    }
+    if (user === false || (!user?.isAdmin && user?.role !== 'admin')) {
+      // Not logged in or not admin
+      setError("Access denied. Admin privileges required.");
+      setLoading(false);
+      return;
+    }
+  }, [user]);
 
   useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const res = await axios.get("/api/blogs/request/admin");
-        setRequests(res.data.requests || []);
-      } catch {
-        setRequests([]);
-      }
-      setLoading(false);
-    };
-    fetchRequests();
-  }, []);
+    // Only fetch data if user is admin
+    if (user && (user.isAdmin || user.role === 'admin')) {
+      const fetchRequests = async () => {
+        try {
+          const res = await axios.get("/api/blogs/request/admin");
+          setRequests(res.data.requests || []);
+        } catch {
+          setRequests([]);
+        }
+        setLoading(false);
+      };
+      fetchRequests();
+    }
+  }, [user]);
 
   const handleAction = async (userId: string, status: string) => {
     try {
@@ -38,6 +58,14 @@ export default function BlogRequestsAdmin() {
   };
 
   if (loading) return <div className="text-white p-8">Loading...</div>;
+  
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-zinc-950">
+        <div className="text-xl font-semibold text-red-400">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950 p-8">
