@@ -15,7 +15,7 @@ import PlatformOverview from "@/components/sections/PlatformOverview";
 import CompensationSection from "@/components/sections/CompensationSection";
 import InterviewPreparation from "@/components/sections/InterviewPreparation";
 import FAQ from "@/components/sections/FAQ";
-import Testimonials from "@/components/sections/Testimonials";
+// import Testimonials from "@/components/sections/Testimonials";
 import CertificateShowcase from "@/components/sections/CertificateShowcase";
 import CompletePlatform from "@/components/sections/CompletePlatform";
 import useLocomotiveScroll from "@/hooks/useLocomotiveScroll";
