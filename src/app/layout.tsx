@@ -50,6 +50,9 @@ export const metadata: Metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1.0,
+  maximumScale: 1.0,
+  userScalable: false,
+  viewportFit: "cover",
 };
 
 const NotificationIcon = dynamic(() => import("@/components/ui/NotificationIcon"), { ssr: false });
@@ -61,6 +64,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Material Symbols for icons */}
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+      </head>
       <body className={`antialiased notallow`}>
         <CheckedDataProvider>
             <Toaster position="top-right" reverseOrder={false} />
