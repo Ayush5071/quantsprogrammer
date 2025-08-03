@@ -40,6 +40,7 @@ const userSchema = new Schema({
     college: { type: String },
     gender: { type: String },
     contactNumber: { type: String },
+    savedQuestions: { type: [String], default: [] },
 });
 
 if (mongoose.models.users) {
