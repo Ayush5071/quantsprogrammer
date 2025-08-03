@@ -48,6 +48,11 @@ export default function Home() {
       icon: <IconMessage className="h-4 w-4 text-white" />,
     },
     {
+      name: "OA & DSA Qs",
+      link: "/oa-dsa-questions",
+      icon: <IconCoffee className="h-4 w-4 text-white" />,
+    },
+    {
       name: "Interview",
       icon: <IconUser className="h-4 w-4 text-white" />,
       dropdown: [
