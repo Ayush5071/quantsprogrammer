@@ -13,6 +13,18 @@ const companies = [
     icon: <FaBuilding className="w-8 h-8" />,
     color: "from-blue-600 to-blue-800",
     borderColor: "border-blue-500",
+    available: true,
+  },
+  {
+    name: "Wells Fargo",
+    slug: "wells-fargo-pyq",
+    description: "Banking, financial services, and DSA/OA questions",
+    questionCount: 15,
+    difficulty: "Medium",
+    icon: <img src="/official_logo.png" alt="Wells Fargo" className="w-8 h-8 rounded-full bg-white p-1" />,
+    color: "from-yellow-700 to-red-700",
+    borderColor: "border-yellow-600",
+    available: true,
   },
   {
     name: "Microsoft",
@@ -23,6 +35,7 @@ const companies = [
     icon: <FaCode className="w-8 h-8" />,
     color: "from-green-600 to-green-800",
     borderColor: "border-green-500",
+    available: false,
   },
   {
     name: "Google",
@@ -33,6 +46,7 @@ const companies = [
     icon: <FaChartLine className="w-8 h-8" />,
     color: "from-red-600 to-red-800",
     borderColor: "border-red-500",
+    available: false,
   },
   {
     name: "Amazon",
@@ -43,6 +57,7 @@ const companies = [
     icon: <FaGraduationCap className="w-8 h-8" />,
     color: "from-yellow-600 to-yellow-800",
     borderColor: "border-yellow-500",
+    available: false,
   },
 ];
 
@@ -80,78 +95,70 @@ export default function OAandDSAQuestions() {
         </div>
       </div>
 
-      {/* Companies Grid */}
+      {/* Companies Grid - Responsive: 1 card/row mobile, 2 on md, 3 on lg+ */}
       <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {companies.map((company, index) => (
             <div
               key={company.slug}
-              className={`group relative overflow-hidden rounded-2xl border-2 ${company.borderColor} bg-gray-800/50 backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
+              className={`group relative overflow-hidden rounded-2xl border-2 ${company.borderColor} bg-gray-900/60 backdrop-blur-lg shadow-xl transition-all duration-300 hover:scale-105 hover:shadow-2xl ${
                 hoveredCard === index ? 'shadow-2xl' : ''
               }`}
               onMouseEnter={() => setHoveredCard(index)}
               onMouseLeave={() => setHoveredCard(null)}
             >
-              {/* Background Gradient */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${company.color} opacity-20 group-hover:opacity-30 transition-opacity duration-300`}></div>
-              
+              {/* Animated Gradient Border */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${company.color} opacity-30 group-hover:opacity-50 transition-opacity duration-300 blur-[2px]`}></div>
+
               {/* Content */}
-              <div className="relative z-10 p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${company.color} shadow-lg`}>
-                      {company.icon}
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-white">{company.name}</h3>
-                      <p className="text-gray-300 text-sm">{company.description}</p>
-                    </div>
-                  </div>
-                  <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    company.difficulty === "Hard" ? "bg-red-700 text-red-100" :
-                    company.difficulty === "Medium" ? "bg-yellow-700 text-yellow-100" :
-                    "bg-green-700 text-green-100"
-                  }`}>
-                    {company.difficulty}
-                  </div>
+              <div className="relative z-10 p-8 flex flex-col items-center gap-6">
+                <div className={`p-3 rounded-xl bg-gradient-to-br ${company.color} shadow-lg flex-shrink-0 flex items-center justify-center`}>
+                  {company.icon}
                 </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Total Questions</span>
-                    <span className="text-2xl font-bold text-white">{company.questionCount}</span>
+                <div className="flex-1 w-full">
+                  <h3 className="text-2xl font-extrabold text-white mb-2 flex items-center gap-2">
+                    {company.name}
+                    {company.available && <span className="ml-2 px-2 py-1 text-xs rounded-full bg-green-700 text-green-100 font-semibold">Live</span>}
+                  </h3>
+                  <p className="text-gray-300 text-base mb-3">{company.description}</p>
+                  <div className="flex flex-wrap gap-4 mb-3">
+                    <div className="flex flex-col items-start">
+                      <span className="text-gray-400 text-xs">Total Questions</span>
+                      <span className="text-xl font-bold text-white">{company.questionCount}</span>
+                    </div>
+                    <div className="flex flex-col items-start">
+                      <span className="text-gray-400 text-xs">Difficulty</span>
+                      <span className={`font-semibold text-base ${
+                        company.difficulty === "Hard" ? "text-red-400" :
+                        company.difficulty === "Medium" ? "text-yellow-300" :
+                        "text-green-300"
+                      }`}>{company.difficulty}</span>
+                    </div>
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-gray-300">Difficulty Level</span>
-                    <span className="text-white font-medium">{company.difficulty}</span>
+                  {/* Action Button */}
+                  <div className="mt-2">
+                    {company.available ? (
+                      <Link
+                        href={`/oa-dsa-questions/${company.slug}`}
+                        className={`w-full inline-flex items-center justify-center px-6 py-3 rounded-xl font-bold text-white bg-gradient-to-r ${company.color} hover:shadow-lg transition-all duration-200 group-hover:scale-105 text-base`}
+                      >
+                        <FaCode className="w-5 h-5 mr-2" />
+                        View Questions
+                      </Link>
+                    ) : (
+                      <button
+                        className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl font-bold text-gray-400 bg-gray-700 cursor-not-allowed text-base"
+                        disabled
+                      >
+                        <FaCode className="w-5 h-5 mr-2" />
+                        Coming Soon
+                      </button>
+                    )}
                   </div>
-                </div>
-
-                {/* Action Button */}
-                <div className="mt-8">
-                  {company.slug === "goldman-sachs" ? (
-                    <Link
-                      href={`/oa-dsa-questions/${company.slug}`}
-                      className={`w-full inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-white bg-gradient-to-r ${company.color} hover:shadow-lg transition-all duration-200 group-hover:scale-105`}
-                    >
-                      <FaCode className="w-5 h-5 mr-2" />
-                      View Questions
-                    </Link>
-                  ) : (
-                    <button
-                      className="w-full inline-flex items-center justify-center px-6 py-3 rounded-xl font-semibold text-gray-400 bg-gray-700 cursor-not-allowed"
-                      disabled
-                    >
-                      <FaCode className="w-5 h-5 mr-2" />
-                      Coming Soon
-                    </button>
-                  )}
                 </div>
               </div>
-
               {/* Hover Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -skew-x-12"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -skew-x-12 pointer-events-none"></div>
             </div>
           ))}
         </div>

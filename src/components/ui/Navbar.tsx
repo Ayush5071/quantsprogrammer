@@ -123,8 +123,8 @@ export const FloatingNav = ({
           backdropFilter: "blur(20px) saturate(180%)",
         }}
       >
-        {/* Hamburger for mobile */}
-        <div className="md:hidden flex items-center flex-1 justify-between">
+        {/* Hamburger for mobile (show until 1028px) */}
+        <div className="max-[1028px]:flex hidden items-center flex-1 justify-between">
           <motion.button
             className="p-2 rounded-xl bg-white/10 backdrop-blur-lg border border-white/20 hover:bg-white/20 hover:border-white/30 focus:outline-none transition-all duration-300"
             onClick={() => setMenuOpen((v) => !v)}
@@ -157,8 +157,8 @@ export const FloatingNav = ({
             </motion.svg>
           </motion.button>
         </div>
-        {/* Main nav for desktop */}
-        <div className="hidden md:flex items-center gap-4 flex-1 justify-evenly">
+        {/* Main nav for desktop (show from 1028px and up) */}
+        <div className="hidden min-[1028px]:flex items-center gap-4 flex-1 justify-evenly">
           {navItems.map((navItem, idx) =>
             "link" in navItem ? (
               <motion.div
