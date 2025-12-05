@@ -3,7 +3,7 @@ import mongoose, { Schema } from "mongoose";
 const blogSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String, required: false },
-  content: { type: String, required: true }, // HTML content
+  content: { type: String, required: true },
   coverImage: { type: String },
   author: { type: String, required: true },
   authorId: { type: String, required: true },

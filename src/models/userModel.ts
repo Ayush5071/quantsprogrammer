@@ -15,6 +15,15 @@ const userSchema = new Schema({
         type: String,
         required: [true, "Please provide a password"],
     },
+    googleId: {
+        type: String,
+        sparse: true,
+    },
+    authProvider: {
+        type: String,
+        enum: ["credentials", "google"],
+        default: "credentials",
+    },
     isVerified: {
         type: Boolean,
         default: false,
@@ -34,6 +43,23 @@ const userSchema = new Schema({
             completedAssignments: [String], // assignment IDs or titles
         }
     ],
+    sampleTestAttempt: {
+        completed: { type: Boolean, default: false },
+        score: { type: Number },
+        totalMarks: { type: Number },
+        percentage: { type: Number },
+        passed: { type: Boolean },
+        certificateId: { type: String },
+        completedAt: { type: Date },
+        answers: [{ 
+            questionId: String,
+            question: String,
+            userAnswer: Number,
+            correctAnswer: Number,
+            isCorrect: Boolean,
+            marks: Number
+        }]
+    },
     fullName: { type: String },
     address: { type: String },
     age: { type: String },
@@ -41,6 +67,16 @@ const userSchema = new Schema({
     gender: { type: String },
     contactNumber: { type: String },
     savedQuestions: { type: [String], default: [] },
+    // Purchases
+    purchases: {
+        oaQuestions: {
+            purchased: { type: Boolean, default: false },
+            purchasedAt: { type: Date },
+            paymentId: { type: String },
+            paymentRequestId: { type: String },
+            amount: { type: Number },
+        }
+    },
 });
 
 if (mongoose.models.users) {
