@@ -120,27 +120,19 @@ export default function CompanyProblemsPage() {
     }
   };
 
-  // Fetch company list from GitHub repo
+  // Fetch company list from secure API
   const fetchCompanies = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "https://api.github.com/repos/liquidslr/leetcode-company-wise-problems/contents"
-      );
+      const response = await fetch("/api/company-problems");
       
       if (!response.ok) throw new Error("Failed to fetch companies");
       
       const data = await response.json();
       
-      // Filter only directories (companies)
-      const companyList: Company[] = data
-        .filter((item: any) => item.type === "dir" && !item.name.startsWith("."))
-        .map((item: any) => ({
-          name: item.name,
-          displayName: item.name.replace(/-/g, " ").replace(/_/g, " ")
-        }))
+      // Sort companies - featured first
+      const companyList: Company[] = data.companies
         .sort((a: Company, b: Company) => {
-          // Sort featured companies first
           const aFeatured = FEATURED_COMPANIES.some(c => 
             a.displayName.toLowerCase().includes(c.toLowerCase())
           );
@@ -160,30 +152,28 @@ export default function CompanyProblemsPage() {
     }
   }, []);
 
-  // Fetch problems for selected company
+  // Fetch problems for selected company via secure API
   const fetchProblems = useCallback(async (companyName: string) => {
     try {
       setLoadingProblems(true);
       setError(null);
       
-      // Fetch All.csv from the company folder
-      const response = await fetch(
-        `https://raw.githubusercontent.com/liquidslr/leetcode-company-wise-problems/main/${companyName}/5.%20All.csv`
-      );
+      // Fetch from our secure API (checks purchase status server-side)
+      const response = await fetch(`/api/company-problems?company=${encodeURIComponent(companyName)}`);
       
       if (!response.ok) {
-        // Try alternate file names
-        const altResponse = await fetch(
-          `https://raw.githubusercontent.com/liquidslr/leetcode-company-wise-problems/main/${companyName}/All.csv`
-        );
-        if (!altResponse.ok) throw new Error("No problems found for this company");
-        const text = await altResponse.text();
-        parseCSV(text);
-        return;
+        const data = await response.json();
+        if (response.status === 403) {
+          // User needs to purchase
+          setShowPurchaseModal(true);
+          setSelectedCompany(null);
+        }
+        throw new Error(data.error || "No problems found for this company");
       }
       
-      const text = await response.text();
-      parseCSV(text);
+      const data = await response.json();
+      setProblems(data.problems || []);
+      setFilteredProblems(data.problems || []);
     } catch (err: any) {
       setError(err.message);
       setProblems([]);
@@ -191,45 +181,6 @@ export default function CompanyProblemsPage() {
       setLoadingProblems(false);
     }
   }, []);
-
-  // Parse CSV data
-  const parseCSV = (csvText: string) => {
-    const lines = csvText.trim().split("\n");
-    const problemList: Problem[] = [];
-    
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-      
-      // CSV format: DIFFICULTY,Title,Frequency,Acceptance,Link
-      // Handle tab or comma separated
-      const parts = line.includes("\t") ? line.split("\t") : line.split(",");
-      
-      if (parts.length >= 4) {
-        const difficulty = parts[0]?.trim().toUpperCase();
-        const title = parts[1]?.trim();
-        const frequency = parts[2]?.trim();
-        const acceptance = parts[3]?.trim();
-        const link = parts[4]?.trim() || `https://leetcode.com/problems/${title?.toLowerCase().replace(/\s+/g, "-")}`;
-        
-        // Skip header row or invalid entries
-        if (difficulty === "DIFFICULTY" || !title || !["EASY", "MEDIUM", "HARD"].includes(difficulty)) {
-          continue;
-        }
-        
-        problemList.push({
-          difficulty,
-          title,
-          frequency: frequency ? `${(parseFloat(frequency) * 100).toFixed(1)}%` : "N/A",
-          acceptance: acceptance ? `${(parseFloat(acceptance) * 100).toFixed(1)}%` : "N/A",
-          link: link.startsWith("http") ? link : `https://leetcode.com/problems/${title.toLowerCase().replace(/\s+/g, "-")}`
-        });
-      }
-    }
-    
-    setProblems(problemList);
-    setFilteredProblems(problemList);
-  };
 
   useEffect(() => {
     fetchCompanies();

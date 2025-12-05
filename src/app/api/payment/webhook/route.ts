@@ -54,6 +54,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Payment not successful" }, { status: 200 });
     }
 
+    // Verify the amount paid is correct (₹10)
+    const EXPECTED_AMOUNT = 10;
+    const paidAmount = parseFloat(amount);
+    if (paidAmount < EXPECTED_AMOUNT) {
+      console.error(`Invalid amount: expected ₹${EXPECTED_AMOUNT}, got ₹${paidAmount}`);
+      return NextResponse.json({ error: "Invalid payment amount" }, { status: 400 });
+    }
+
     // Extract user ID from purpose (format: OA_QUESTIONS_{userId})
     const userId = purpose?.replace("OA_QUESTIONS_", "");
     
