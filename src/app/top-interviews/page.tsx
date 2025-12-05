@@ -1,50 +1,155 @@
-"use client"
+"use client";
 import TopInterviewsSection from "@/components/sections/top-interviews/TopInterviewsSection";
 import Link from "next/link";
 import useCurrentUser from "@/lib/useCurrentUser";
-import React from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function TopInterviewsPage() {
   const user = useCurrentUser();
   const router = useRouter();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   if (user === null) {
-    // Show loading state while user is being fetched
-    return <div className="text-blue-400 min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-  if (!user) {
-    // Not logged in: show themed message and login link
     return (
-      <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-blue-950 flex flex-col items-center justify-center px-4">
-        <div className="animate-pulse text-center">
-          <h1 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-blue-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent mb-6 drop-shadow-lg">
-            To use this feature you must log in
-          </h1>
-          <p className="text-lg md:text-2xl text-zinc-200 mb-8">Sign in to access Top Interviews and track your progress, leaderboard, and feedback.</p>
-          <Link href="/auth/login" className="inline-block px-8 py-4 rounded-2xl bg-gradient-to-r from-blue-700 to-pink-600 text-white font-bold text-xl shadow-lg hover:scale-105 hover:shadow-2xl transition-all">
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-gray-400 text-sm">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex flex-col items-center justify-center px-4">
+        <div className="fixed inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent_50%)]" />
+        </div>
+        <div className="relative z-10 text-center max-w-md">
+          <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-blue-500/10 flex items-center justify-center">
+            <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">Login Required</h1>
+          <p className="text-gray-400 text-sm mb-6">
+            Sign in to access Top Interviews, track your progress, and compete on the leaderboard.
+          </p>
+          <Link
+            href="/auth/login"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-medium rounded-lg transition-all"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
             Login to Continue
           </Link>
         </div>
-      </main>
+      </div>
     );
   }
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-blue-950 flex flex-col items-center py-12 px-2 md:px-8">
-      {/* Back Button - top left, only on md+ screens */}
-      <button
-        onClick={() => router.back()}
-        className="hidden md:flex fixed top-6 left-4 items-center gap-2 text-blue-400 hover:text-blue-300 hover:underline text-xl md:text-2xl px-6 py-3 rounded-2xl bg-zinc-900 shadow-lg border-2 border-blue-700 transition-all z-50"
-        style={{ position: 'fixed', top: '1.5rem', left: '1rem', zIndex: 50 }}
-      >
-        <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-        <span className="hidden sm:inline">Back</span>
-      </button>
-      <div className="w-full max-w-5xl flex flex-col items-end mb-6">
-        {user?.isAdmin && (
-          <Link href="/admin/top-interview-create" className="px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-lg font-semibold shadow transition-all">Create Top Interview</Link>
-        )}
+    <div className="min-h-screen bg-[#0a0a0f]">
+      {/* Subtle background effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(139,92,246,0.06),transparent_50%)]" />
       </div>
-      <TopInterviewsSection />
-    </main>
+
+      {/* Header */}
+      <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => router.back()}
+                className="p-2 hover:bg-white/5 rounded-lg transition-colors text-gray-400 hover:text-white"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <h1 className="text-lg sm:text-xl font-bold text-white">Top Interviews</h1>
+            </div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-2">
+              <Link
+                href="/top-interview-history"
+                className="px-4 py-2 text-gray-400 hover:text-white text-sm font-medium hover:bg-white/5 rounded-lg transition-all"
+              >
+                My History
+              </Link>
+              <Link
+                href="/interview"
+                className="px-4 py-2 text-gray-400 hover:text-white text-sm font-medium hover:bg-white/5 rounded-lg transition-all"
+              >
+                Practice Interview
+              </Link>
+              {user?.isAdmin && (
+                <Link
+                  href="/admin/top-interview-create"
+                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-medium rounded-lg transition-all"
+                >
+                  Create Interview
+                </Link>
+              )}
+            </nav>
+
+            {/* Mobile Menu Button */}
+            <button
+              className="md:hidden p-2 hover:bg-white/5 rounded-lg transition-colors text-gray-400"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              ) : (
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              )}
+            </button>
+          </div>
+
+          {/* Mobile Navigation */}
+          {mobileMenuOpen && (
+            <nav className="md:hidden mt-3 pt-3 border-t border-white/5 flex flex-col gap-1">
+              <Link
+                href="/top-interview-history"
+                className="px-4 py-3 text-gray-300 hover:text-white text-sm font-medium hover:bg-white/5 rounded-lg transition-all"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                My History
+              </Link>
+              <Link
+                href="/interview"
+                className="px-4 py-3 text-gray-300 hover:text-white text-sm font-medium hover:bg-white/5 rounded-lg transition-all"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Practice Interview
+              </Link>
+              {user?.isAdmin && (
+                <Link
+                  href="/admin/top-interview-create"
+                  className="px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-lg transition-all text-center mt-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Create Interview
+                </Link>
+              )}
+            </nav>
+          )}
+        </div>
+      </header>
+
+      <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        <TopInterviewsSection />
+      </main>
+    </div>
   );
 }

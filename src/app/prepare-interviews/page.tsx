@@ -10,7 +10,7 @@ const PrepareInterviewsPage = () => {
   const upcomingTopics = [
     {
       title: "Operating Systems",
-      icon: <Server className="w-8 h-8" />,
+      icon: <Server className="w-6 h-6" />,
       description: "Process, Threads, Memory Management, File Systems",
       color: "from-blue-500 to-cyan-500",
       comingSoon: false,
@@ -18,49 +18,49 @@ const PrepareInterviewsPage = () => {
     },
     {
       title: "Data Structures & Algorithms",
-      icon: <Code className="w-8 h-8" />,
+      icon: <Code className="w-6 h-6" />,
       description: "Arrays, Trees, Graphs, Dynamic Programming",
       color: "from-green-500 to-emerald-500",
       comingSoon: true
     },
     {
       title: "Database Management",
-      icon: <Database className="w-8 h-8" />,
+      icon: <Database className="w-6 h-6" />,
       description: "SQL, NoSQL, Transactions, Indexing",
       color: "from-purple-500 to-violet-500",
       comingSoon: true
     },
     {
       title: "Computer Networks",
-      icon: <Globe className="w-8 h-8" />,
+      icon: <Globe className="w-6 h-6" />,
       description: "TCP/IP, HTTP, DNS, Network Security",
       color: "from-orange-500 to-red-500",
       comingSoon: true
     },
     {
       title: "System Design",
-      icon: <Brain className="w-8 h-8" />,
+      icon: <Brain className="w-6 h-6" />,
       description: "Scalability, Load Balancing, Microservices",
       color: "from-pink-500 to-rose-500",
       comingSoon: true
     },
     {
       title: "Object Oriented Programming",
-      icon: <BookOpen className="w-8 h-8" />,
+      icon: <BookOpen className="w-6 h-6" />,
       description: "Inheritance, Polymorphism, Design Patterns",
       color: "from-indigo-500 to-blue-500",
       comingSoon: true
     },
     {
       title: "Web Development",
-      icon: <Globe className="w-8 h-8" />,
+      icon: <Globe className="w-6 h-6" />,
       description: "Frontend, Backend, APIs, Security",
       color: "from-teal-500 to-green-500",
       comingSoon: true
     },
     {
       title: "Mobile Development",
-      icon: <Smartphone className="w-8 h-8" />,
+      icon: <Smartphone className="w-6 h-6" />,
       description: "Android, iOS, React Native, Flutter",
       color: "from-yellow-500 to-orange-500",
       comingSoon: true
@@ -68,23 +68,29 @@ const PrepareInterviewsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900">
-      {/* Header with Back Button */}
-      <div className="bg-white/5 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div className="min-h-screen bg-[#0a0a0f]">
+      {/* Subtle background effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(99,102,241,0.06),transparent_50%)]" />
+      </div>
+
+      {/* Header */}
+      <div className="sticky top-0 z-10 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.back()}
-              className="p-2 hover:bg-white/10 rounded-xl transition-colors flex items-center gap-2 text-zinc-300 hover:text-white"
+              className="p-2 hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2 text-gray-400 hover:text-white"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline text-sm">Back</span>
             </button>
             <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+              <h1 className="text-xl sm:text-2xl font-bold text-white">
                 Prepare for Interviews
               </h1>
-              <p className="text-zinc-300 mt-2">
+              <p className="text-gray-500 text-sm mt-0.5 hidden sm:block">
                 Master technical concepts for product-based company interviews
               </p>
             </div>
@@ -92,55 +98,50 @@ const PrepareInterviewsPage = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-full px-6 py-3 mb-6">
-            <Zap className="w-5 h-5 text-yellow-400" />
-            <span className="text-purple-300 font-medium">Interview Preparation Hub</span>
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-2 mb-5">
+            <Zap className="w-4 h-4 text-blue-400" />
+            <span className="text-blue-400 text-sm font-medium">Interview Preparation Hub</span>
           </div>
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
             Get Ready for Your Dream Job
           </h2>
-          <p className="text-zinc-400 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">
             Comprehensive interview preparation materials covering all essential topics for software engineering roles at top product companies.
           </p>
         </div>
 
         {/* Topics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {upcomingTopics.map((topic, index) => (
-            <div
-              key={index}
-              className={`relative group ${
-                topic.comingSoon ? 'cursor-not-allowed' : 'cursor-pointer'
-              }`}
-            >
+            <div key={index} className="group">
               {topic.comingSoon ? (
-                <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 h-full flex flex-col transition-all duration-300 hover:border-white/20 opacity-75">
-                  <div className={`p-4 bg-gradient-to-r ${topic.color} rounded-xl w-fit mb-4 opacity-60`}>
+                <div className="bg-[#111118] border border-white/5 rounded-xl p-5 h-full flex flex-col transition-all hover:border-white/10 opacity-60">
+                  <div className={`p-3 bg-gradient-to-r ${topic.color} rounded-lg w-fit mb-4 opacity-50`}>
                     {topic.icon}
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">{topic.title}</h3>
-                  <p className="text-zinc-400 text-sm mb-4 flex-1">{topic.description}</p>
-                  <div className="inline-flex items-center gap-2 bg-gradient-to-r from-yellow-600/20 to-orange-600/20 border border-yellow-500/30 rounded-full px-4 py-2 w-fit">
-                    <Zap className="w-4 h-4 text-yellow-400" />
-                    <span className="text-yellow-300 text-sm font-medium">Coming Soon</span>
+                  <h3 className="text-base font-semibold text-white mb-1.5">{topic.title}</h3>
+                  <p className="text-gray-500 text-sm mb-4 flex-1 line-clamp-2">{topic.description}</p>
+                  <div className="inline-flex items-center gap-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-full px-3 py-1.5 w-fit">
+                    <Zap className="w-3.5 h-3.5 text-yellow-500" />
+                    <span className="text-yellow-500 text-xs font-medium">Coming Soon</span>
                   </div>
                 </div>
               ) : (
                 <Link href={topic.link!}>
-                  <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 h-full flex flex-col transition-all duration-300 hover:border-white/20 hover:bg-white/10 group-hover:scale-105">
-                    <div className={`p-4 bg-gradient-to-r ${topic.color} rounded-xl w-fit mb-4 group-hover:scale-110 transition-transform`}>
+                  <div className="bg-[#111118] border border-white/5 rounded-xl p-5 h-full flex flex-col transition-all hover:border-blue-500/30 hover:bg-[#13131a] group-hover:shadow-lg group-hover:shadow-blue-500/5">
+                    <div className={`p-3 bg-gradient-to-r ${topic.color} rounded-lg w-fit mb-4 transition-transform group-hover:scale-105`}>
                       {topic.icon}
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
+                    <h3 className="text-base font-semibold text-white mb-1.5 group-hover:text-blue-400 transition-colors">
                       {topic.title}
                     </h3>
-                    <p className="text-zinc-400 text-sm mb-4 flex-1">{topic.description}</p>
-                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 rounded-full px-4 py-2 w-fit">
-                      <BookOpen className="w-4 h-4 text-green-400" />
-                      <span className="text-green-300 text-sm font-medium">Available Now</span>
+                    <p className="text-gray-500 text-sm mb-4 flex-1 line-clamp-2">{topic.description}</p>
+                    <div className="inline-flex items-center gap-1.5 bg-green-500/10 border border-green-500/20 rounded-full px-3 py-1.5 w-fit">
+                      <BookOpen className="w-3.5 h-3.5 text-green-500" />
+                      <span className="text-green-500 text-xs font-medium">Available Now</span>
                     </div>
                   </div>
                 </Link>
@@ -150,51 +151,45 @@ const PrepareInterviewsPage = () => {
         </div>
 
         {/* Stats Section */}
-        <div className="mt-16 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8">
-          <div className="text-center mb-8">
-            <h3 className="text-2xl font-bold text-white mb-2">What You'll Get</h3>
-            <p className="text-zinc-400">Complete preparation materials for technical interviews</p>
+        <div className="mt-12 bg-[#111118] border border-white/5 rounded-xl p-6 sm:p-8">
+          <div className="text-center mb-6">
+            <h3 className="text-xl font-bold text-white mb-1">What You'll Get</h3>
+            <p className="text-gray-500 text-sm">Complete preparation materials for technical interviews</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/30 rounded-xl p-6">
-                <div className="text-3xl font-bold text-blue-400 mb-2">500+</div>
-                <div className="text-zinc-300">Interview Questions</div>
-                <div className="text-zinc-500 text-sm mt-1">With detailed solutions</div>
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-[#0a0a0f] border border-white/5 rounded-lg p-5 text-center">
+              <div className="text-2xl font-bold text-blue-400 mb-1">500+</div>
+              <div className="text-gray-300 text-sm">Interview Questions</div>
+              <div className="text-gray-600 text-xs mt-0.5">With detailed solutions</div>
             </div>
             
-            <div className="text-center">
-              <div className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 rounded-xl p-6">
-                <div className="text-3xl font-bold text-green-400 mb-2">8</div>
-                <div className="text-zinc-300">Core Topics</div>
-                <div className="text-zinc-500 text-sm mt-1">Essential for SDE roles</div>
-              </div>
+            <div className="bg-[#0a0a0f] border border-white/5 rounded-lg p-5 text-center">
+              <div className="text-2xl font-bold text-green-400 mb-1">8</div>
+              <div className="text-gray-300 text-sm">Core Topics</div>
+              <div className="text-gray-600 text-xs mt-0.5">Essential for SDE roles</div>
             </div>
             
-            <div className="text-center">
-              <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-xl p-6">
-                <div className="text-3xl font-bold text-purple-400 mb-2">24/7</div>
-                <div className="text-zinc-300">Access</div>
-                <div className="text-zinc-500 text-sm mt-1">Study at your own pace</div>
-              </div>
+            <div className="bg-[#0a0a0f] border border-white/5 rounded-lg p-5 text-center">
+              <div className="text-2xl font-bold text-purple-400 mb-1">24/7</div>
+              <div className="text-gray-300 text-sm">Access</div>
+              <div className="text-gray-600 text-xs mt-0.5">Study at your own pace</div>
             </div>
           </div>
         </div>
 
         {/* Call to Action */}
-        <div className="mt-12 text-center">
-          <div className="bg-gradient-to-r from-purple-600/10 to-pink-600/10 border border-purple-500/20 rounded-2xl p-8">
-            <h3 className="text-2xl font-bold text-white mb-4">Ready to Start Your Journey?</h3>
-            <p className="text-zinc-400 mb-6 max-w-2xl mx-auto">
-              Begin with Operating Systems - our most comprehensive topic covering everything from basic concepts to advanced interview questions asked at top tech companies.
+        <div className="mt-8 text-center">
+          <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/20 rounded-xl p-6 sm:p-8">
+            <h3 className="text-xl font-bold text-white mb-3">Ready to Start Your Journey?</h3>
+            <p className="text-gray-400 text-sm mb-5 max-w-xl mx-auto">
+              Begin with Operating Systems - our most comprehensive topic covering everything from basic concepts to advanced interview questions.
             </p>
             <Link
               href="/prepare-interviews/operating-systems"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-medium rounded-lg transition-all"
             >
-              <BookOpen className="w-5 h-5" />
+              <BookOpen className="w-4 h-4" />
               Start with Operating Systems
             </Link>
           </div>

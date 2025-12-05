@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useRouter, useParams } from "next/navigation";
 import ReactConfetti from "react-confetti";
 import Certificate from "@/components/component/Certificate";
+import axios from "axios";
 
 function EditableField({ value, onChange, placeholder, className = "" }: { value: string, onChange: (v: string) => void, placeholder?: string, className?: string }) {
   const [editing, setEditing] = useState(false);
@@ -45,6 +46,16 @@ const RoadmapDetailPage = () => {
   const [showCertModal, setShowCertModal] = useState(false);
   const [userId, setUserId] = useState<string>("");
   const [user, setUser] = useState<any>(null);
+  
+  // Test eligibility state
+  const [testEligibility, setTestEligibility] = useState<{
+    canTakeTest: boolean;
+    hasAttempted: boolean;
+    attempt: any;
+    hasFullDetails: boolean;
+    missingDetails: string | null;
+    canRetry: boolean;
+  } | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -78,13 +89,11 @@ const RoadmapDetailPage = () => {
   useEffect(() => {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     setIsLoggedIn(!!token);
-    if (token && id) {
-      fetch(`/api/roadmap/progress?roadmapId=${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.progress) setProgress(data.progress);
+    if (id) {
+      // Use axios which automatically sends cookies
+      axios.get(`/api/roadmap/progress?roadmapId=${id}`)
+        .then((res) => {
+          if (res.data.progress) setProgress(res.data.progress);
           setProgressLoading(false);
         })
         .catch(() => setProgressLoading(false));
@@ -92,6 +101,21 @@ const RoadmapDetailPage = () => {
       setProgressLoading(false);
     }
   }, [id]);
+
+  // Check test eligibility when progress changes or is 100%
+  useEffect(() => {
+    async function checkTestEligibility() {
+      if (!id || !isLoggedIn) return;
+      try {
+        const res = await fetch(`/api/roadmap-test?roadmapId=${id}`);
+        const data = await res.json();
+        setTestEligibility(data);
+      } catch (err) {
+        console.error("Error checking test eligibility:", err);
+      }
+    }
+    checkTestEligibility();
+  }, [id, isLoggedIn, progress]);
 
   useEffect(() => {
     // Fetch userId for download button
@@ -131,12 +155,18 @@ const RoadmapDetailPage = () => {
     }
     setProgress(updated);
     if (isLoggedIn) {
-      const token = localStorage.getItem("token");
-      await fetch("/api/roadmap/progress", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ roadmapId: id, ...updated }),
-      });
+      console.log("Saving progress to server...", { roadmapId: id, completedTasks: updated.completedTasks.length, completedAssignments: updated.completedAssignments.length });
+      try {
+        // Use axios which automatically sends cookies
+        const res = await axios.post("/api/roadmap/progress", { 
+          roadmapId: id, 
+          completedTasks: updated.completedTasks,
+          completedAssignments: updated.completedAssignments
+        });
+        console.log("Progress save response:", res.data);
+      } catch (err: any) {
+        console.error("Error saving progress:", err.response?.data || err.message);
+      }
     } else {
       localStorage.setItem(`roadmap-progress-${id}` , JSON.stringify(updated));
     }
@@ -215,412 +245,502 @@ const RoadmapDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-black text-white text-2xl">
-        Loading roadmap...
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-gray-400">Loading roadmap...</p>
+        </div>
       </div>
     );
   }
 
   if (!roadmap) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-black text-red-400 text-2xl">
-        Roadmap not found.
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-red-500/10 rounded-full flex items-center justify-center">
+            <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-semibold text-white mb-2">Roadmap Not Found</h2>
+          <p className="text-gray-500 mb-4">This roadmap doesn't exist or has been removed.</p>
+          <button 
+            onClick={() => router.push("/explore")}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition-colors"
+          >
+            Back to Explore
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <section className="w-full min-h-screen flex flex-col items-center justify-start px-4 sm:px-6 md:px-8 relative overflow-hidden">
-      {/* Enhanced Background Effects - matching hero section */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-blue-900 to-black"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.15),transparent_50%)]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(37,99,235,0.12),transparent_50%)]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(29,78,216,0.08),transparent_70%)]"></div>
-      
-      {/* Animated Grid Pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="h-full w-full bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black,transparent)]"></div>
+    <div className="min-h-screen bg-[#0a0a0f]">
+      {/* Background Effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[128px]" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-[128px]" />
       </div>
 
       {showConfetti && <ReactConfetti width={typeof window !== 'undefined' ? window.innerWidth : 1920} height={typeof window !== 'undefined' ? window.innerHeight : 1080} recycle={false} numberOfPieces={400} />}
-      
+
       {/* Congratulations Modal */}
       {showCertModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-            className="p-8 bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-lg border border-white/20 rounded-2xl shadow-xl max-w-md mx-4"
+            className="p-8 bg-[#111118] border border-white/10 rounded-2xl max-w-md w-full text-center"
           >
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-4">Congratulations!</h2>
-              <p className="text-zinc-300 mb-6">You've completed this roadmap!<br/>Download your certificate from your profile.</p>
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl shadow-lg transition-all duration-300"
-                onClick={() => setShowCertModal(false)}
+            <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-full flex items-center justify-center">
+              <svg className="w-10 h-10 text-yellow-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-white mb-2">🎉 Congratulations!</h2>
+            <p className="text-gray-300 mb-2">You've completed the <span className="text-blue-400 font-semibold">{roadmap?.title}</span> roadmap!</p>
+            <p className="text-gray-400 text-sm mb-6">
+              Now you can attempt a skill test to earn your certificate.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => {
+                  setShowCertModal(false);
+                  router.push(`/profile?tab=tests`);
+                }}
+                className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-semibold rounded-xl hover:from-yellow-500 hover:to-orange-500 transition-all flex items-center justify-center gap-2"
               >
-                Close
-              </motion.button>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+                Attempt Skill Test
+              </button>
+              <button
+                onClick={() => setShowCertModal(false)}
+                className="px-6 py-3 text-gray-400 font-medium rounded-xl hover:text-white hover:bg-white/5 transition-all"
+              >
+                Maybe Later
+              </button>
             </div>
           </motion.div>
         </div>
       )}
 
-      {/* Back Button */}
-      <motion.button
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        onClick={() => router.back()}
-        className="fixed top-6 left-6 z-30 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg text-sm font-semibold text-white hover:bg-white/15 transition-all duration-300 shadow-lg"
-      >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-        <span className="hidden sm:inline">Back</span>
-      </motion.button>
-      <div className="relative z-10 max-w-5xl mx-auto w-full flex flex-col justify-start py-8 pt-24 sm:pt-32">
-        {/* Hero-style Header */}
-        <div className="text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button
+            onClick={() => router.push("/explore")}
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
           >
-            {/* Trust Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full text-sm text-zinc-300 mb-6 hover:bg-white/15 transition-all duration-300">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span>Learning Roadmap</span>
-            </div>
-            
-            {/* Main Heading */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-blue-300 mb-6 leading-tight tracking-tight text-center">
-              {roadmap.title}
-            </h1>
-            
-            {/* Description */}
-            {roadmap.description && (
-              <p className="text-base sm:text-lg md:text-xl text-zinc-300 font-medium max-w-3xl mx-auto mb-8 leading-relaxed px-4 text-center">
-                {roadmap.description}
-              </p>
-            )}
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="hidden sm:inline">Back</span>
+          </button>
 
-            {/* Progress Section */}
-            <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-8">
-              <div className="flex items-center gap-3 p-3 bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl">
-                <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-400"></div>
-                <span className="text-sm text-zinc-300">Created by {roadmap.createdBy}</span>
-              </div>
-              
-              <div className="flex items-center gap-4 p-4 bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl min-w-[200px]">
-                <div className="flex-1">
-                  <div className="h-2 bg-gradient-to-r from-zinc-700 to-zinc-800 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${percent}%` }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                      className="h-full bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 shadow-lg"
-                    />
-                  </div>
-                  <div className="text-xs text-zinc-400 mt-1 text-right">{percent}% complete</div>
-                </div>
-              </div>
+          {/* Progress Bar */}
+          <div className="flex items-center gap-3 flex-1 max-w-xs mx-4">
+            <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${percent}%` }}
+                transition={{ duration: 0.5 }}
+                className="h-full bg-gradient-to-r from-blue-500 to-indigo-500"
+              />
+            </div>
+            <span className="text-sm text-gray-400">{percent}%</span>
+          </div>
+
+          <div className="w-16" />
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="relative z-10 max-w-5xl mx-auto px-4 py-8">
+        {/* Roadmap Header */}
+        <div className="mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 rounded-full mb-4"
+          >
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <span className="text-sm text-blue-400">Learning Roadmap</span>
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4"
+          >
+            {roadmap.title}
+          </motion.h1>
+
+          {roadmap.description && (
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="text-gray-400 text-lg max-w-3xl mb-6"
+            >
+              {roadmap.description}
+            </motion.p>
+          )}
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="flex flex-wrap items-center gap-4"
+          >
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-400">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>By {roadmap.createdBy}</span>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-400">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>{completedTasks + completedAssignments}/{totalTasks + totalAssignments} completed</span>
             </div>
           </motion.div>
         </div>
 
         {/* Phases Section */}
-        <div className="w-full">
+        <div className="space-y-4">
           {roadmap.phases && roadmap.phases.length > 0 ? (
-            <div className="space-y-6">
-              {roadmap.phases.map((phase: any, idx: number) => (
-                <motion.div
-                  key={idx}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: idx * 0.1 }}
-                  className="group"
+            roadmap.phases.map((phase: any, idx: number) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+              >
+                {/* Phase Header */}
+                <button
+                  onClick={() => setOpenPhase(openPhase === idx ? null : idx)}
+                  className={`w-full flex items-center justify-between p-5 bg-[#111118] border rounded-xl transition-all ${
+                    openPhase === idx ? "border-blue-500/30 bg-[#111118]" : "border-white/5 hover:border-white/10"
+                  }`}
                 >
-                  <button
-                    className={`w-full flex items-center justify-between p-6 bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-lg border border-white/10 hover:border-white/20 rounded-2xl transition-all duration-500 shadow-xl ${openPhase === idx ? "ring-2 ring-blue-400/50" : ""}`}
-                    onClick={() => setOpenPhase(openPhase === idx ? null : idx)}
-                    aria-expanded={openPhase === idx ? "true" : "false"}
-                  >
-                    <span className="text-xl md:text-2xl font-bold text-white flex items-center gap-3">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-semibold ${
+                      openPhase === idx ? "bg-blue-500/20 text-blue-400" : "bg-white/5 text-gray-400"
+                    }`}>
+                      {idx + 1}
+                    </div>
+                    <span className="text-lg font-semibold text-white">
                       {isAdmin ? (
                         <EditableField value={phase.title} onChange={v => handleEditPhaseTitle(idx, v)} placeholder="Phase Title" />
                       ) : (
                         phase.title
                       )}
-                      {isAdmin && (
-                        <button onClick={e => { e.stopPropagation(); handleDeletePhase(idx); }} className="ml-2 text-red-400 hover:text-red-600 text-lg" title="Delete Phase">✕</button>
-                      )}
                     </span>
-                    <motion.svg
-                      animate={{ rotate: openPhase === idx ? 90 : 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="w-6 h-6 text-blue-400"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </motion.svg>
-                  </button>
-                  
-                  <motion.div
-                    initial={false}
-                    animate={{
-                      height: openPhase === idx ? "auto" : 0,
-                      opacity: openPhase === idx ? 1 : 0,
-                    }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
+                    {isAdmin && (
+                      <button 
+                        onClick={e => { e.stopPropagation(); handleDeletePhase(idx); }} 
+                        className="ml-2 text-red-400 hover:text-red-300 text-sm"
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                  <svg
+                    className={`w-5 h-5 text-gray-400 transition-transform ${openPhase === idx ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
                   >
-                    {openPhase === idx && (
-                      <div className="p-6 mt-4 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl">
-                        {/* Tasks Section */}
-                        {phase.tasks && phase.tasks.length > 0 ? (
-                          <div className="space-y-4">
-                            <h4 className="text-lg font-semibold text-blue-300 mb-4 flex items-center gap-2">
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              Tasks
-                            </h4>
-                            <div className="space-y-3">
-                              {phase.tasks.map((task: any, tIdx: number) => (
-                                <motion.div
-                                  key={tIdx}
-                                  initial={{ opacity: 0, x: -20 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: tIdx * 0.1 }}
-                                  className="p-4 bg-gradient-to-r from-blue-900/30 to-blue-800/30 backdrop-blur-lg border border-blue-500/30 rounded-xl hover:border-blue-400/50 transition-all duration-300"
-                                >
-                                  <label className="flex items-center gap-4 w-full cursor-pointer">
-                                    <div className="relative">
-                                      <input
-                                        type="checkbox"
-                                        checked={progress.completedTasks.includes(task.title)}
-                                        onChange={(e) => handleCheck("task", task.title, e.target.checked)}
-                                        className="w-5 h-5 rounded border-2 border-blue-400 bg-transparent checked:bg-blue-500 checked:border-blue-500 focus:ring-2 focus:ring-blue-400 transition-all duration-200"
-                                        disabled={progressLoading}
-                                      />
-                                      {progress.completedTasks.includes(task.title) && (
-                                        <svg className="absolute inset-0 w-5 h-5 text-white pointer-events-none" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                      )}
-                                    </div>
-                                    <div className="flex-1 flex items-center justify-between gap-4">
-                                      <span className="font-medium text-white text-sm md:text-base">
-                                        {isAdmin ? (
-                                          <EditableField value={task.title} onChange={v => handleEditTask(idx, tIdx, "title", v)} placeholder="Task Title" />
-                                        ) : task.title}
-                                      </span>
-                                      <div className="flex items-center gap-2">
-                                        {isAdmin ? (
-                                          <EditableField value={task.link} onChange={v => handleEditTask(idx, tIdx, "link", v)} placeholder="Task Link" className="text-blue-400 underline text-sm break-all bg-transparent border-0 border-b border-blue-400" />
-                                        ) : (
-                                          task.link && (
-                                            <a
-                                              href={task.link}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-all duration-200 flex items-center gap-1"
-                                              onClick={(e) => e.stopPropagation()}
-                                            >
-                                              Open
-                                              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                              </svg>
-                                            </a>
-                                          )
-                                        )}
-                                        {isAdmin && (
-                                          <button onClick={e => { e.preventDefault(); handleDeleteTask(idx, tIdx); }} className="text-red-400 hover:text-red-600 text-sm" title="Delete Task">✕</button>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </label>
-                                </motion.div>
-                              ))}
-                              {isAdmin && (
-                                <div>
-                                  <button onClick={() => handleAddTask(idx)} className="w-full py-3 bg-blue-900/30 border border-blue-500/30 text-blue-400 rounded-lg font-medium hover:bg-blue-800/30 hover:border-blue-400/50 transition-all duration-300 flex items-center justify-center gap-2">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    Add Task
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="text-zinc-400 text-sm">No tasks in this phase.</div>
-                        )}
-                        
-                        {/* Assignments Section */}
-                        {phase.assignments && phase.assignments.length > 0 && (
-                          <div className="space-y-4 mt-8">
-                            <h4 className="text-lg font-semibold text-purple-300 mb-4 flex items-center gap-2">
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                              </svg>
-                              Assignments
-                            </h4>
-                            <div className="space-y-3">
-                              {phase.assignments.map((assignment: any, aIdx: number) => (
-                                <motion.div
-                                  key={aIdx}
-                                  initial={{ opacity: 0, x: -20 }}
-                                  animate={{ opacity: 1, x: 0 }}
-                                  transition={{ delay: aIdx * 0.1 }}
-                                  className="p-4 bg-gradient-to-r from-purple-900/30 to-purple-800/30 backdrop-blur-lg border border-purple-500/30 rounded-xl hover:border-purple-400/50 transition-all duration-300"
-                                >
-                                  <label className="flex items-center gap-4 w-full cursor-pointer">
-                                    <div className="relative">
-                                      <input
-                                        type="checkbox"
-                                        checked={progress.completedAssignments.includes(assignment.title)}
-                                        onChange={(e) => handleCheck("assignment", assignment.title, e.target.checked)}
-                                        className="w-5 h-5 rounded border-2 border-purple-400 bg-transparent checked:bg-purple-500 checked:border-purple-500 focus:ring-2 focus:ring-purple-400 transition-all duration-200"
-                                        disabled={progressLoading}
-                                      />
-                                      {progress.completedAssignments.includes(assignment.title) && (
-                                        <svg className="absolute inset-0 w-5 h-5 text-white pointer-events-none" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                                        </svg>
-                                      )}
-                                    </div>
-                                    <div className="flex-1 flex items-center justify-between gap-4">
-                                      <span className="font-medium text-white text-sm md:text-base">
-                                        {isAdmin ? (
-                                          <EditableField value={assignment.title} onChange={v => handleEditAssignment(idx, aIdx, "title", v)} placeholder="Assignment Title" />
-                                        ) : assignment.title}
-                                      </span>
-                                      <div className="flex items-center gap-2">
-                                        {isAdmin ? (
-                                          <EditableField value={assignment.link} onChange={v => handleEditAssignment(idx, aIdx, "link", v)} placeholder="Assignment Link" className="text-purple-400 underline text-sm break-all bg-transparent border-0 border-b border-purple-400" />
-                                        ) : (
-                                          assignment.link && (
-                                            <a
-                                              href={assignment.link}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              className="px-3 py-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-all duration-200 flex items-center gap-1"
-                                              onClick={(e) => e.stopPropagation()}
-                                            >
-                                              Open
-                                              <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                              </svg>
-                                            </a>
-                                          )
-                                        )}
-                                        {isAdmin && (
-                                          <button onClick={e => { e.preventDefault(); handleDeleteAssignment(idx, aIdx); }} className="text-red-400 hover:text-red-600 text-sm" title="Delete Assignment">✕</button>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </label>
-                                </motion.div>
-                              ))}
-                              {isAdmin && (
-                                <div>
-                                  <button onClick={() => handleAddAssignment(idx)} className="w-full py-3 bg-purple-900/30 border border-purple-500/30 text-purple-400 rounded-lg font-medium hover:bg-purple-800/30 hover:border-purple-400/50 transition-all duration-300 flex items-center justify-center gap-2">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                    Add Assignment
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                        
-                        {/* Folder Link */}
-                        {phase.folderLink && (
-                          <div className="mt-6 flex justify-end">
-                            <a
-                              href={phase.folderLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 text-base flex items-center gap-2"
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Phase Content */}
+                {openPhase === idx && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="mt-2 p-5 bg-[#111118]/50 border border-white/5 rounded-xl"
+                  >
+                    {/* Tasks */}
+                    {phase.tasks && phase.tasks.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-sm font-medium text-blue-400 mb-3 flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          Tasks ({phase.tasks.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {phase.tasks.map((task: any, tIdx: number) => (
+                            <div
+                              key={tIdx}
+                              className="flex items-center gap-3 p-3 bg-white/5 border border-white/5 rounded-lg hover:border-blue-500/20 transition-all"
                             >
-                              Open Roadmap Folder
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M14 3h7m0 0v7m0-7L10 14m-7 7h7a2 2 0 002-2v-7" />
-                              </svg>
-                            </a>
-                          </div>
-                        )}
+                              <input
+                                type="checkbox"
+                                checked={progress.completedTasks.includes(task.title)}
+                                onChange={(e) => handleCheck("task", task.title, e.target.checked)}
+                                disabled={progressLoading}
+                                className="w-5 h-5 rounded border-2 border-gray-600 bg-transparent checked:bg-blue-500 checked:border-blue-500 cursor-pointer"
+                              />
+                              <span className={`flex-1 text-sm ${
+                                progress.completedTasks.includes(task.title) ? "text-gray-500 line-through" : "text-white"
+                              }`}>
+                                {isAdmin ? (
+                                  <EditableField value={task.title} onChange={v => handleEditTask(idx, tIdx, "title", v)} placeholder="Task Title" />
+                                ) : task.title}
+                              </span>
+                              {task.link && !isAdmin && (
+                                <a
+                                  href={task.link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-3 py-1 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-500 transition-colors"
+                                >
+                                  Open
+                                </a>
+                              )}
+                              {isAdmin && (
+                                <>
+                                  <EditableField 
+                                    value={task.link || ""} 
+                                    onChange={v => handleEditTask(idx, tIdx, "link", v)} 
+                                    placeholder="Link" 
+                                    className="text-blue-400 text-xs"
+                                  />
+                                  <button 
+                                    onClick={() => handleDeleteTask(idx, tIdx)} 
+                                    className="text-red-400 hover:text-red-300"
+                                  >
+                                    ✕
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          ))}
+                          {isAdmin && (
+                            <button
+                              onClick={() => handleAddTask(idx)}
+                              className="w-full py-2 text-sm text-blue-400 border border-dashed border-blue-500/30 rounded-lg hover:bg-blue-500/5 transition-all"
+                            >
+                              + Add Task
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Assignments */}
+                    {phase.assignments && phase.assignments.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium text-purple-400 mb-3 flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                          Assignments ({phase.assignments.length})
+                        </h4>
+                        <div className="space-y-2">
+                          {phase.assignments.map((assignment: any, aIdx: number) => (
+                            <div
+                              key={aIdx}
+                              className="flex items-center gap-3 p-3 bg-white/5 border border-white/5 rounded-lg hover:border-purple-500/20 transition-all"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={progress.completedAssignments.includes(assignment.title)}
+                                onChange={(e) => handleCheck("assignment", assignment.title, e.target.checked)}
+                                disabled={progressLoading}
+                                className="w-5 h-5 rounded border-2 border-gray-600 bg-transparent checked:bg-purple-500 checked:border-purple-500 cursor-pointer"
+                              />
+                              <span className={`flex-1 text-sm ${
+                                progress.completedAssignments.includes(assignment.title) ? "text-gray-500 line-through" : "text-white"
+                              }`}>
+                                {isAdmin ? (
+                                  <EditableField value={assignment.title} onChange={v => handleEditAssignment(idx, aIdx, "title", v)} placeholder="Assignment Title" />
+                                ) : assignment.title}
+                              </span>
+                              {assignment.link && !isAdmin && (
+                                <a
+                                  href={assignment.link}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-3 py-1 text-xs bg-purple-600 text-white rounded-md hover:bg-purple-500 transition-colors"
+                                >
+                                  Open
+                                </a>
+                              )}
+                              {isAdmin && (
+                                <>
+                                  <EditableField 
+                                    value={assignment.link || ""} 
+                                    onChange={v => handleEditAssignment(idx, aIdx, "link", v)} 
+                                    placeholder="Link" 
+                                    className="text-purple-400 text-xs"
+                                  />
+                                  <button 
+                                    onClick={() => handleDeleteAssignment(idx, aIdx)} 
+                                    className="text-red-400 hover:text-red-300"
+                                  >
+                                    ✕
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          ))}
+                          {isAdmin && (
+                            <button
+                              onClick={() => handleAddAssignment(idx)}
+                              className="w-full py-2 text-sm text-purple-400 border border-dashed border-purple-500/30 rounded-lg hover:bg-purple-500/5 transition-all"
+                            >
+                              + Add Assignment
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Folder Link */}
+                    {phase.folderLink && (
+                      <div className="mt-4 pt-4 border-t border-white/5">
+                        <a
+                          href={phase.folderLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-lg hover:from-blue-500 hover:to-indigo-500 transition-all"
+                        >
+                          Open Folder
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
                       </div>
                     )}
                   </motion.div>
-                </motion.div>
-              ))}
-            </div>
+                )}
+              </motion.div>
+            ))
           ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center py-20"
-            >
-              <div className="p-12 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl max-w-md mx-auto">
-                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">No Phases Yet</h3>
-                <p className="text-zinc-300">This roadmap is being developed. Check back soon!</p>
-              </div>
-            </motion.div>
-          )}
-          
-          {/* Admin Controls */}
-          {isAdmin && (
-            <div className="mt-8 flex justify-center">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={handleAddPhase}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            <div className="text-center py-12">
+              <div className="w-16 h-16 mx-auto mb-4 bg-white/5 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
                 </svg>
-                Add Phase
-              </motion.button>
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">No Phases Yet</h3>
+              <p className="text-gray-500">This roadmap is being developed.</p>
             </div>
           )}
-          
-          {/* Certificate Section */}
-          {percent === 100 && user && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="flex flex-col items-center justify-center mt-12"
+
+          {/* Admin Add Phase */}
+          {isAdmin && (
+            <button
+              onClick={handleAddPhase}
+              className="w-full py-4 text-blue-400 border border-dashed border-blue-500/30 rounded-xl hover:bg-blue-500/5 transition-all flex items-center justify-center gap-2"
             >
-              <Certificate user={user} roadmap={roadmap} percent={100} />
-            </motion.div>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Phase
+            </button>
           )}
         </div>
-      </div>
-    </section>
+
+        {/* Certificate Section */}
+        {percent === 100 && user && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-12"
+          >
+            {/* Test Section */}
+            <div className="mb-8 p-6 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-2xl">
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-yellow-500/20 rounded-xl">
+                    <svg className="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-1">Certification Test</h3>
+                    {testEligibility?.hasAttempted && !testEligibility?.canRetry ? (
+                      <p className="text-gray-400 text-sm">
+                        You scored <span className="text-yellow-400 font-semibold">{testEligibility.attempt?.percentage}%</span> 
+                        {testEligibility.attempt?.passed ? " - Certificate earned!" : " - Need 60% to pass"}
+                      </p>
+                    ) : testEligibility?.canRetry ? (
+                      <p className="text-gray-400 text-sm">Admin has allowed you to retry the test</p>
+                    ) : !testEligibility?.hasFullDetails ? (
+                      <p className="text-amber-400 text-sm flex items-center gap-1">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        Complete your profile (Full Name, Age, Gender) to take the test
+                      </p>
+                    ) : (
+                      <p className="text-gray-400 text-sm">30 min • 40 questions • 100 marks • Pass at 60%</p>
+                    )}
+                  </div>
+                </div>
+                
+                {testEligibility?.canTakeTest || testEligibility?.canRetry ? (
+                  <button
+                    onClick={() => router.push(`/roadmap-test?roadmapId=${id}`)}
+                    className="px-6 py-3 bg-gradient-to-r from-yellow-600 to-orange-600 text-white font-medium rounded-xl hover:from-yellow-500 hover:to-orange-500 transition-all whitespace-nowrap flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                    </svg>
+                    {testEligibility?.canRetry ? "Retry Test" : "Take Test"}
+                  </button>
+                ) : testEligibility?.hasAttempted && testEligibility?.attempt?.passed ? (
+                  <button
+                    onClick={() => router.push("/profile?tab=certificates")}
+                    className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-medium rounded-xl hover:from-green-500 hover:to-emerald-500 transition-all whitespace-nowrap flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                    </svg>
+                    View Certificate
+                  </button>
+                ) : testEligibility?.hasAttempted ? (
+                  <span className="px-6 py-3 bg-red-500/20 text-red-400 font-medium rounded-xl flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Test Failed
+                  </span>
+                ) : !testEligibility?.hasFullDetails ? (
+                  <button
+                    onClick={() => router.push("/profile")}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium rounded-xl hover:from-blue-500 hover:to-indigo-500 transition-all whitespace-nowrap flex items-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Update Profile
+                  </button>
+                ) : null}
+              </div>
+            </div>
+            
+            {/* Only show certificate if test was passed */}
+            {testEligibility?.hasAttempted && testEligibility?.attempt?.passed && (
+              <Certificate user={user} roadmap={roadmap} percent={100} />
+            )}
+          </motion.div>
+        )}
+      </main>
+    </div>
   );
 };
 

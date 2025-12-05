@@ -1,121 +1,24 @@
-"use client"
-import React, { useEffect } from 'react';
-
-const loading: React.FC = () => {
-  const containerStyle: React.CSSProperties = {
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: '100vh',
-    background: 'radial-gradient(circle, rgba(20, 20, 40, 1) 0%, rgba(0, 0, 0, 1) 70%)',  // Space-themed background
-    position: 'relative',
-    textAlign: 'center',
-    color: 'white',
-    overflow: 'hidden',  // Preventing overflow of floating elements
-  };
-
-  // Darker moon style with smooth scaling animation
-  const moonStyle: React.CSSProperties = {
-    width: '200px',
-    height: '200px',
-    borderRadius: '50%',
-    background: 'linear-gradient(165deg, rgba(80,80,80,1) 0%, rgba(140, 140, 140, 1) 40%, rgba(50, 50, 50, 1) 98%, rgba(10, 10, 10, 1) 100%)',
-    position: 'absolute',
-    animation: 'rotate 5s linear infinite, pulse 2s alternate infinite, scale 6s ease-in-out infinite', // Added smoother scale effect
-    boxShadow: '0 -10px 20px 20px #ffffff40 inset, 0 -5px 15px 10px #ffffff50 inset, 0 -2px 5px #ffffff80 inset, 0 -3px 2px #ffffffBB inset, 0 2px 0px #ffffff, 0 2px 3px #ffffff, 0 5px 5px #ffffff90, 0 10px 15px #ffffff60, 0 10px 20px 20px #ffffff40',  // Enhanced shadow
-    filter: 'blur(3px)',  // Stronger blur effect
-    zIndex: 1,
-  };
-
-
-  // Creating background stars dynamically
-  const stars: React.CSSProperties = {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    width: '10px',
-    height: '10px',
-    borderRadius: '50%',
-    background: 'rgba(255, 255, 255, 0.5)',
-    animation: 'stars 3s ease-out infinite',
-    transformOrigin: 'center center',
-  };
-
-  useEffect(() => {
-    // Create the @keyframes for the animations
-    const styleSheet = document.styleSheets[0];
-
-    styleSheet.insertRule(`
-      @keyframes rotate {
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-    `, styleSheet.cssRules.length);
-
-    styleSheet.insertRule(`
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-        }
-        100% {
-          transform: scale(1.2);
-        }
-      }
-    `, styleSheet.cssRules.length);
-
-    styleSheet.insertRule(`
-      @keyframes scale {
-        0%, 100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.1);
-        }
-      }
-    `, styleSheet.cssRules.length);
-
-    styleSheet.insertRule(`
-      @keyframes stars {
-        0% {
-          transform: scale(0.8);
-        }
-        100% {
-          transform: scale(1.2);
-        }
-      }
-    `, styleSheet.cssRules.length);
-  }, []);
-
+export default function Loading() {
   return (
-    <div style={containerStyle}>
-      <div style={moonStyle}></div>
-      <div 
-  className="z-10 font-Acme text-xl md:text-2xl xl:text-3xl font-semibold text-zinc-950" 
-  style={{
-    WebkitTextStroke: '0.2px white',
-    color: 'transparent',
-    WebkitTextFillColor: 'blavk'
-  }}
->
-  Loading the Universe...
-</div>
-
-      {/* Floating Stars */}
-      {Array.from({ length: 30 }).map((_, i) => (
-        <div 
-          key={i}
-          style={{
-            ...stars,
-            top: `${Math.random() * 100}vh`,
-            left: `${Math.random() * 100}vw`,
-            animationDuration: `${Math.random() * 5 + 3}s`,
-            animationDelay: `${Math.random() * 2}s`
-          }} 
-        />
-      ))}
+    <div className="fixed inset-0 flex items-center justify-center bg-[#0a0a0f] z-50">
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-950/30 via-[#0a0a0f] to-[#0a0a0f]" />
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-blue-600/20 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-indigo-600/15 rounded-full blur-3xl animate-pulse" />
+      
+      <div className="relative flex flex-col items-center gap-6">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-500 border-r-blue-400 animate-spin" />
+          <div className="absolute inset-2 rounded-full border-2 border-transparent border-b-indigo-500 border-l-indigo-400 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.8s' }} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-2 h-2 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 animate-pulse" />
+          </div>
+        </div>
+        <div className="flex gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+          <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+        </div>
+      </div>
     </div>
   );
-};
-
-export default loading;
+}

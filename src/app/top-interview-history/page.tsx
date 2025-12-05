@@ -14,86 +14,193 @@ export default function TopInterviewHistoryPage() {
   useEffect(() => {
     if (!user?._id) return;
     fetch(`/api/top-interviews/attempt?userId=${user._id}`)
-      .then(res => res.json())
-      .then(data => setAttempts(data || []))
+      .then((res) => res.json())
+      .then((data) => setAttempts(data || []))
       .finally(() => setLoading(false));
   }, [user]);
 
-  if (!user) return <div className="text-blue-400 min-h-screen flex items-center justify-center">Loading...</div>;
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-gray-400 text-sm">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-blue-950 flex flex-col items-center py-12 px-2 md:px-8">
-      {/* Back Button - top left, only on md+ screens */}
-      <button
-        onClick={() => router.back()}
-        className="hidden md:flex fixed top-6 left-4 items-center gap-2 text-blue-400 hover:text-blue-300 hover:underline text-xl md:text-2xl px-6 py-3 rounded-2xl bg-zinc-900 shadow-lg border-2 border-blue-700 transition-all z-50"
-        style={{ position: 'fixed', top: '1.5rem', left: '1rem', zIndex: 50 }}
-      >
-        <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-        <span className="hidden sm:inline">Back</span>
-      </button>
-      <h1 className="text-3xl md:text-4xl font-bold text-blue-400 mb-8 text-center">Top Interview History</h1>
-      {loading ? (
-        <div className="text-blue-300">Loading...</div>
-      ) : attempts.length === 0 ? (
-        <div className="text-zinc-400">No top interview attempts found.</div>
-      ) : (
-        <div className="w-full max-w-2xl flex flex-col gap-4">
-          {attempts.map((a, i) => (
-            <div
-              key={a._id || i}
-              className="bg-gradient-to-br from-blue-950 via-zinc-900 to-purple-950 border-2 border-blue-800 rounded-2xl shadow-xl p-4 flex flex-col md:flex-row md:items-center gap-3 hover:scale-[1.01] transition-transform duration-200 cursor-pointer"
-              onClick={() => setModal({ open: true, attempt: a })}
+    <div className="min-h-screen bg-[#0a0a0f]">
+      {/* Subtle background effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(139,92,246,0.06),transparent_50%)]" />
+      </div>
+
+      {/* Header */}
+      <header className="sticky top-0 z-40 border-b border-white/5 bg-[#0a0a0f]/80 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => router.back()}
+              className="p-2 hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2 text-gray-400 hover:text-white"
             >
-              <div className="flex-1">
-                <div className="text-lg font-extrabold text-blue-300 mb-1 italic drop-shadow">{a.interviewTitle || a.topInterviewTitle || a.topInterview?.title || "Top Interview"}</div>
-                <div className="text-zinc-200 text-sm mb-1 font-semibold">Score: <span className="font-bold text-green-400">{a.score}/100</span></div>
-                <div className="text-zinc-400 text-xs mb-1">Attempted: {a.createdAt ? new Date(a.createdAt).toLocaleString() : "-"}</div>
-              </div>
-              <button
-                className="px-3 py-1 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold shadow transition-all text-center text-sm"
-                onClick={e => { e.stopPropagation(); window.open(`/top-interviews/${a.topInterviewId || a.topInterview?._id}`, '_blank'); }}
-              >
-                View Interview
-              </button>
-              <button
-                className="px-3 py-1 bg-purple-700 hover:bg-purple-800 text-white rounded-lg font-semibold shadow transition-all text-center text-sm"
-                onClick={e => { e.stopPropagation(); setModal({ open: true, attempt: a }); }}
-              >
-                Show Details
-              </button>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="hidden sm:inline text-sm">Back</span>
+            </button>
+            <div className="flex-1">
+              <h1 className="text-xl sm:text-2xl font-bold text-white">Top Interview History</h1>
+              <p className="text-gray-500 text-sm hidden sm:block">View all your past top interview attempts</p>
             </div>
-          ))}
+          </div>
         </div>
-      )}
+      </header>
+
+      <main className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-8">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-10 h-10 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              <span className="text-gray-400 text-sm">Loading history...</span>
+            </div>
+          </div>
+        ) : attempts.length === 0 ? (
+          <div className="text-center py-20">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/10 flex items-center justify-center">
+              <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-white mb-2">No attempts yet</h3>
+            <p className="text-gray-500 text-sm mb-6">Start your first top interview to see your history here.</p>
+            <Link
+              href="/top-interviews"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-medium rounded-lg transition-all"
+            >
+              Browse Top Interviews
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {attempts.map((a, i) => (
+              <div
+                key={a._id || i}
+                className="bg-[#111118] border border-white/5 rounded-xl p-4 hover:border-white/10 transition-all cursor-pointer"
+                onClick={() => setModal({ open: true, attempt: a })}
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-white font-medium truncate">
+                      {a.interviewTitle || a.topInterviewTitle || a.topInterview?.title || "Top Interview"}
+                    </h3>
+                    <p className="text-gray-500 text-xs mt-1">
+                      {a.createdAt ? new Date(a.createdAt).toLocaleString() : "-"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-bold text-green-400">{a.score}</span>
+                      <span className="text-gray-500 text-sm">/100</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          window.open(`/top-interviews/${a.topInterviewId || a.topInterview?._id}`, "_blank");
+                        }}
+                        title="View Interview"
+                      >
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </button>
+                      <button
+                        className="p-2 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-lg transition-all"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setModal({ open: true, attempt: a });
+                        }}
+                        title="Show Details"
+                      >
+                        <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
+
       {/* Modal for details */}
       {modal.open && modal.attempt && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
-          <div className="bg-gradient-to-br from-blue-950 via-zinc-900 to-purple-950 rounded-3xl shadow-2xl border-2 border-blue-900 max-w-3xl w-full p-10 relative flex flex-col max-h-[95vh] overflow-y-auto animate-fadeIn">
-            <button
-              className="absolute top-4 right-4 text-blue-400 hover:text-blue-200 text-2xl font-bold"
-              onClick={() => setModal({ open: false, attempt: null })}
-              aria-label="Close"
-            >
-              &times;
-            </button>
-            <h2 className="text-3xl font-extrabold text-blue-300 mb-4 italic text-center drop-shadow-lg">{modal.attempt.interviewTitle || modal.attempt.topInterviewTitle || modal.attempt.topInterview?.title || "Top Interview"}</h2>
-            <div className="flex flex-col md:flex-row md:justify-center md:items-center gap-4 mb-4">
-              <div className="text-zinc-200 text-lg font-semibold text-center">Score: <span className="font-bold text-green-400">{modal.attempt.score}/100</span></div>
-              <div className="text-zinc-400 text-xs text-center">Attempted: {modal.attempt.createdAt ? new Date(modal.attempt.createdAt).toLocaleString() : "-"}</div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-[#111118] border border-white/10 rounded-xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-5 border-b border-white/5">
+              <div>
+                <h2 className="text-lg font-semibold text-white">
+                  {modal.attempt.interviewTitle || modal.attempt.topInterviewTitle || modal.attempt.topInterview?.title || "Top Interview"}
+                </h2>
+                <p className="text-gray-500 text-xs mt-1">
+                  {modal.attempt.createdAt ? new Date(modal.attempt.createdAt).toLocaleString() : "-"}
+                </p>
+              </div>
+              <button
+                className="p-2 hover:bg-white/5 rounded-lg transition-colors text-gray-400 hover:text-white"
+                onClick={() => setModal({ open: false, attempt: null })}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-            <div className="text-zinc-100 whitespace-pre-line text-base md:text-lg mb-6 max-h-80 overflow-y-auto rounded-2xl bg-zinc-900 p-6 border border-blue-800 shadow-inner font-mono">
-              {modal.attempt.feedback}
+
+            {/* Score */}
+            <div className="px-5 py-4 border-b border-white/5 bg-green-500/5">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400 text-sm">Score</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-3xl font-bold text-green-400">{modal.attempt.score}</span>
+                  <span className="text-gray-500 text-sm">/100</span>
+                </div>
+              </div>
+              <div className="mt-2 w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"
+                  style={{ width: `${modal.attempt.score}%` }}
+                />
+              </div>
             </div>
-            <button
-              className="w-full mt-2 px-8 py-4 bg-blue-700 hover:bg-blue-800 text-white rounded-2xl font-bold shadow transition-all text-xl"
-              onClick={() => setModal({ open: false, attempt: null })}
-            >
-              Close
-            </button>
+
+            {/* Feedback */}
+            <div className="flex-1 overflow-y-auto p-5">
+              <h3 className="text-sm font-medium text-gray-400 mb-3">Feedback</h3>
+              <div className="text-gray-300 text-sm whitespace-pre-line bg-[#0a0a0f] border border-white/5 rounded-lg p-4">
+                {modal.attempt.feedback || "No feedback available."}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-5 border-t border-white/5">
+              <button
+                className="w-full px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-medium rounded-lg transition-all"
+                onClick={() => setModal({ open: false, attempt: null })}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
-    </main>
+    </div>
   );
 }

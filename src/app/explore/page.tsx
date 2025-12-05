@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Roadmapcard } from "@/components/component/Card";
+import { ArrowLeft, Map, User, ExternalLink, Search } from "lucide-react";
 
-const page = () => {
+const ExplorePage = () => {
   const router = useRouter();
   const [roadmaps, setRoadmaps] = useState<Array<{
     _id: string;
@@ -14,9 +14,9 @@ const page = () => {
     linkedIn?: string;
   }>>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
-    // Fetch roadmaps from API
     fetch("/api/roadmap/fetchall")
       .then((res) => res.json())
       .then((data) => {
@@ -26,122 +26,151 @@ const page = () => {
       .catch(() => setLoading(false));
   }, []);
 
+  const filteredRoadmaps = roadmaps.filter(
+    (r) =>
+      r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      r.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <section className="w-full min-h-screen flex flex-col items-center justify-start px-4 sm:px-6 md:px-8 relative overflow-hidden">
-      {/* Enhanced Background Effects - matching hero section */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black via-blue-900 to-black"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.15),transparent_50%)]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(37,99,235,0.12),transparent_50%)]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(29,78,216,0.08),transparent_70%)]"></div>
-      
-      {/* Animated Grid Pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="h-full w-full bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black,transparent)]"></div>
+    <div className="min-h-screen bg-[#0a0a0f]">
+      {/* Background Effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[128px]" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-600/10 rounded-full blur-[128px]" />
       </div>
 
-      {/* Back Button */}
-      <motion.button
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5 }}
-        onClick={() => router.back()}
-        className="fixed top-6 left-6 z-30 flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg text-sm font-semibold text-white hover:bg-white/15 transition-all duration-300 shadow-lg"
-      >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-        <span className="hidden sm:inline">Back</span>
-      </motion.button>
-
-      <div className="relative z-10 max-w-7xl mx-auto w-full flex flex-col justify-start py-8 pt-24 sm:pt-32">
-        {/* Hero-style Header */}
-        <div className="text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="mb-6 sm:mb-8"
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button
+            onClick={() => router.push("/")}
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
           >
-            {/* Trust Badge */}
-            <div className="hidden md:inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full text-sm text-zinc-300 mb-4 sm:mb-6 hover:bg-white/15 transition-all duration-300">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span>Learning Pathways</span>
-            </div>
-            
-            {/* Main Heading */}
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-blue-300 mb-4 sm:mb-6 leading-[0.85] tracking-tight text-center">
-              Explore
-              <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600">
-                Roadmaps
-              </span>
-            </h1>
-            
-            {/* Subtitle */}
-            <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-zinc-300 font-medium max-w-2xl md:max-w-4xl mx-auto mb-6 sm:mb-8 leading-relaxed px-4 text-center">
-              <span className="md:hidden">Curated learning paths to master technology</span>
-              <span className="hidden md:inline">Discover expertly crafted learning pathways designed to guide you from 
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600 font-semibold"> beginner to expert</span></span>
-            </p>
+            <ArrowLeft className="w-5 h-5" />
+            <span className="hidden sm:inline">Home</span>
+          </button>
+          
+          {/* Search */}
+          <div className="relative max-w-md flex-1 mx-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Search roadmaps..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500/50 transition-all"
+            />
+          </div>
+
+          <div className="w-20" />
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="relative z-10 max-w-6xl mx-auto px-4 py-12">
+        {/* Page Header */}
+        <div className="text-center mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 px-3 py-1 bg-blue-500/10 rounded-full mb-4"
+          >
+            <Map className="w-4 h-4 text-blue-400" />
+            <span className="text-sm text-blue-400">Learning Paths</span>
           </motion.div>
+          
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl sm:text-5xl font-bold text-white mb-4"
+          >
+            Explore Roadmaps
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-gray-400 text-lg max-w-2xl mx-auto"
+          >
+            Follow structured learning paths curated by experts
+          </motion.p>
         </div>
 
         {/* Roadmaps Grid */}
-        <div className="w-full">
-          {loading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[...Array(6)].map((_, index) => (
-                <div key={index} className="animate-pulse">
-                  <div className="p-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl h-80">
-                    <div className="h-6 bg-white/10 rounded mb-4"></div>
-                    <div className="h-4 bg-white/10 rounded mb-2"></div>
-                    <div className="h-4 bg-white/10 rounded mb-4"></div>
-                    <div className="h-10 bg-white/10 rounded mt-auto"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : roadmaps.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="text-center py-20"
-            >
-              <div className="p-12 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl max-w-md mx-auto">
-                <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full flex items-center justify-center">
-                  <svg className="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">No Roadmaps Yet</h3>
-                <p className="text-zinc-300">Learning pathways are being crafted for you!</p>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="p-6 bg-[#111118] border border-white/5 rounded-2xl animate-pulse">
+                <div className="h-6 bg-white/5 rounded mb-4 w-3/4" />
+                <div className="h-4 bg-white/5 rounded mb-2 w-full" />
+                <div className="h-4 bg-white/5 rounded mb-4 w-2/3" />
+                <div className="h-10 bg-white/5 rounded w-1/3" />
               </div>
-            </motion.div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {roadmaps.map((roadmap, idx) => (
-                <motion.div
-                  key={roadmap._id || idx}
-                  initial={{ opacity: 0, y: 40 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7, delay: idx * 0.1 }}
-                >
-                  <Roadmapcard
-                    heading={roadmap.title}
-                    description={roadmap.description || ""}
-                    link={`/explore/roadmap/${roadmap._id}`}
-                    author={roadmap.createdBy}
-                    linkedIn={roadmap.linkedIn || ""}
-                  />
-                </motion.div>
-              ))}
+            ))}
+          </div>
+        ) : filteredRoadmaps.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-20"
+          >
+            <div className="w-16 h-16 mx-auto mb-4 bg-white/5 rounded-full flex items-center justify-center">
+              <Map className="w-8 h-8 text-gray-500" />
             </div>
-          )}
-        </div>
-      </div>
-    </section>
+            <h3 className="text-xl font-semibold text-white mb-2">No Roadmaps Found</h3>
+            <p className="text-gray-500">
+              {searchQuery ? "Try a different search term" : "Roadmaps are being crafted for you!"}
+            </p>
+          </motion.div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredRoadmaps.map((roadmap, idx) => (
+              <motion.div
+                key={roadmap._id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.05 }}
+              >
+                <button
+                  onClick={() => router.push(`/explore/roadmap/${roadmap._id}`)}
+                  className="w-full text-left p-6 bg-[#111118] border border-white/5 rounded-2xl hover:border-blue-500/30 hover:bg-[#111118]/80 transition-all duration-300 group"
+                >
+                  {/* Icon */}
+                  <div className="w-12 h-12 mb-4 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-xl flex items-center justify-center">
+                    <Map className="w-6 h-6 text-blue-400" />
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-blue-400 transition-colors line-clamp-1">
+                    {roadmap.title}
+                  </h3>
+
+                  {/* Description */}
+                  {roadmap.description && (
+                    <p className="text-gray-500 text-sm mb-4 line-clamp-2">
+                      {roadmap.description}
+                    </p>
+                  )}
+
+                  {/* Author */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <User className="w-4 h-4" />
+                      <span>{roadmap.createdBy}</span>
+                    </div>
+                    <ExternalLink className="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors" />
+                  </div>
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
   );
 };
 
-export default page;
+export default ExplorePage;
