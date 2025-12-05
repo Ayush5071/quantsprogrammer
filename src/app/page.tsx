@@ -1,67 +1,71 @@
 "use client";
 import { useEffect, useState, memo, useMemo, useCallback } from "react";
-import { HeroPage } from "@/components/sections/HeroPage";
+// Old imports - commented out for new design
+// import { HeroPage } from "@/components/sections/HeroPage";
+// import { IconMessage, IconUser, IconCoffee } from "@tabler/icons-react";
+// import { FloatingNav } from "@/components/ui/Navbar";
+// import KeyFeatures from "@/components/sections/KeyFeatures";
+// import FeaturesSection from "@/components/sections/FeaturesSection";
+// import PlatformOverview from "@/components/sections/PlatformOverview";
+// import CompensationSection from "@/components/sections/CompensationSection";
+// import InterviewPreparation from "@/components/sections/InterviewPreparation";
+// import FAQ from "@/components/sections/FAQ";
+// import CertificateShowcase from "@/components/sections/CertificateShowcase";
+
+// New modern imports
 import { Footer } from "@/components/sections/Footer";
-import { IconMessage, IconUser, IconCoffee } from "@tabler/icons-react";
-import { FloatingNav } from "@/components/ui/Navbar";
+import { FloatingNav } from "@/components/ui/NewNavbar";
+import NewHero from "@/components/sections/home/NewHero";
+import FeaturesGrid from "@/components/sections/home/FeaturesGrid";
+import StatsSection from "@/components/sections/home/StatsSection";
+import PrepareSection from "@/components/sections/home/PrepareSection";
+import HowItWorks from "@/components/sections/home/HowItWorks";
+import FAQSection from "@/components/sections/home/FAQSection";
+import CTASection from "@/components/sections/home/CTASection";
+
 import { gsap } from "gsap";
 import Loading from "@/components/ui/Loading";
 import Head from "next/head";
-import KeyFeatures from "@/components/sections/KeyFeatures";
-import FeaturesSection from "@/components/sections/FeaturesSection";
-import PlatformOverview from "@/components/sections/PlatformOverview";
-import CompensationSection from "@/components/sections/CompensationSection";
-import InterviewPreparation from "@/components/sections/InterviewPreparation";
-import FAQ from "@/components/sections/FAQ";
-import CertificateShowcase from "@/components/sections/CertificateShowcase";
 import useLocomotiveScroll from "@/hooks/useLocomotiveScroll";
 
 // Memoized Components for better performance
-const MemoizedHeroPage = memo(HeroPage);
-const MemoizedPlatformOverview = memo(PlatformOverview);
-const MemoizedInterviewPreparation = memo(InterviewPreparation);
-const MemoizedCompensationSection = memo(CompensationSection);
-const MemoizedFeaturesSection = memo(FeaturesSection);
-const MemoizedCertificateShowcase = memo(CertificateShowcase);
-const MemoizedFAQ = memo(FAQ);
+// Old components - commented out
+// const MemoizedHeroPage = memo(HeroPage);
+// const MemoizedPlatformOverview = memo(PlatformOverview);
+// const MemoizedInterviewPreparation = memo(InterviewPreparation);
+// const MemoizedCompensationSection = memo(CompensationSection);
+// const MemoizedFeaturesSection = memo(FeaturesSection);
+// const MemoizedCertificateShowcase = memo(CertificateShowcase);
+// const MemoizedFAQ = memo(FAQ);
+
+// New modern components - memoized
+const MemoizedNewHero = memo(NewHero);
+const MemoizedStatsSection = memo(StatsSection);
+const MemoizedFeaturesGrid = memo(FeaturesGrid);
+const MemoizedPrepareSection = memo(PrepareSection);
+const MemoizedHowItWorks = memo(HowItWorks);
+const MemoizedFAQSection = memo(FAQSection);
+const MemoizedCTASection = memo(CTASection);
 const MemoizedFooter = memo(Footer);
 
 export default function Home() {
   useLocomotiveScroll();
   const [loading, setLoading] = useState(true);
 
-  // Memoized nav items to prevent recreation on every render
+  // Memoized nav items - simplified for new navbar
   const navItems = useMemo(() => [
-    {
-      name: "About",
-      link: "/about",
-      icon: <IconUser className="h-4 w-4 text-white" />,
-    },
-    {
-      name: "Blogs",
-      link: "/blogs",
-      icon: <IconMessage className="h-4 w-4 text-white" />,
-    },
-    {
-      name: "Roadmaps",
-      link: "/explore",
-      icon: <IconMessage className="h-4 w-4 text-white" />,
-    },
-    {
-      name: "OA & DSA Qs",
-      link: "/oa-dsa-questions",
-      icon: <IconCoffee className="h-4 w-4 text-white" />,
-    },
+    { name: "About", link: "/about" },
+    { name: "Blogs", link: "/blogs" },
+    { name: "Roadmaps", link: "/explore" },
+    { name: "Company Problems", link: "/company-problems" },
     {
       name: "Interview",
-      icon: <IconUser className="h-4 w-4 text-white" />,
       dropdown: [
         { name: "Mock Interview", link: "/interview" },
         { name: "Prepare for Interviews", link: "/prepare-interviews" },
         { name: "Top Interviews", link: "/top-interviews" },
-        { name: "Top Interview History", link: "/top-interview-history" },
+        { name: "Interview History", link: "/top-interview-history" },
         { name: "Compensation Data", link: "/placement-data" },
-        { name: "Past Interviews", link: "/profile#interview-history" },
       ],
     },
   ], []);
@@ -113,21 +117,32 @@ export default function Home() {
       {loading ? (
         <Loading />
       ) : (
-        <div className="relative bg-gradient-to-b from-black via-blue-900 to-black overflow-x-hidden" data-scroll-container>
-          {/* Components */}
-          <div className="relative z-10 min-h-screen flex flex-col">
-            <FloatingNav navItems={navItems} />
-            <div className="">
-              <MemoizedHeroPage />
-              <MemoizedPlatformOverview />
-              <MemoizedInterviewPreparation />
-              <MemoizedCompensationSection />
-              <MemoizedFeaturesSection />
-              <MemoizedCertificateShowcase />
-              <MemoizedFAQ />
-              <MemoizedFooter />
-            </div>
-          </div>
+        <div className="relative bg-[#0a0a0f] overflow-x-hidden" data-scroll-container>
+          {/* Navigation */}
+          <FloatingNav navItems={navItems} />
+          
+          {/* Main Content */}
+          <main className="relative z-10 min-h-screen flex flex-col pt-20">
+            {/* New Modern Sections */}
+            <MemoizedNewHero />
+            <MemoizedStatsSection />
+            <MemoizedFeaturesGrid />
+            <MemoizedPrepareSection />
+            <MemoizedHowItWorks />
+            <MemoizedFAQSection />
+            <MemoizedCTASection />
+            <MemoizedFooter />
+
+            {/* Old Sections - Commented Out
+            <MemoizedHeroPage />
+            <MemoizedPlatformOverview />
+            <MemoizedInterviewPreparation />
+            <MemoizedCompensationSection />
+            <MemoizedFeaturesSection />
+            <MemoizedCertificateShowcase />
+            <MemoizedFAQ />
+            */}
+          </main>
         </div>
       )}
     </>
