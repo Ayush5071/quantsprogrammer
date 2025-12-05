@@ -1,30 +1,27 @@
 import mongoose from "mongoose";
 
+let isConnected = false;
+
 export async function connect() {
+    // If already connected, skip
+    if (isConnected || mongoose.connection.readyState === 1) {
+        return;
+    }
+
     try {
         if (!process.env.MONGO_URL) {
             throw new Error("MONGO_URL is not defined in environment variables.");
         }
 
-        console.log(`${process.env.MONGO_URL} -> Connecting to MongoDB`);
+        // Set max listeners to avoid warning
+        mongoose.connection.setMaxListeners(20);
         
-        // Use `await` to handle async operations properly and enable error catching.
         await mongoose.connect(process.env.MONGO_URL);
-
-        const connection = mongoose.connection;
-
-        connection.on("connected", () => {
-            console.log("MONGODB CONNECTED");
-        });
-
-        connection.on("error", (err) => {
-            console.error("MongoDB connection error:", err);
-            // Avoid exiting the process for better debugging during development
-            // process.exit(); 
-        });
+        isConnected = true;
+        console.log("MONGODB CONNECTED");
 
     } catch (error) {
-        console.error("Something went wrong while connecting to MongoDB:", error);
-        throw error; // Re-throw the error for further handling by the caller
+        console.error("MongoDB connection error:", error);
+        throw error;
     }
 }

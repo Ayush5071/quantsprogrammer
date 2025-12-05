@@ -10,7 +10,8 @@ export default function TopInterviewsPage() {
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  if (user === null) {
+  // Loading state - user is undefined while API call is in progress
+  if (user === undefined) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
@@ -21,6 +22,7 @@ export default function TopInterviewsPage() {
     );
   }
 
+  // Not logged in - user is null when API returns 401
   if (!user) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex flex-col items-center justify-center px-4">

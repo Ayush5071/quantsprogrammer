@@ -740,66 +740,91 @@ const PlacementDataPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900">
+    <div className="min-h-screen bg-[#0a0a0f]">
+      {/* Background effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(147,51,234,0.1),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(236,72,153,0.08),transparent_50%)]" />
+      </div>
+
       {/* Header */}
-      <div className="bg-white/5 backdrop-blur-lg border-b border-white/10 sticky top-0 z-50">
+      <div className="bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => router.back()}
-                className="p-2 hover:bg-white/10 rounded-xl transition-colors flex items-center gap-2 text-zinc-300 hover:text-white"
+                className="p-2 hover:bg-white/5 rounded-xl transition-colors flex items-center gap-2 text-gray-400 hover:text-white"
               >
                 <ArrowLeft className="w-5 h-5" />
                 <span className="hidden sm:inline">Back</span>
               </button>
               <div>
-                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
                   Compensation Data 2024-25
                 </h1>
-                <p className="text-zinc-300 mt-2">
-                  Comprehensive salary and package statistics from top companies
+                <p className="text-gray-400 text-sm mt-1">
+                  Salary insights from top tech companies
                 </p>
               </div>
             </div>
             <button
               onClick={() => router.push('/interview')}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center gap-2"
+              className="px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium rounded-xl hover:from-purple-500 hover:to-pink-500 transition-all flex items-center gap-2"
             >
-              <TrendingUp className="w-5 h-5" />
-              Prepare for Interviews
+              <TrendingUp className="w-4 h-4" />
+              Practice Interview
             </button>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Disclaimer Banner */}
+        <div className="mb-6 p-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl border border-amber-500/20">
+          <div className="flex items-start gap-3">
+            <div className="p-2 bg-amber-500/20 rounded-lg flex-shrink-0">
+              <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-amber-300 font-medium text-sm">Data Disclaimer</p>
+              <p className="text-gray-400 text-sm mt-1">
+                This compensation data is collected from various public sources including LinkedIn, Glassdoor, Levels.fyi, 
+                Blind, and community contributions. <span className="text-amber-300/80">Actual CTCs may vary</span> based on 
+                location, experience, negotiation, and company policies. This is for informational and motivational purposes only.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Search and Filters */}
-        <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6 mb-8">
+        <div className="bg-[#111118] border border-white/5 rounded-2xl p-6 mb-6">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-400 w-5 h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
                 <input
                   type="text"
                   placeholder="Search companies or roles..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
                 />
               </div>
               
               {/* Search Suggestions */}
               {suggestions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-white/20 rounded-xl shadow-2xl z-10 max-h-48 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a24] border border-white/10 rounded-xl shadow-2xl z-10 max-h-48 overflow-y-auto">
                   {suggestions.map((suggestion, index) => (
                     <button
                       key={index}
                       onClick={() => {
                         setSearchTerm(suggestion);
                       }}
-                      className="w-full text-left px-4 py-2 hover:bg-white/10 text-white first:rounded-t-xl last:rounded-b-xl transition-colors"
+                      className="w-full text-left px-4 py-2.5 hover:bg-white/5 text-white first:rounded-t-xl last:rounded-b-xl transition-colors text-sm"
                     >
                       {suggestion}
                     </button>
@@ -812,30 +837,30 @@ const PlacementDataPage = () => {
             <div className="flex gap-2">
               <button
                 onClick={() => handleSort("ctc")}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${
                   sortBy === "ctc"
-                    ? "bg-purple-600 text-white"
-                    : "bg-white/10 text-zinc-300 hover:bg-white/20"
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                    : "bg-white/5 text-gray-400 hover:text-white hover:bg-white/10"
                 }`}
               >
                 CTC {sortBy === "ctc" && (sortOrder === "desc" ? "↓" : "↑")}
               </button>
               <button
                 onClick={() => handleSort("company")}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${
                   sortBy === "company"
-                    ? "bg-purple-600 text-white"
-                    : "bg-white/10 text-zinc-300 hover:bg-white/20"
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                    : "bg-white/5 text-gray-400 hover:text-white hover:bg-white/10"
                 }`}
               >
                 Company {sortBy === "company" && (sortOrder === "desc" ? "↓" : "↑")}
               </button>
               <button
                 onClick={() => handleSort("internship")}
-                className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                className={`px-4 py-2.5 rounded-xl font-medium text-sm transition-all ${
                   sortBy === "internship"
-                    ? "bg-purple-600 text-white"
-                    : "bg-white/10 text-zinc-300 hover:bg-white/20"
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                    : "bg-white/5 text-gray-400 hover:text-white hover:bg-white/10"
                 }`}
               >
                 Internship {sortBy === "internship" && (sortOrder === "desc" ? "↓" : "↑")}
@@ -845,35 +870,41 @@ const PlacementDataPage = () => {
 
           {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="bg-gradient-to-r from-green-600/20 to-green-400/20 border border-green-400/30 rounded-xl p-4">
+            <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/5 border border-green-500/20 rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <DollarSign className="w-8 h-8 text-green-400" />
+                <div className="p-2 bg-green-500/20 rounded-lg">
+                  <DollarSign className="w-6 h-6 text-green-400" />
+                </div>
                 <div>
-                  <p className="text-green-400 font-semibold">Highest CTC</p>
+                  <p className="text-gray-400 text-sm">Highest CTC</p>
                   <p className="text-white text-xl font-bold">₹61 LPA</p>
-                  <p className="text-zinc-300 text-sm">Uber</p>
+                  <p className="text-green-400 text-xs">Uber</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-gradient-to-r from-blue-600/20 to-blue-400/20 border border-blue-400/30 rounded-xl p-4">
+            <div className="bg-gradient-to-r from-blue-500/10 to-indigo-500/5 border border-blue-500/20 rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <Building2 className="w-8 h-8 text-blue-400" />
+                <div className="p-2 bg-blue-500/20 rounded-lg">
+                  <Building2 className="w-6 h-6 text-blue-400" />
+                </div>
                 <div>
-                  <p className="text-blue-400 font-semibold">Total Companies</p>
+                  <p className="text-gray-400 text-sm">Total Companies</p>
                   <p className="text-white text-xl font-bold">{filteredAndSortedData.length}</p>
-                  <p className="text-zinc-300 text-sm">Active Recruiters</p>
+                  <p className="text-blue-400 text-xs">Active Recruiters</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-gradient-to-r from-purple-600/20 to-purple-400/20 border border-purple-400/30 rounded-xl p-4">
+            <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/5 border border-purple-500/20 rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <TrendingUp className="w-8 h-8 text-purple-400" />
+                <div className="p-2 bg-purple-500/20 rounded-lg">
+                  <TrendingUp className="w-6 h-6 text-purple-400" />
+                </div>
                 <div>
-                  <p className="text-purple-400 font-semibold">Avg CTC Range</p>
+                  <p className="text-gray-400 text-sm">Avg CTC Range</p>
                   <p className="text-white text-xl font-bold">₹15-25 LPA</p>
-                  <p className="text-zinc-300 text-sm">Most Common</p>
+                  <p className="text-purple-400 text-xs">Most Common</p>
                 </div>
               </div>
             </div>
@@ -881,45 +912,45 @@ const PlacementDataPage = () => {
         </div>
 
         {/* Company Cards */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {filteredAndSortedData.map((company) => (
             <div
               key={company.id}
-              className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl overflow-hidden hover:border-white/20 transition-all duration-300"
+              className="bg-[#111118] border border-white/5 rounded-xl overflow-hidden hover:border-white/10 transition-all"
             >
               {/* Company Header */}
               <div
-                className="p-6 cursor-pointer hover:bg-white/5 transition-colors"
+                className="p-5 cursor-pointer hover:bg-white/[0.02] transition-colors"
                 onClick={() => setExpandedCompany(expandedCompany === company.id ? null : company.id)}
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-start gap-4">
-                      <div className="p-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl">
-                        <Building2 className="w-6 h-6 text-white" />
+                      <div className="p-2.5 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/20">
+                        <Building2 className="w-5 h-5 text-purple-400" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-bold text-white mb-1">
+                        <h3 className="text-lg font-semibold text-white mb-0.5">
                           {company.company}
                         </h3>
                         {company.role && (
-                          <p className="text-purple-300 font-medium mb-2">
+                          <p className="text-purple-400 text-sm font-medium mb-2">
                             {company.role}
                           </p>
                         )}
                         <div className="flex flex-wrap gap-4 text-sm">
-                          <div className="flex items-center gap-2">
-                            <DollarSign className="w-4 h-4 text-green-400" />
-                            <span className="text-zinc-300">CTC:</span>
-                            <span className="text-green-400 font-semibold">
+                          <div className="flex items-center gap-1.5">
+                            <DollarSign className="w-3.5 h-3.5 text-green-400" />
+                            <span className="text-gray-500">CTC:</span>
+                            <span className="text-green-400 font-medium">
                               {formatCTC(company.ctc)}
                             </span>
                           </div>
                           {company.internship && (
-                            <div className="flex items-center gap-2">
-                              <MapPin className="w-4 h-4 text-blue-400" />
-                              <span className="text-zinc-300">Internship:</span>
-                              <span className="text-blue-400 font-semibold">
+                            <div className="flex items-center gap-1.5">
+                              <MapPin className="w-3.5 h-3.5 text-blue-400" />
+                              <span className="text-gray-500">Internship:</span>
+                              <span className="text-blue-400 font-medium">
                                 {formatInternship(company.internship)}
                               </span>
                             </div>
@@ -931,18 +962,18 @@ const PlacementDataPage = () => {
                   
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-green-400">
+                      <div className="text-xl font-bold text-green-400">
                         {formatCTC(company.ctc)}
                       </div>
-                      <div className="text-sm text-zinc-400">
+                      <div className="text-xs text-gray-500">
                         Annual Package
                       </div>
                     </div>
-                    <div className="p-2">
+                    <div className="p-1.5">
                       {expandedCompany === company.id ? (
-                        <ChevronUp className="w-5 h-5 text-zinc-400" />
+                        <ChevronUp className="w-5 h-5 text-gray-500" />
                       ) : (
-                        <ChevronDown className="w-5 h-5 text-zinc-400" />
+                        <ChevronDown className="w-5 h-5 text-gray-500" />
                       )}
                     </div>
                   </div>
@@ -951,12 +982,12 @@ const PlacementDataPage = () => {
 
               {/* Expanded Details */}
               {expandedCompany === company.id && company.details && (
-                <div className="border-t border-white/10 p-6 bg-white/[0.02]">
-                  <h4 className="text-lg font-semibold text-white mb-3">
-                    Package Details
+                <div className="border-t border-white/5 p-5 bg-white/[0.01]">
+                  <h4 className="text-sm font-medium text-gray-400 mb-3">
+                    Package Breakdown
                   </h4>
-                  <div className="bg-white/10 rounded-xl p-4">
-                    <p className="text-zinc-300 leading-relaxed">
+                  <div className="bg-white/5 rounded-lg p-4">
+                    <p className="text-gray-300 text-sm leading-relaxed">
                       {company.details}
                     </p>
                   </div>
@@ -968,16 +999,26 @@ const PlacementDataPage = () => {
 
         {/* No Results */}
         {filteredAndSortedData.length === 0 && (
-          <div className="text-center py-12">
-            <Building2 className="w-16 h-16 text-zinc-600 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">
+          <div className="text-center py-16">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gray-500/10 flex items-center justify-center">
+              <Building2 className="w-8 h-8 text-gray-500" />
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">
               No companies found
             </h3>
-            <p className="text-zinc-400">
+            <p className="text-gray-500 text-sm">
               Try adjusting your search terms or filters
             </p>
           </div>
         )}
+
+        {/* Footer Disclaimer */}
+        <div className="mt-8 p-4 rounded-xl bg-white/[0.02] border border-white/5">
+          <p className="text-gray-500 text-xs text-center">
+            Data sources: LinkedIn, Glassdoor, Levels.fyi, Blind, and community contributions. 
+            This data is for reference only and may not reflect current compensation packages.
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,12 @@
 import mongoose, { Schema } from "mongoose";
 
+const commentSchema = new Schema({
+  userId: { type: String, required: true },
+  userName: { type: String, required: true },
+  content: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
+
 const blogSchema = new Schema({
   title: { type: String, required: true },
   description: { type: String, required: false },
@@ -10,6 +17,8 @@ const blogSchema = new Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   link: { type: String },
+  likes: [{ type: String }], // Array of user IDs who liked
+  comments: [commentSchema],
 });
 
 if (mongoose.models.blogs) {

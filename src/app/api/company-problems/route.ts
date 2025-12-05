@@ -112,19 +112,39 @@ export async function GET(request: NextRequest) {
       if (parts.length >= 4) {
         const difficulty = parts[0]?.trim().toUpperCase();
         const title = parts[1]?.trim();
-        const frequency = parts[2]?.trim();
-        const acceptance = parts[3]?.trim();
+        const frequencyRaw = parts[2]?.trim();
+        const acceptanceRaw = parts[3]?.trim();
         const link = parts[4]?.trim() || `https://leetcode.com/problems/${title?.toLowerCase().replace(/\s+/g, "-")}`;
         
         if (difficulty === "DIFFICULTY" || !title || !["EASY", "MEDIUM", "HARD"].includes(difficulty)) {
           continue;
         }
         
+        // Parse frequency - check if already in percentage format or decimal
+        let frequency = "N/A";
+        if (frequencyRaw) {
+          const freqNum = parseFloat(frequencyRaw);
+          if (!isNaN(freqNum)) {
+            // If value is greater than 1, it's likely already a percentage
+            // If between 0 and 1, multiply by 100
+            frequency = freqNum > 1 ? `${freqNum.toFixed(1)}%` : `${(freqNum * 100).toFixed(1)}%`;
+          }
+        }
+        
+        // Parse acceptance - same logic
+        let acceptance = "N/A";
+        if (acceptanceRaw) {
+          const accNum = parseFloat(acceptanceRaw);
+          if (!isNaN(accNum)) {
+            acceptance = accNum > 1 ? `${accNum.toFixed(1)}%` : `${(accNum * 100).toFixed(1)}%`;
+          }
+        }
+        
         problems.push({
           difficulty,
           title,
-          frequency: frequency ? `${(parseFloat(frequency) * 100).toFixed(1)}%` : "N/A",
-          acceptance: acceptance ? `${(parseFloat(acceptance) * 100).toFixed(1)}%` : "N/A",
+          frequency,
+          acceptance,
           link: link.startsWith("http") ? link : `https://leetcode.com/problems/${title.toLowerCase().replace(/\s+/g, "-")}`
         });
       }

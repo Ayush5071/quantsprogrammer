@@ -60,84 +60,90 @@ const OperatingSystemsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-gray-900">
+    <div className="min-h-screen bg-[#0a0a0f]">
+      {/* Background effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(139,92,246,0.06),transparent_50%)]" />
+      </div>
+
       {/* Header with Back Button */}
-      <div className="bg-white/5 backdrop-blur-lg border-b border-white/10 sticky top-0 z-40">
+      <div className="bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <button
               onClick={() => router.back()}
-              className="p-2 hover:bg-white/10 rounded-xl transition-colors flex items-center gap-2 text-zinc-300 hover:text-white"
+              className="p-2 hover:bg-white/5 rounded-lg transition-colors flex items-center gap-2 text-gray-400 hover:text-white"
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="hidden sm:inline">Back</span>
+              <span className="hidden sm:inline text-sm font-medium">Back</span>
             </button>
             <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                Operating Systems Interview Questions
+              <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400 bg-clip-text text-transparent">
+                Operating Systems Interview Guide
               </h1>
-              <p className="text-zinc-300 mt-2">
-                Comprehensive guide for product-based company interviews
+              <p className="text-gray-400 text-sm mt-1">
+                Comprehensive preparation for product-based company interviews
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar Index */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-6">
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <BookOpen className="w-5 h-5" />
-                Table of Contents
+            <div className="sticky top-24 bg-[#111118] border border-white/5 rounded-xl p-5">
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-blue-400" />
+                Contents
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-1 max-h-[50vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10">
                 {sections.map((section) => (
                   <button
                     key={section.id}
                     onClick={() => scrollToSection(section.id)}
-                    className="w-full text-left px-3 py-2 text-zinc-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200 flex items-center gap-3"
+                    className="w-full text-left px-3 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all text-sm flex items-center gap-2"
                   >
-                    <span className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                    <span className="w-5 h-5 bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-500/30 rounded flex items-center justify-center text-xs font-medium text-blue-400">
                       {section.number}
                     </span>
-                    <span className="text-sm">{section.title}</span>
+                    <span className="truncate">{section.title}</span>
                   </button>
                 ))}
               </div>
               
               {/* Reference Links */}
-              <div className="mt-8 pt-6 border-t border-white/10">
-                <h4 className="text-lg font-semibold text-white mb-4">References</h4>
-                <div className="space-y-2">
+              <div className="mt-6 pt-4 border-t border-white/5">
+                <h4 className="text-sm font-medium text-gray-400 mb-3">References</h4>
+                <div className="space-y-1">
                   <a
                     href="https://www.geeksforgeeks.org/operating-system-interview-questions/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 text-zinc-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+                    className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-blue-400 hover:bg-white/5 rounded-lg transition-all text-sm"
                   >
-                    <ExternalLink className="w-4 h-4" />
-                    <span className="text-sm">GeeksforGeeks</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>GeeksforGeeks</span>
                   </a>
                   <a
                     href="https://www.interviewbit.com/operating-system-interview-questions/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 text-zinc-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+                    className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-blue-400 hover:bg-white/5 rounded-lg transition-all text-sm"
                   >
-                    <ExternalLink className="w-4 h-4" />
-                    <span className="text-sm">InterviewBit</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>InterviewBit</span>
                   </a>
                   <a
                     href="https://www.scaler.com/topics/operating-system-interview-questions/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-3 py-2 text-zinc-300 hover:text-white hover:bg-white/10 rounded-lg transition-all duration-200"
+                    className="flex items-center gap-2 px-3 py-2 text-gray-500 hover:text-blue-400 hover:bg-white/5 rounded-lg transition-all text-sm"
                   >
-                    <ExternalLink className="w-4 h-4" />
-                    <span className="text-sm">Scaler</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Scaler</span>
                   </a>
                 </div>
               </div>
@@ -146,51 +152,50 @@ const OperatingSystemsPage = () => {
 
           {/* Main Content */}
           <div className="lg:col-span-3">
-            <div className="space-y-8">
+            <div className="space-y-6">
               {/* Introduction */}
-              <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8">
+              <div className="bg-[#111118] border border-white/5 rounded-xl p-6">
                 <div className="text-center">
-                  <h2 className="text-2xl font-bold text-white mb-4">Operating Systems Interview Guide</h2>
-                  <p className="text-zinc-300 text-lg mb-6">
-                    This comprehensive guide covers frequently asked Operating Systems interview questions 
-                    and their solutions for SDE/product/startup interviews at top product-based companies.
+                  <h2 className="text-xl font-bold text-white mb-3">Operating Systems Interview Guide</h2>
+                  <p className="text-gray-400 text-sm mb-6">
+                    Comprehensive coverage of OS interview questions with solutions for SDE/product/startup roles.
                   </p>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/30 rounded-xl p-4">
-                      <div className="text-2xl font-bold text-blue-400">100+</div>
-                      <div className="text-zinc-300 text-sm">Questions</div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border border-blue-500/20 rounded-lg p-3">
+                      <div className="text-xl font-bold text-blue-400">100+</div>
+                      <div className="text-gray-500 text-xs">Questions</div>
                     </div>
-                    <div className="bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 rounded-xl p-4">
-                      <div className="text-2xl font-bold text-green-400">23</div>
-                      <div className="text-zinc-300 text-sm">Topics</div>
+                    <div className="bg-gradient-to-br from-green-500/10 to-green-600/5 border border-green-500/20 rounded-lg p-3">
+                      <div className="text-xl font-bold text-green-400">23</div>
+                      <div className="text-gray-500 text-xs">Topics</div>
                     </div>
-                    <div className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-xl p-4">
-                      <div className="text-2xl font-bold text-purple-400">Real</div>
-                      <div className="text-zinc-300 text-sm">Examples</div>
+                    <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border border-purple-500/20 rounded-lg p-3">
+                      <div className="text-xl font-bold text-purple-400">Real</div>
+                      <div className="text-gray-500 text-xs">Examples</div>
                     </div>
-                    <div className="bg-gradient-to-r from-orange-600/20 to-red-600/20 border border-orange-500/30 rounded-xl p-4">
-                      <div className="text-2xl font-bold text-orange-400">Code</div>
-                      <div className="text-zinc-300 text-sm">Solutions</div>
+                    <div className="bg-gradient-to-br from-orange-500/10 to-orange-600/5 border border-orange-500/20 rounded-lg p-3">
+                      <div className="text-xl font-bold text-orange-400">Code</div>
+                      <div className="text-gray-500 text-xs">Solutions</div>
                     </div>
                   </div>
                 </div>
               </div>
 
               {/* Process vs Thread */}
-              <section id="process-thread" className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-2xl p-8">
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                  <span className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-sm font-bold text-white">1</span>
+              <section id="process-thread" className="bg-[#111118] border border-white/5 rounded-xl p-6">
+                <h2 className="text-xl font-bold text-white mb-5 flex items-center gap-3">
+                  <span className="w-7 h-7 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-sm font-bold text-white">1</span>
                   Process vs Thread
                 </h2>
                 
-                <div className="mb-6">
-                  <h3 className="text-xl font-semibold text-purple-300 mb-3">Q: What is the difference between a process and a thread?</h3>
-                  <div className="bg-white/10 rounded-xl p-6">
-                    <h4 className="text-lg font-semibold text-white mb-3">Answer:</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="mb-5">
+                  <h3 className="text-lg font-medium text-blue-400 mb-3">Q: What is the difference between a process and a thread?</h3>
+                  <div className="bg-white/[0.02] rounded-lg p-5">
+                    <h4 className="text-sm font-medium text-gray-400 mb-3">Answer:</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                       <div>
-                        <h5 className="text-blue-400 font-semibold mb-2">Process:</h5>
-                        <ul className="text-zinc-300 space-y-1 text-sm">
+                        <h5 className="text-blue-400 font-medium text-sm mb-2">Process:</h5>
+                        <ul className="text-gray-300 space-y-1 text-sm">
                           <li>• Independent program in execution</li>
                           <li>• Has its own memory space</li>
                           <li>• Isolated from other processes</li>
