@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "react-hot-toast";
@@ -56,7 +56,20 @@ interface Result {
   shortAnswerScores: any[];
 }
 
-export default function RoadmapTestPage() {
+// Loading component for Suspense fallback
+function TestLoading() {
+  return (
+    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+      <div className="text-center">
+        <Loader2 className="w-12 h-12 text-blue-500 animate-spin mx-auto mb-4" />
+        <p className="text-gray-400">Loading test...</p>
+      </div>
+    </div>
+  );
+}
+
+// Main test content component
+function RoadmapTestContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const roadmapId = searchParams.get("roadmapId");
@@ -967,5 +980,14 @@ export default function RoadmapTestPage() {
         </main>
       </div>
     </div>
+  );
+}
+
+// Default export with Suspense wrapper
+export default function RoadmapTestPage() {
+  return (
+    <Suspense fallback={<TestLoading />}>
+      <RoadmapTestContent />
+    </Suspense>
   );
 }

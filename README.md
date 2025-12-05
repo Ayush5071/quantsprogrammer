@@ -1,263 +1,381 @@
-# 🌟 Dev Roadmap Platform
-*Your Ultimate Destination for Tech Career Growth*
+<p align="center">
+  <img src="public/official_logo.png" alt="PrepSutra Logo" width="120" height="120" />
+</p>
 
-<div align="center">
+<h1 align="center">🚀 PrepSutra</h1>
 
-![Dev Roadmap Platform](https://img.shields.io/badge/Platform-Dev%20Roadmap-blue?style=for-the-badge&logo=react)
-![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
-![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)
-![AI Powered](https://img.shields.io/badge/AI-Powered-orange?style=for-the-badge&logo=google)
+<p align="center">
+  <strong>Your Ultimate Technical Interview Preparation Platform</strong>
+</p>
 
-</div>
+<p align="center">
+  <a href="https://www.prepsutra.tech">Live Demo</a> •
+  <a href="#features">Features</a> •
+  <a href="#tech-stack">Tech Stack</a> •
+  <a href="#api-reference">API Reference</a> •
+  <a href="#installation">Installation</a>
+</p>
 
----
-
-## 🚀 **Vision & Mission**
-
-Dev Roadmap is a **comprehensive learning ecosystem** designed to empower junior developers, students, and tech enthusiasts in their career journey. Our platform combines **AI-powered interview practice**, **structured learning roadmaps**, **community-driven blogs**, and **professional portfolio building** in one seamless experience.
-
-> *"From learning to landing your dream job - we've got you covered!"*
-
----
-
-## ✨ **Key Features Overview**
-
-### 🎯 **Core Platform Features**
-- 🛣️ **Interactive Roadmaps** - Step-by-step career paths with progress tracking
-- 🤖 **AI Interview Practice** - Gemini-powered mock interviews with real-time feedback  
-- 📝 **Blog Platform** - Community-driven content with admin moderation
-- 🏆 **Top Interviews** - Competitive interview challenges with leaderboards
-- 📊 **Progress Tracking** - Comprehensive analytics and achievement system
-- 🎓 **Certification System** - Canvas-generated certificates for completed roadmaps
-- 👤 **User Profiles** - Showcase your journey and achievements
-
-### 🔐 **Authentication & Security**
-- ✅ **Complete Auth Flow** - Registration, login, email verification
-- 🔑 **Password Management** - Secure reset and change functionality
-- 🛡️ **JWT Security** - Token-based authentication with secure sessions
-- 📧 **Email Verification** - Robust verification and resend system
-
-### 🎤 **Interview Experience**
-- 🎙️ **Speech Recognition** - Real-time speech-to-text conversion
-- 🔊 **Text-to-Speech** - AI questions read aloud for immersive experience
-- 📈 **Performance Analytics** - Detailed feedback and improvement suggestions
-- 🏆 **Leaderboard System** - Competitive rankings for top performers
-- 📱 **Mobile Optimized** - Seamless experience across all devices
-
-### 👨‍💼 **Admin Dashboard**
-- 🎛️ **Complete Control Panel** - Manage users, content, and platform settings
-- 📝 **Blog Request Management** - Approve/reject blog writing permissions
-- 🛣️ **Roadmap Creation** - Dynamic roadmap builder with phases and tasks
-- 👥 **User Management** - Comprehensive user analytics and management
-- 📊 **Platform Analytics** - Real-time statistics and insights
+<p align="center">
+  <img src="https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js" alt="Next.js" />
+  <img src="https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/MongoDB-6.0-green?style=for-the-badge&logo=mongodb" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css" alt="Tailwind" />
+</p>
 
 ---
 
-## 🛠️ **Technology Stack**
+## 💡 Motivation
 
-### **Frontend**
-```bash
-⚛️  React 18 + Next.js 14 (App Router)
-🎨  Tailwind CSS + Glassmorphism Design
-✨  GSAP Animations + Locomotive Scroll
-🌈  Modern UI Components (Ant Design)
-📱  Fully Responsive Design
+> **"Preparation is the key to success."** – Alexander Graham Bell
+
+In today's competitive tech landscape, cracking interviews at top companies requires more than just coding skills—it demands structured preparation, real-world practice, and data-driven insights.
+
+**PrepSutra** was born from a simple observation: thousands of developers struggle to find a unified platform that combines:
+- 📊 **Company-specific question banks** with frequency data
+- 🎯 **AI-powered mock interviews** for realistic practice
+- 🗺️ **Curated learning roadmaps** for different tech domains
+- 📜 **Certification programs** to validate skills
+- 💰 **Placement data & compensation insights** for informed decisions
+
+We're building the platform we wished existed during our own interview preparation journey.
+
+---
+
+## ✨ Features
+
+### 🎯 Core Features
+
+| Feature | Description |
+|---------|-------------|
+| **Company-wise DSA Questions** | 450+ companies' LeetCode problems with frequency & acceptance data |
+| **AI Mock Interviews** | Practice with AI interviewer using voice/text with real-time feedback |
+| **Top Interviews** | Curated interview rounds with leaderboard rankings |
+| **Learning Roadmaps** | Step-by-step guides for Web Dev, ML, DSA, and more |
+| **Technical Blogs** | Community-driven blogs with likes & comments |
+| **Certifications** | Earn verifiable certificates on roadmap completion |
+| **Placement Data** | Real compensation data from top tech companies |
+
+### 🔐 Authentication & Security
+- Google OAuth 2.0 integration
+- JWT-based session management
+- Email verification with OTP
+- Secure password reset flow
+
+### 💳 Payments
+- Instamojo payment gateway integration
+- One-time purchase for premium content
+- Webhook-based payment verification
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+```
+Next.js 14        → App Router, Server Components, SSR
+TypeScript        → Type-safe development
+Tailwind CSS      → Utility-first styling
+Framer Motion     → Smooth animations
+GSAP              → Advanced scroll animations
+Lucide Icons      → Modern icon library
 ```
 
-### **Backend**
-```bash
-🔗  Next.js API Routes
-🍃  MongoDB + Mongoose ODM
-🔐  JWT Authentication
-☁️   Cloudinary Image Management
-📧  Email Service Integration
+### Backend
+```
+Next.js API Routes → Serverless API endpoints
+MongoDB + Mongoose → Database & ODM
+NextAuth.js        → Authentication
+JWT                → Token-based auth
+Nodemailer         → Email service
 ```
 
-### **AI & Advanced Features**
-```bash
-🤖  Google Gemini AI Integration
-🎤  Web Speech API (TTS/STT)
-🎨  Canvas API (Certificate Generation)
-🔍  Content Filtering & Moderation
-📊  Real-time Analytics
+### Integrations
+```
+Google OAuth       → Social login
+Instamojo          → Payment processing
+Cloudinary         → Image uploads
+Vercel Analytics   → Performance monitoring
 ```
 
 ---
 
-## 🌈 **Platform Sections**
+## 📡 API Reference
 
-### 🏠 **Homepage**
-- **Hero Section** - Engaging landing experience with animations
-- **Key Features** - Platform capabilities showcase
-- **Platform Overview** - Comprehensive feature breakdown
-- **Interview Preparation** - AI-powered practice highlights
-- **Compensation Data** - Industry salary insights
-- **Certificate Showcase** - Achievement recognition
-- **FAQ Section** - Common questions and answers
-- **Community Stats** - Live platform statistics
+### Authentication
 
-### 🛣️ **Explore Section**
-- **Roadmap Browser** - Discover learning paths
-- **Progress Tracking** - Visual progress indicators
-- **Task Management** - Interactive task completion
-- **Resource Links** - Curated learning materials
-- **Certificate Generation** - Automatic achievement recognition
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/users/signup` | Register new user |
+| `POST` | `/api/users/login` | User login |
+| `POST` | `/api/users/logout` | User logout |
+| `GET` | `/api/users/me` | Get current user |
+| `POST` | `/api/users/verifyemail` | Verify email OTP |
+| `POST` | `/api/users/resendverification` | Resend verification email |
+| `POST` | `/api/users/password/send` | Send password reset email |
+| `POST` | `/api/users/password/reset` | Reset password |
+| `GET` | `/api/auth/[...nextauth]` | NextAuth OAuth handlers |
 
-### 🎤 **Interview Section**
-- **Mock Interviews** - AI-powered practice sessions
-- **Top Interviews** - Admin-curated challenges
-- **Speech Integration** - Voice interaction capabilities
-- **Real-time Feedback** - Instant performance analysis
-- **History Tracking** - Complete attempt records
-- **Leaderboard** - Competitive rankings
+### User Profile
 
-### 📝 **Blog Platform**
-- **Content Creation** - Rich text editor with media support
-- **Admin Moderation** - Request-based publishing system
-- **Community Engagement** - User-generated content
-- **Professional Layout** - Medium-style reading experience
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/users/profile` | Get user profile |
+| `PUT` | `/api/users/updateprofile` | Update profile |
+| `GET` | `/api/users/[id]` | Get user by ID |
 
-### 👤 **Profile System**
-- **Personal Dashboard** - Progress overview and achievements
-- **Interview History** - Detailed attempt records with feedback
-- **Certificate Gallery** - Showcase earned certifications
-- **Progress Analytics** - Comprehensive learning insights
-- **Profile Customization** - Personal information management
+### Blogs
 
-### 🔧 **Admin Control Panel**
-- **User Management** - Detailed user cards with full information
-- **Blog Request Handling** - Approve/reject content creators
-- **Roadmap Administration** - Create and manage learning paths
-- **Platform Analytics** - User engagement and performance metrics
-- **Content Moderation** - Ensure quality and appropriateness
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/blogs` | List all blogs |
+| `POST` | `/api/blogs` | Create new blog |
+| `GET` | `/api/blogs/[id]` | Get blog by ID |
+| `PUT` | `/api/blogs/edit` | Edit blog |
+| `POST` | `/api/blogs/like` | Toggle like on blog |
+| `GET` | `/api/blogs/comments` | Get blog comments |
+| `POST` | `/api/blogs/comments` | Add comment |
+| `DELETE` | `/api/blogs/comments` | Delete comment |
+| `POST` | `/api/blogs/request` | Request blog approval |
+
+### Company Problems (Premium)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/company-problems` | List companies / Get problems |
+| `GET` | `/api/company-problems?company=Google` | Get company-specific problems |
+
+### AI Interview
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/interview/ask` | Send message to AI interviewer |
+| `POST` | `/api/interview/feedback` | Get interview feedback |
+| `POST` | `/api/interview/feedback-voice` | Voice-based feedback |
+| `GET` | `/api/interview/history` | Get interview history |
+
+### Top Interviews
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/top-interviews` | List all top interviews |
+| `POST` | `/api/top-interviews` | Create interview (Admin) |
+| `POST` | `/api/top-interviews/generate-questions` | AI generate questions |
+| `POST` | `/api/top-interviews/attempt` | Submit attempt |
+| `GET` | `/api/top-interviews/attempts` | Get user attempts |
+| `GET` | `/api/top-interviews/feedback` | Get attempt feedback |
+
+### Roadmaps
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/roadmap/fetchall` | List all roadmaps |
+| `GET` | `/api/roadmap/fetch?id=xxx` | Get roadmap by ID |
+| `POST` | `/api/roadmap/create` | Create roadmap (Admin) |
+| `POST` | `/api/roadmap/store` | Store roadmap data |
+| `GET` | `/api/roadmap/progress` | Get user progress |
+| `PUT` | `/api/roadmap/[id]` | Update roadmap |
+
+### Certification
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/certification` | Get user certificates |
+| `POST` | `/api/certification` | Generate certificate |
+
+### Payments
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/payment/create-request` | Create payment request |
+| `GET` | `/api/payment/oa-questions` | Check purchase status |
+| `GET` | `/api/payment/verify` | Verify payment |
+| `POST` | `/api/payment/webhook` | Instamojo webhook |
+
+### Admin
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/admin/admin-panel` | Admin dashboard data |
+| `POST` | `/api/admin/unlock-oa` | Unlock OA for user |
 
 ---
 
-## 📋 **Setup Instructions**
+## 📁 Project Structure
 
-### **Prerequisites**
+```
+prepsutra/
+├── public/                    # Static assets
+│   ├── official_logo.png      # Brand logo
+│   └── assets/                # Images & media
+├── src/
+│   ├── app/                   # Next.js App Router
+│   │   ├── api/               # API routes
+│   │   ├── auth/              # Auth pages
+│   │   ├── blogs/             # Blog pages
+│   │   ├── company-problems/  # DSA questions
+│   │   ├── explore/           # Roadmaps
+│   │   ├── interview/         # AI interview
+│   │   ├── profile/           # User profile
+│   │   └── top-interviews/    # Interview challenges
+│   ├── components/
+│   │   ├── ui/                # Reusable UI components
+│   │   ├── sections/          # Page sections
+│   │   └── providers/         # Context providers
+│   ├── models/                # Mongoose schemas
+│   ├── lib/                   # Utilities & hooks
+│   ├── helpers/               # Helper functions
+│   └── context/               # React contexts
+├── package.json
+├── tailwind.config.ts
+├── tsconfig.json
+└── next.config.mjs
+```
+
+---
+
+## ⚡ Installation
+
+### Prerequisites
 - Node.js 18+
-- MongoDB Database
-- Cloudinary Account (for image uploads)
-- Google Gemini AI API Key
+- MongoDB Atlas account
+- Google OAuth credentials
+- Instamojo API keys (for payments)
 
-### **Installation**
+### Setup
 
-1. **Clone & Install**
-   ```bash
-   git clone <repository-url>
-   cd Dev-Roadmap
-   npm install
-   ```
+1. **Clone the repository**
+```bash
+git clone https://github.com/Ayush5071/quantsprogrammer.git
+cd quantsprogrammer
+```
 
-2. **Environment Setup**
-   ```bash
-   cp .env.example .env.local
-   # Fill in your credentials:
-   # - MongoDB connection string
-   # - Cloudinary API keys  
-   # - Gemini AI API key
-   # - JWT secret
-   # - Email service credentials
-   ```
+2. **Install dependencies**
+```bash
+npm install
+```
 
-3. **Development Server**
-   ```bash
-   npm run dev
-   # Visit http://localhost:3000
-   ```
+3. **Configure environment variables**
+```bash
+cp .env.example .env.local
+```
 
-4. **Production Build**
-   ```bash
-   npm run build
-   npm start
-   ```
+```env
+# Database
+MONGODB_URI=mongodb+srv://...
 
----
+# Authentication
+NEXTAUTH_SECRET=your-secret-key
+NEXTAUTH_URL=http://localhost:3000
 
-## 🎯 **User Journey**
+# Google OAuth
+GOOGLE_CLIENT_ID=xxx
+GOOGLE_CLIENT_SECRET=xxx
 
-### **For Learners**
-1. **Sign Up** → Email verification → Profile setup
-2. **Explore Roadmaps** → Choose learning path → Track progress
-3. **Practice Interviews** → AI feedback → Skill improvement
-4. **Earn Certificates** → Showcase achievements → Build portfolio
-5. **Join Community** → Create blogs → Share knowledge
+# JWT
+JWT_SECRET=your-jwt-secret
+TOKEN_SECRET=your-token-secret
 
-### **For Admins**
-1. **Admin Access** → Comprehensive dashboard → User overview
-2. **Content Management** → Approve blogs → Create roadmaps
-3. **User Analytics** → Track engagement → Monitor progress
-4. **Platform Control** → Manage features → Ensure quality
+# Email
+SMTP_HOST=smtp.gmail.com
+SMTP_USER=your-email
+SMTP_PASS=your-app-password
 
----
+# Payments (Instamojo)
+INSTAMOJO_API_KEY=xxx
+INSTAMOJO_AUTH_TOKEN=xxx
+INSTAMOJO_SALT=xxx
 
-## 🌟 **What Makes Us Special**
+# Domain
+DOMAIN=http://localhost:3000
+```
 
-### 🎯 **Comprehensive Learning**
-- **Structured Paths** - Clear, step-by-step progression
-- **Real-world Practice** - Industry-relevant interview questions
-- **AI-Powered Feedback** - Personalized improvement suggestions
-- **Achievement Recognition** - Certificates and progress tracking
+4. **Run development server**
+```bash
+npm run dev
+```
 
-### 🤖 **Advanced AI Integration**
-- **Natural Conversations** - Speech-to-text interview experience
-- **Intelligent Feedback** - AI-analyzed performance insights
-- **Adaptive Learning** - Personalized difficulty adjustment
-- **Real-time Support** - Instant help and clarification
-
-### 🎨 **Modern User Experience**
-- **Glassmorphism Design** - Beautiful, modern interface
-- **Smooth Animations** - GSAP-powered interactions
-- **Mobile First** - Optimized for all devices
-- **Accessibility** - Inclusive design principles
-
-### 🔒 **Enterprise Security**
-- **Secure Authentication** - JWT-based security
-- **Data Protection** - Encrypted user information
-- **Content Moderation** - Safe community environment
-- **Privacy First** - User data protection
+5. **Open browser**
+```
+http://localhost:3000
+```
 
 ---
 
-## 📊 **Platform Statistics**
+## 🚀 Deployment
 
-- **👥 Active Users**: Growing community of developers
-- **🎤 Interviews Conducted**: AI-powered practice sessions
-- **📝 Blogs Published**: Community-generated content
-- **🛣️ Roadmaps Available**: Comprehensive learning paths
-- **🏆 Certificates Earned**: Achievement recognition
+### Vercel (Recommended)
+
+1. Push code to GitHub
+2. Import project in Vercel
+3. Add environment variables
+4. Deploy!
+
+```bash
+vercel --prod
+```
 
 ---
 
-## 🤝 **Contributing**
+## 📊 Database Models
 
-We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation:
+| Model | Description |
+|-------|-------------|
+| `User` | User accounts, auth, purchase status |
+| `Blog` | Blog posts with likes & comments |
+| `BlogRequest` | Pending blog approvals |
+| `Roadmap` | Learning roadmaps & topics |
+| `RoadmapTest` | Roadmap quiz questions |
+| `Interview` | AI interview sessions |
+| `TopInterview` | Curated interview challenges |
+| `TopInterviewAttempt` | User attempt records |
+| `Certification` | User certificates |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our contributing guidelines before submitting PRs.
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
 ---
 
-## 📞 **Support & Contact**
+## 📄 License
 
-- **Email** - ayusht9919@gmail.com
-
----
-
-## 📄 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is proprietary software. All rights reserved.
 
 ---
 
-<div align="center">
+## 👨‍💻 Author
 
-**Built with ❤️ for the developer community**
+<p align="center">
+  <img src="https://avatars.githubusercontent.com/Ayush5071" width="100" height="100" style="border-radius: 50%;" alt="Ayush Tiwari" />
+</p>
 
-*Empowering the next generation of tech professionals*
+<p align="center">
+  <strong>Ayush Tiwari</strong><br/>
+  2nd Year Undergrad @ MNNIT Allahabad
+</p>
 
-</div>
+<p align="center">
+  <a href="https://www.linkedin.com/in/ayush-tiwari-84a823281/">LinkedIn</a> •
+  <a href="https://github.com/Ayush5071">GitHub</a> •
+  <a href="https://ayush-delta.vercel.app">Portfolio</a>
+</p>
+
+---
+
+<p align="center">
+  Made with ❤️ for developers worldwide
+</p>
+
+<p align="center">
+  <a href="https://www.prepsutra.tech">
+    <img src="https://img.shields.io/badge/Visit-PrepSutra-blue?style=for-the-badge" alt="Visit PrepSutra" />
+  </a>
+</p>
