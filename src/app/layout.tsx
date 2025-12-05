@@ -5,12 +5,13 @@ import { CheckedDataProvider } from "@/context/checkedDataContext";
 import { DataCacheProvider } from "@/context/DataCacheContext";
 import { Toaster } from "react-hot-toast";
 import dynamic from "next/dynamic";
+import AuthProvider from "@/components/providers/AuthProvider";
 
-// Metadata for Quants Programmer
+// Metadata for PrepSutra
 export const metadata: Metadata = {
-  title: "Quants Programmer - Technical Roadmaps and Blogs",
+  title: "PrepSutra - Technical Roadmaps and Blogs",
   description:
-    "Learn programming and grow your skills with technical roadmaps and blogs on Quants Programmer. Created by Ayush Tiwari, a second-year undergrad from MNNIT Allahabad.",
+    "Learn programming and grow your skills with technical roadmaps and blogs on PrepSutra. Created by Ayush Tiwari, a second-year undergrad from MNNIT Allahabad.",
   keywords:
     "programming, roadmaps, blogs, web development, machine learning, data science, programming skills, learning resources",
 
@@ -26,20 +27,20 @@ export const metadata: Metadata = {
 
   // Open Graph Meta Tags
   openGraph: {
-    title: "Quants Programmer - Technical Roadmaps and Blogs",
+    title: "PrepSutra - Technical Roadmaps and Blogs",
     description:
-      "Quants Programmer provides technical roadmaps and blogs to help you grow your skills in development, machine learning, data science, and more.",
+      "PrepSutra provides technical roadmaps and blogs to help you grow your skills in development, machine learning, data science, and more.",
     images: [
       {
         url: "/official_logo.png", // Replace with your actual logo URL
         width: 1200,
         height: 630,
-        alt: "Quants Programmer Logo",
+        alt: "PrepSutra Logo",
       },
     ],
-    url: "https://yourwebsite.com",
+    url: "https://www.prepsutra.tech",
     type: "website",
-    siteName: "Quants Programmer",
+    siteName: "PrepSutra",
   },
 
   icons: {
@@ -70,13 +71,15 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
       </head>
       <body className={`antialiased notallow`}>
-        <DataCacheProvider>
-          <CheckedDataProvider>
-              <Toaster position="top-right" reverseOrder={false} />
-              <NotificationIcon />
-              {children}
-          </CheckedDataProvider>
-        </DataCacheProvider>
+        <AuthProvider>
+          <DataCacheProvider>
+            <CheckedDataProvider>
+                <Toaster position="top-right" reverseOrder={false} />
+                <NotificationIcon />
+                {children}
+            </CheckedDataProvider>
+          </DataCacheProvider>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>
