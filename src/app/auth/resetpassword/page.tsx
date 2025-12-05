@@ -18,7 +18,7 @@ function ResetPasswordForm() {
             setMessage("");
 
             if (!token) {
-                setMessage("Invalid or missing token.");
+                setMessage("Invalid or missing token. Please request a new password reset link.");
                 return;
             }
             if (newPassword.length < 6) {
@@ -26,22 +26,32 @@ function ResetPasswordForm() {
                 return;
             }
             if (newPassword !== confirmPassword) {
-                setMessage("Passwords do not match.");
+                setMessage("Passwords do not match. Please try again.");
                 return;
             }
 
-            const res = await fetch("/api/users/password/verify", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token, newPassword, confirmPassword }),
-            });
+            try {
+                const res = await fetch("/api/users/password/verify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, newPassword, confirmPassword }),
+                });
 
-            const data = await res.json();
-            if (res.ok) {
-                setMessage(data.message);
-                setTimeout(() => router.push("/auth/login"), 1000); // Navigate to login page
-            } else {
-                setMessage(data.error);
+                const data = await res.json();
+                
+                if (res.ok) {
+                    setMessage(data.message);
+                    setTimeout(() => router.push("/auth/login"), 2000);
+                } else if (res.status === 400) {
+                    setMessage(data.error || "Invalid or expired reset link.");
+                } else if (res.status === 503) {
+                    setMessage("Service temporarily unavailable. Please try again in a moment.");
+                } else {
+                    setMessage(data.error || "Failed to reset password. Please try again.");
+                }
+            } catch (error: any) {
+                console.error("Reset password error:", error);
+                setMessage("Network error. Please check your internet connection and try again.");
             }
         },
         [token, newPassword, confirmPassword, router]

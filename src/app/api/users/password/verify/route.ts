@@ -10,8 +10,18 @@ export async function POST(request: NextRequest) {
     try {
         const { token, newPassword, confirmPassword } = await request.json();
 
+        // Input validation
+        if (!token || !newPassword || !confirmPassword) {
+            return NextResponse.json({ error: "Please provide all required fields." }, { status: 400 });
+        }
+
+        // Password validation
+        if (newPassword.length < 6) {
+            return NextResponse.json({ error: "Password must be at least 6 characters long." }, { status: 400 });
+        }
+
         if (newPassword !== confirmPassword) {
-            return NextResponse.json({ error: "Passwords do not match." }, { status: 400 });
+            return NextResponse.json({ error: "Passwords do not match. Please try again." }, { status: 400 });
         }
 
         const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
@@ -22,7 +32,9 @@ export async function POST(request: NextRequest) {
         });
 
         if (!user) {
-            return NextResponse.json({ error: "Invalid or expired token." }, { status: 400 });
+            return NextResponse.json({ 
+                error: "This password reset link is invalid or has expired. Please request a new one." 
+            }, { status: 400 });
         }
 
         const salt = await bcryptjs.genSalt(10);
@@ -34,8 +46,21 @@ export async function POST(request: NextRequest) {
 
         await user.save();
 
-        return NextResponse.json({ message: "Password reset successful." }, { status: 200 });
+        return NextResponse.json({ 
+            message: "Your password has been reset successfully! You can now login with your new password." 
+        }, { status: 200 });
     } catch (error: any) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        console.error("❌ Password reset verification error:", error);
+        
+        // Handle network/connection errors
+        if (error.name === 'MongoNetworkError' || error.name === 'MongoTimeoutError') {
+            return NextResponse.json({ 
+                error: "Database connection failed. Please check your internet connection and try again." 
+            }, { status: 503 });
+        }
+        
+        return NextResponse.json({ 
+            error: "An unexpected error occurred while resetting your password. Please try again." 
+        }, { status: 500 });
     }
 }
