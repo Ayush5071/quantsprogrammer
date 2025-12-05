@@ -119,9 +119,11 @@ export default function Certificate({
       {/* PrepSutra Logo/Header */}
       <div className="relative z-10 flex flex-col items-center mt-6 mb-4">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-lg">
-            <span className="text-white text-xl font-bold">P</span>
-          </div>
+          <img 
+            src="/official_logo.png" 
+            alt="PrepSutra Logo" 
+            className="w-12 h-12 rounded-full object-contain shadow-lg"
+          />
           <span className="text-3xl font-bold tracking-wide text-slate-800">PrepSutra</span>
         </div>
         <p className="text-xs text-slate-500 tracking-[0.3em] uppercase">www.prepsutra.tech</p>

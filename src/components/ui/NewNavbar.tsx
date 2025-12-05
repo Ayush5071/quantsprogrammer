@@ -69,9 +69,11 @@ export const FloatingNav = ({
         >
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">P</span>
-            </div>
+            <img 
+              src="/official_logo.png" 
+              alt="PrepSutra Logo" 
+              className="w-8 h-8 rounded-lg object-contain"
+            />
             <span className="hidden sm:block text-white font-semibold">PrepSutra</span>
           </Link>
 

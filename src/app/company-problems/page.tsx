@@ -61,7 +61,7 @@ export default function CompanyProblemsPage() {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
 
-  // Check if user has purchased OA questions
+  // Check if user has purchased OA questions and show modal on page load
   useEffect(() => {
     const checkPurchaseStatus = async () => {
       try {
@@ -69,6 +69,26 @@ export default function CompanyProblemsPage() {
         if (response.ok) {
           const data = await response.json();
           setHasPurchased(data.purchased || false);
+          
+          // Show purchase modal on page load if user hasn't purchased
+          // Check if modal was already shown in this session
+          const modalShown = sessionStorage.getItem("oaModalShown");
+          if (!data.purchased && !modalShown) {
+            // Small delay to let page render first
+            setTimeout(() => {
+              setShowPurchaseModal(true);
+              sessionStorage.setItem("oaModalShown", "true");
+            }, 1500);
+          }
+        } else {
+          // Not logged in - show modal to encourage purchase/signup
+          const modalShown = sessionStorage.getItem("oaModalShown");
+          if (!modalShown) {
+            setTimeout(() => {
+              setShowPurchaseModal(true);
+              sessionStorage.setItem("oaModalShown", "true");
+            }, 1500);
+          }
         }
       } catch (err) {
         console.error("Error checking purchase status:", err);

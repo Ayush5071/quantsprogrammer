@@ -4,7 +4,6 @@ import { Analytics } from '@vercel/analytics/next';
 import { CheckedDataProvider } from "@/context/checkedDataContext";
 import { DataCacheProvider } from "@/context/DataCacheContext";
 import { Toaster } from "react-hot-toast";
-import dynamic from "next/dynamic";
 import AuthProvider from "@/components/providers/AuthProvider";
 
 // Metadata for PrepSutra
@@ -57,8 +56,6 @@ export const viewport = {
   viewportFit: "cover",
 };
 
-const NotificationIcon = dynamic(() => import("@/components/ui/NotificationIcon"), { ssr: false });
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -75,7 +72,6 @@ export default function RootLayout({
           <DataCacheProvider>
             <CheckedDataProvider>
                 <Toaster position="top-right" reverseOrder={false} />
-                <NotificationIcon />
                 {children}
             </CheckedDataProvider>
           </DataCacheProvider>

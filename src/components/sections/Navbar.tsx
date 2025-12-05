@@ -77,15 +77,17 @@ export default function Navbar() {
               {/* Glowing background effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-xl blur-lg group-hover:blur-xl transition-all duration-500 opacity-60 group-hover:opacity-80 animate-pulse"></div>
               {/* Main logo container */}
-              <div className="relative bg-gradient-to-r from-blue-500/90 via-purple-500/90 to-pink-500/90 backdrop-blur-lg p-2.5 rounded-xl border border-white/20 group-hover:border-white/40 transition-all duration-300">
-                <svg className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+              <div className="relative backdrop-blur-lg p-1 rounded-xl border border-white/20 group-hover:border-white/40 transition-all duration-300">
+                <img 
+                  src="/official_logo.png" 
+                  alt="PrepSutra Logo" 
+                  className="w-9 h-9 rounded-lg object-contain group-hover:scale-110 transition-transform duration-300"
+                />
               </div>
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 group-hover:from-blue-300 group-hover:via-purple-300 group-hover:to-pink-300 transition-all duration-300">
-                Dev Roadmap
+                PrepSutra
               </span>
               <span className="text-xs text-zinc-400 font-medium group-hover:text-zinc-300 transition-colors duration-300">Build • Learn • Grow</span>
             </div>
