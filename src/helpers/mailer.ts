@@ -37,12 +37,12 @@ const domain = process.env.DOMAIN?.replace(/\/$/, "");
 const mailOptions = {
     from: process.env.EMAIL_USER, 
     to: email, 
-    subject: emailType === "VERIFY" ? "Verify Your Email with QuantsProgrammer" : "Reset Your Password on QuantsProgrammer", // Email subject
+    subject: emailType === "VERIFY" ? "Verify Your Email with PrepSutra" : "Reset Your Password on PrepSutra", // Email subject
     html: `
         <div style="background-color: #000; color: #fff; padding: 20px; font-family: Arial, sans-serif; background-image: url('https://www.nasa.gov/sites/default/files/thumbnails/image/pia22810-16.jpg'); background-size: cover;">
             <div style="max-width: 600px; margin: auto; background-color: rgba(0, 0, 0, 0.8); border-radius: 10px; overflow: hidden;">
                 <div style="padding: 20px; text-align: center;">
-                    <h1 style="font-size: 32px; color: #00d8ff; margin-bottom: 10px;">QuantsProgrammer</h1>
+                    <h1 style="font-size: 32px; color: #00d8ff; margin-bottom: 10px;">PrepSutra</h1>
                     <p style="font-size: 18px; color: #fff;">Exploring the universe of knowledge, one step at a time.</p>
                 </div>
                 <div style="padding: 20px; text-align: center;">
@@ -63,7 +63,7 @@ const mailOptions = {
                     </p>
                 </div>
                 <div style="padding: 20px; text-align: center; background-color: #0b0b3b;">
-                    <p style="color: #aaa; font-size: 14px; margin-bottom: 10px;">Made with 💖 by the QuantsProgrammer Team</p>
+                    <p style="color: #aaa; font-size: 14px; margin-bottom: 10px;">Made with 💖 by the PrepSutra Team</p>
                     <p style="color: #aaa; font-size: 14px;">Explore knowledge, shape the future.</p>
                 </div>
             </div>
@@ -78,6 +78,7 @@ const mailOptions = {
         console.log("it is mail response",mailResponse);
         return mailResponse;
     } catch (error: any) {
+        console.error("❌ Email sending failed:", error);
         throw new Error(error.message);
     }
 };
