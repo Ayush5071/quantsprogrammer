@@ -9,12 +9,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Admin routes that require admin privileges
+  const isAdminRoute = path.startsWith('/admin');
+
   // Interview-related routes that require authentication
-  const isInterviewRoute = path.startsWith('/interview') || 
+  const isProtectedRoute = path.startsWith('/interview') || 
                           path.startsWith('/top-interviews') || 
                           path.includes('interview-history') ||
                           path.startsWith('/prepare-interviews') ||
-                          path.startsWith('/placement-data');
+                          path.startsWith('/placement-data') ||
+                          path.startsWith('/profile') ||
+                          path.startsWith('/roadmap-test') ||
+                          path.startsWith('/sample-test') ||
+                          path.startsWith('/company-problems');
 
   // Public paths that should redirect to home if logged in
   const isPublicPath = path === '/auth/login' || path === '/auth/signup';
@@ -22,29 +29,40 @@ export function middleware(request: NextRequest) {
   // Login-required page should redirect logged-in users to home
   const isLoginRequired = path === '/auth/login-required';
 
-  // Get token from cookies - simplified approach
+  // Get token from cookies
   const token = request.cookies.get("token")?.value;
   
-  // Simple token presence check (we'll let the API validate the token properly)
+  // Simple token presence check
   const hasToken = Boolean(token && token.length > 10);
 
-  // Debug logging (remove in production)
-  console.log('Middleware Debug:', {
-    path,
-    isInterviewRoute,
-    hasToken,
-    tokenLength: token?.length || 0
-  });
+  // Try to decode token to check admin status (basic check)
+  let isAdmin = false;
+  if (token) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      isAdmin = payload.isAdmin === true;
+    } catch {
+      isAdmin = false;
+    }
+  }
 
   // Redirect logged-in users away from auth pages
   if ((isPublicPath || isLoginRequired) && hasToken) {
-    console.log('Redirecting authenticated user away from auth page');
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // Block interview routes for users without tokens
-  if (isInterviewRoute && !hasToken) {
-    console.log('Redirecting unauthenticated user to login-required for path:', path);
+  // Block admin routes for non-admin users
+  if (isAdminRoute) {
+    if (!hasToken) {
+      return NextResponse.redirect(new URL('/auth/login-required', request.url));
+    }
+    if (!isAdmin) {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
+
+  // Block protected routes for users without tokens
+  if (isProtectedRoute && !hasToken) {
     return NextResponse.redirect(new URL('/auth/login-required', request.url));
   }
 
@@ -54,13 +72,6 @@ export function middleware(request: NextRequest) {
 // matcher tells where middleware should run
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };
