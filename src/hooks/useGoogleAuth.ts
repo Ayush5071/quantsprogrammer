@@ -1,0 +1,44 @@
+"use client";
+
+import { signIn, useSession } from "next-auth/react";
+import { useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+
+export function useGoogleAuth() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  // Sync token when session is available
+  useEffect(() => {
+    if (status === "authenticated" && session?.accessToken) {
+      // Store token in localStorage
+      localStorage.setItem("token", session.accessToken);
+      
+      // Store token in cookie
+      document.cookie = `token=${session.accessToken}; path=/; max-age=86400; SameSite=Lax`;
+    }
+  }, [session, status]);
+
+  const signInWithGoogle = useCallback(async () => {
+    try {
+      // Use redirect: true for proper OAuth flow
+      await signIn("google", { 
+        callbackUrl: "/auth/callback",
+      });
+    } catch (error) {
+      console.error("Google sign in error:", error);
+      toast.error("Failed to sign in with Google");
+    }
+  }, []);
+
+  return {
+    signInWithGoogle,
+    session,
+    status,
+    isAuthenticated: status === "authenticated",
+    isLoading: status === "loading",
+  };
+}
+
+export default useGoogleAuth;
