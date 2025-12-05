@@ -16,63 +16,73 @@ function ResponsiveNavbar({ onNavigate }: { onNavigate: (path: string) => void }
   };
 
   return (
-    <div className="navbar-outer fixed top-0 left-0 z-50 w-full flex justify-center">
-      <div className="flex items-center justify-between w-full max-w-4xl px-4 py-3">
-        {/* No logo for interview navbar */}
-        <div className="flex-1" />
-        {/* Hamburger for mobile */}
-        <button
-          className="md:hidden text-white focus:outline-none bg-white/10 border border-white/20 rounded-xl p-2 shadow-lg hover:bg-white/20 transition-all"
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          onClick={() => setOpen(!open)}
-        >
-          <span className="sr-only">Menu</span>
-          <div className="relative w-8 h-8 flex flex-col justify-center items-center">
-            <span className={`block h-1 w-7 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 ${open ? 'rotate-45 translate-y-2' : ''}`}></span>
-            <span className={`block h-1 w-7 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 my-1 transition-all duration-300 ${open ? 'opacity-0' : ''}`}></span>
-            <span className={`block h-1 w-7 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-300 ${open ? '-rotate-45 -translate-y-2' : ''}`}></span>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a0f]/80 backdrop-blur-xl border-b border-white/5">
+      <div className="max-w-6xl mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          {/* Back to Home */}
+          <button 
+            onClick={() => handleLinkClick('/')}
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            <span className="hidden sm:inline text-sm font-medium">Home</span>
+          </button>
+
+          {/* Logo/Title */}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              </svg>
+            </div>
+            <span className="text-white font-semibold hidden sm:inline">AI Interview</span>
           </div>
-        </button>
-        {/* Desktop nav */}
-        <div className="hidden md:flex gap-6 items-center bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl px-6 py-2 shadow-lg">
-          <button onClick={() => handleLinkClick('/')} className="text-white hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-white/10">Home</button>
-          <button onClick={() => handleLinkClick('/explore')} className="text-white hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-white/10">Explore</button>
-          <button onClick={() => handleLinkClick('/blogs')} className="text-white hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-white/10">Blogs</button>
-          <button onClick={() => handleLinkClick('/profile')} className="text-white hover:text-blue-400 font-medium text-lg transition-colors px-2 py-1 rounded-lg hover:bg-white/10">Profile</button>
-          <button onClick={() => handleLinkClick('/top-interviews')} className="text-white hover:text-pink-400 font-bold text-lg transition-colors px-2 py-1 rounded-lg hover:bg-white/10">Top Interviews</button>
-          <button onClick={() => handleLinkClick('/profile#interview-history')} className="ml-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg font-semibold shadow transition-all">Past Interviews</button>
-          <button onClick={() => handleLinkClick('/top-interview-history')} className="ml-2 px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-700 text-white rounded-lg font-semibold shadow transition-all">Top Interview History</button>
+          
+          {/* Hamburger for mobile */}
+          <button
+            className="md:hidden p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all"
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            onClick={() => setOpen(!open)}
+          >
+            <div className="relative w-6 h-5 flex flex-col justify-center items-center gap-1.5">
+              <span className={`block h-0.5 w-6 bg-current transition-all duration-300 ${open ? 'rotate-45 translate-y-2' : ''}`}></span>
+              <span className={`block h-0.5 w-6 bg-current transition-all duration-300 ${open ? 'opacity-0' : ''}`}></span>
+              <span className={`block h-0.5 w-6 bg-current transition-all duration-300 ${open ? '-rotate-45 -translate-y-2' : ''}`}></span>
+            </div>
+          </button>
+          
+          {/* Desktop nav */}
+          <div className="hidden md:flex gap-1 items-center">
+            <button onClick={() => handleLinkClick('/explore')} className="text-gray-400 hover:text-white text-sm font-medium transition-colors px-3 py-1.5 rounded-md hover:bg-white/5">Explore</button>
+            <button onClick={() => handleLinkClick('/blogs')} className="text-gray-400 hover:text-white text-sm font-medium transition-colors px-3 py-1.5 rounded-md hover:bg-white/5">Blogs</button>
+            <button onClick={() => handleLinkClick('/top-interviews')} className="text-gray-400 hover:text-white text-sm font-medium transition-colors px-3 py-1.5 rounded-md hover:bg-white/5">Top Interviews</button>
+            <button onClick={() => handleLinkClick('/profile')} className="ml-1 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-lg text-sm font-medium transition-all">Profile</button>
+          </div>
         </div>
       </div>
+      
       {/* Mobile nav overlay */}
       {open && (
-        <div className="fixed inset-0 z-50 flex flex-col">
+        <div className="fixed inset-0 z-50 md:hidden" style={{ top: '60px' }}>
           <div
-            className="absolute inset-0 bg-black/70 backdrop-blur-sm opacity-100 transition-opacity duration-300"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setOpen(false)}
-            aria-label="Close menu backdrop"
           />
-          <div className="relative bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl mx-4 mt-4 p-8 flex flex-col gap-6 makeopaque opacity-100 transition-opacity duration-300">
-            <button
-              className="self-end text-white mb-4 focus:outline-none bg-white/10 border border-white/20 rounded-xl p-2 shadow-lg hover:bg-white/20 transition-all"
-              aria-label="Close menu"
-              onClick={() => setOpen(false)}
-            >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-            </button>
-            <button onClick={() => handleLinkClick('/')} className="text-white hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-white/10 text-left">Home</button>
-            <button onClick={() => handleLinkClick('/explore')} className="text-white hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-white/10 text-left">Explore</button>
-            <button onClick={() => handleLinkClick('/blogs')} className="text-white hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-white/10 text-left">Blogs</button>
-            <button onClick={() => handleLinkClick('/profile')} className="text-white hover:text-blue-400 font-medium text-xl transition-colors px-2 py-2 rounded-lg hover:bg-white/10 text-left">Profile</button>
-            <button onClick={() => handleLinkClick('/top-interviews')} className="text-white hover:text-pink-400 font-bold text-xl transition-colors px-2 py-2 rounded-lg hover:bg-white/10 text-left">Top Interviews</button>
-            <button onClick={() => handleLinkClick('/profile#interview-history')} className="px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg font-semibold shadow transition-all text-center">Past Interviews</button>
-            <button onClick={() => handleLinkClick('/top-interview-history')} className="px-4 py-3 bg-gradient-to-r from-pink-600 to-purple-700 text-white rounded-lg font-semibold shadow transition-all text-center">Top Interview History</button>
+          <div className="relative bg-[#111118] border-b border-white/5 mx-4 mt-2 p-4 rounded-xl flex flex-col gap-1">
+            <button onClick={() => handleLinkClick('/')} className="text-gray-300 hover:text-white text-left text-sm font-medium transition-colors px-3 py-2.5 rounded-lg hover:bg-white/5">Home</button>
+            <button onClick={() => handleLinkClick('/explore')} className="text-gray-300 hover:text-white text-left text-sm font-medium transition-colors px-3 py-2.5 rounded-lg hover:bg-white/5">Explore</button>
+            <button onClick={() => handleLinkClick('/blogs')} className="text-gray-300 hover:text-white text-left text-sm font-medium transition-colors px-3 py-2.5 rounded-lg hover:bg-white/5">Blogs</button>
+            <button onClick={() => handleLinkClick('/top-interviews')} className="text-gray-300 hover:text-white text-left text-sm font-medium transition-colors px-3 py-2.5 rounded-lg hover:bg-white/5">Top Interviews</button>
+            <button onClick={() => handleLinkClick('/profile')} className="text-gray-300 hover:text-white text-left text-sm font-medium transition-colors px-3 py-2.5 rounded-lg hover:bg-white/5">Profile</button>
+            <div className="flex flex-col gap-2 mt-2 pt-3 border-t border-white/5">
+              <button onClick={() => handleLinkClick('/top-interview-history')} className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-sm font-medium text-center transition-all">Interview History</button>
+            </div>
           </div>
         </div>
       )}
-
-      </div>
-
+    </nav>
   );
 }
 
@@ -370,179 +380,218 @@ export default function InterviewDashboard() {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center px-4 sm:px-6 md:px-8 md:pt-16 relative overflow-hidden bg-gradient-to-b from-black via-blue-900 to-black">
-      {/* Enhanced Background Effects - matching ProfilePage */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.15),transparent_50%)] pointer-events-none"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(37,99,235,0.12),transparent_50%)] pointer-events-none"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(29,78,216,0.08),transparent_70%)] pointer-events-none"></div>
-      {/* Animated Grid Pattern - matching ProfilePage */}
-      <div className="absolute inset-0 opacity-20 pointer-events-none">
-        <div className="h-full w-full bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black,transparent)]"></div>
+    <div className="min-h-screen w-full flex flex-col items-center px-4 sm:px-6 md:px-8 pt-6 md:pt-12 relative bg-[#0a0a0f]">
+      {/* Subtle background effects */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(99,102,241,0.06),transparent_50%)]" />
       </div>
-      <div className="relative z-10 w-full max-w-7xl mx-auto py-8 md:py-16">
+      
+      <div className="relative z-10 w-full max-w-6xl mx-auto py-6 md:py-12">
         <ResponsiveNavbar onNavigate={(path) => handleNavigation(() => router.push(path))} />
-        {/* Trust Badge/Header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-lg border border-white/20 rounded-full text-sm text-zinc-300 mb-4 hover:bg-white/15 transition-all duration-300">
+        
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full text-sm text-blue-400 mb-4">
             <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
             <span>AI Interview Practice</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-blue-200 to-blue-300 mb-4 sm:mb-6 leading-[0.85] tracking-tight text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">
             Master Technical
-            <br />
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600">
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-500">
               Interviews
             </span>
           </h1>
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-zinc-300 font-medium max-w-2xl md:max-w-4xl mx-auto mb-6 sm:mb-8 leading-relaxed px-4 text-center">
+          <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">
             Practice real interview questions, get instant feedback, and track your progress with our AI-powered system.
           </p>
         </div>
         {/* Main Dashboard Card */}
-        <div className="grid md:grid-cols-2 gap-10 md:gap-16 bg-white/5 backdrop-blur-lg border border-white/10 rounded-3xl shadow-2xl p-6 md:p-12">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-10 bg-[#111118] border border-white/5 rounded-xl p-5 md:p-8">
           {/* AI Side */}
-          <div className="flex flex-col items-center md:items-start gap-6">
-            <div className="w-full flex flex-col gap-2">
-              <h2 className="text-3xl md:text-4xl font-bold text-blue-400 mb-2">AI Interviewer</h2>
-              <div className={`bg-white/10 rounded-2xl p-4 border border-blue-800 text-zinc-200 min-h-[80px] shadow-inner flex items-center gap-3 ${isSpeaking ? 'ring-2 ring-blue-400 animate-pulse' : ''}`}> 
-                {isSpeaking && <span className="w-3 h-3 rounded-full bg-blue-400 animate-pulse mr-2" />}
-                {question ? (
-                  <>
-                    <span className="text-lg">{question}</span>
-                    <button
-                      className={`ml-2 p-1 rounded-full border transition-all ${ttsEnabled ? 'bg-blue-700 border-blue-400 text-white' : 'bg-white/10 border-zinc-500 text-zinc-300'}`}
-                      onClick={() => setTtsEnabled(v => !v)}
-                      title={ttsEnabled ? 'Disable Text-to-Speech' : 'Enable Text-to-Speech'}
-                      type="button"
-                      aria-label={ttsEnabled ? 'Disable Text-to-Speech' : 'Enable Text-to-Speech'}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M11 5L6 9H2v6h4l5 4V5z" />
-                        {ttsEnabled && <path strokeLinecap="round" strokeLinejoin="round" d="M19 12c0-1.657-1.343-3-3-3m0 6c1.657 0 3-1.343 3-3" />}
-                      </svg>
-                    </button>
-                  </>
-                ) : (
-                  <span className="text-zinc-400">AI will ask you questions here...</span>
-                )}
-              </div>
-              {aiThinking && (
-                <div className="text-blue-400 animate-pulse mt-2">AI is thinking...</div>
+          <div className="flex flex-col gap-4">
+            <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </span>
+              AI Interviewer
+            </h2>
+            <div className={`bg-[#0a0a0f] rounded-lg p-4 border border-white/5 text-gray-300 min-h-[80px] flex items-center gap-3 ${isSpeaking ? 'ring-2 ring-blue-500/50' : ''}`}> 
+              {isSpeaking && <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse flex-shrink-0" />}
+              {question ? (
+                <div className="flex items-center gap-3 w-full">
+                  <span className="text-sm sm:text-base flex-1">{question}</span>
+                  <button
+                    className={`p-2 rounded-lg border transition-all flex-shrink-0 ${ttsEnabled ? 'bg-blue-500/20 border-blue-500/30 text-blue-400' : 'bg-white/5 border-white/10 text-gray-500'}`}
+                    onClick={() => setTtsEnabled(v => !v)}
+                    title={ttsEnabled ? 'Disable Text-to-Speech' : 'Enable Text-to-Speech'}
+                    type="button"
+                    aria-label={ttsEnabled ? 'Disable Text-to-Speech' : 'Enable Text-to-Speech'}
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M11 5L6 9H2v6h4l5 4V5z" />
+                      {ttsEnabled && <path strokeLinecap="round" strokeLinejoin="round" d="M19 12c0-1.657-1.343-3-3-3m0 6c1.657 0 3-1.343 3-3" />}
+                    </svg>
+                  </button>
+                </div>
+              ) : (
+                <span className="text-gray-500 text-sm">AI will ask you questions here...</span>
               )}
             </div>
+            {aiThinking && (
+              <div className="flex items-center gap-2 text-blue-400 text-sm">
+                <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                AI is thinking...
+              </div>
+            )}
           </div>
+          
           {/* User Side */}
-          <div className="flex flex-col items-center md:items-start gap-6">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">Your Side</h2>
-            <div className="w-full flex flex-col gap-2">
-              <video ref={videoRef} autoPlay playsInline muted className="rounded-2xl w-full max-w-xs mb-2 border-2 border-blue-800 shadow-lg" />
-              {/* Speech Recognition Info */}
-              {step !== 0 && speechNotSupported && (
-                <div className="mb-4 p-3 bg-blue-900/50 border border-blue-600 rounded-lg text-blue-200 text-sm">
-                  ℹ️ Speech recognition is not supported on your device. You can still type your answers below.
-                </div>
-              )}
-              {/* Both Input Methods Available Simultaneously */}
-              {step !== 0 && (
-                <div className="space-y-4">
-                  {/* Speech-to-Text Display (always show if supported) */}
-                  {!speechNotSupported && (
-                    <div className="w-full">
-                      <label className="block text-sm font-medium text-blue-300 mb-2">
-                        🎤 Speech Recognition {listening ? '(Listening...)' : '(Ready)'}
-                      </label>
-                      <div className={`w-full p-3 bg-white/10 rounded border border-zinc-700 text-zinc-200 text-base min-h-[60px] ${listening ? 'ring-2 ring-blue-400' : ''}`}>
-                        {transcript ? `Speech: ${transcript}` : "Say something and it will appear here..."}
-                      </div>
-                    </div>
-                  )}
-                  {/* Manual Text Input (always available) */}
-                  <div className="w-full">
-                    <label className="block text-sm font-medium text-blue-300 mb-2">
-                      ⌨️ Type Your Answer
+          <div className="flex flex-col gap-4">
+            <h2 className="text-xl md:text-2xl font-bold text-white flex items-center gap-2">
+              <span className="w-8 h-8 rounded-lg bg-green-500/20 flex items-center justify-center">
+                <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </span>
+              Your Side
+            </h2>
+            
+            <video ref={videoRef} autoPlay playsInline muted className="rounded-lg w-full max-w-[280px] border border-white/10" />
+            
+            {/* Speech Recognition Info */}
+            {step !== 0 && speechNotSupported && (
+              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 text-xs">
+                ℹ️ Speech recognition is not supported on your device. You can still type your answers below.
+              </div>
+            )}
+            
+            {/* Both Input Methods Available Simultaneously */}
+            {step !== 0 && (
+              <div className="space-y-3">
+                {/* Speech-to-Text Display */}
+                {!speechNotSupported && (
+                  <div>
+                    <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                      🎤 Speech Recognition {listening ? '(Listening...)' : '(Ready)'}
                     </label>
-                    <textarea
-                      value={textAnswer}
-                      onChange={(e) => setTextAnswer(e.target.value)}
-                      placeholder="Type your answer here..."
-                      className="w-full p-3 bg-white/10 rounded border border-zinc-700 text-zinc-200 text-base min-h-[120px] resize-none"
-                      rows={5}
-                    />
-                  </div>
-                  {/* Combined Answer Preview */}
-                  {(transcript || textAnswer) && (
-                    <div className="w-full">
-                      <label className="block text-sm font-medium text-green-300 mb-2">
-                        📝 Final Answer Preview
-                      </label>
-                      <div className="w-full p-3 bg-green-900/20 border border-green-700 rounded text-green-200 text-base min-h-[60px]">
-                        {[transcript, textAnswer].filter(Boolean).join(' ').trim() || "Your combined answer will appear here..."}
-                      </div>
+                    <div className={`w-full p-3 bg-[#0a0a0f] rounded-lg border text-gray-300 text-sm min-h-[50px] ${listening ? 'border-blue-500/50 ring-1 ring-blue-500/30' : 'border-white/5'}`}>
+                      {transcript ? transcript : <span className="text-gray-600">Say something and it will appear here...</span>}
                     </div>
-                  )}
+                  </div>
+                )}
+                
+                {/* Manual Text Input */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                    ⌨️ Type Your Answer
+                  </label>
+                  <textarea
+                    value={textAnswer}
+                    onChange={(e) => setTextAnswer(e.target.value)}
+                    placeholder="Type your answer here..."
+                    className="w-full p-3 bg-[#0a0a0f] rounded-lg border border-white/5 text-gray-200 text-sm min-h-[100px] resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all placeholder-gray-600"
+                    rows={4}
+                  />
                 </div>
-              )}
-              {/* Answer Controls */}
-              {step !== 0 && (
-                <div className="flex flex-wrap gap-3 mt-4">
+                
+                {/* Combined Answer Preview */}
+                {(transcript || textAnswer) && (
+                  <div>
+                    <label className="block text-xs font-medium text-green-400 mb-1.5">
+                      📝 Final Answer Preview
+                    </label>
+                    <div className="w-full p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-green-300 text-sm min-h-[50px]">
+                      {[transcript, textAnswer].filter(Boolean).join(' ').trim() || "Your combined answer will appear here..."}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Answer Controls */}
+            {step !== 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                <button 
+                  className="py-2 px-3 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-sm font-medium hover:bg-white/10 transition-all" 
+                  onClick={() => {
+                    resetTranscript();
+                    setTextAnswer('');
+                  }}
+                >
+                  Clear All
+                </button>
+                {!speechNotSupported && (
                   <button 
-                    className="py-2 px-4 rounded-lg bg-white/10 text-white font-bold hover:bg-blue-700 transition border border-blue-700" 
-                    onClick={() => {
-                      resetTranscript();
-                      setTextAnswer('');
-                    }}
+                    className="py-2 px-3 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-sm font-medium hover:bg-white/10 transition-all" 
+                    onClick={resetTranscript}
                   >
-                    Clear All
+                    Clear Speech
                   </button>
-                  {!speechNotSupported && (
+                )}
+                <button 
+                  className="py-2 px-3 rounded-lg bg-white/5 border border-white/10 text-gray-300 text-sm font-medium hover:bg-white/10 transition-all" 
+                  onClick={() => setTextAnswer('')}
+                >
+                  Clear Text
+                </button>
+                {currentQuestion < numQuestions ? (
+                  <>
                     <button 
-                      className="py-2 px-4 rounded-lg bg-white/10 text-white font-bold hover:bg-blue-700 transition border border-blue-700" 
-                      onClick={resetTranscript}
-                    >
-                      Clear Speech
-                    </button>
-                  )}
-                  <button 
-                    className="py-2 px-4 rounded bg-zinc-700 text-white font-bold hover:bg-zinc-800 transition" 
-                    onClick={() => setTextAnswer('')}
-                  >
-                    Clear Text
-                  </button>
-                  {currentQuestion < numQuestions ? (
-                    <>
-                      <button 
-                        className="py-2 px-4 rounded bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 text-white font-bold hover:scale-105 transition" 
-                        onClick={submitAnswer} 
-                        disabled={(!transcript && !textAnswer) || loading}
-                      >
-                        Save & Next
-                      </button>
-                      <button className="py-2 px-4 rounded bg-yellow-700 text-white font-bold hover:bg-yellow-800 transition" onClick={skipQuestion}>Skip</button>
-                    </>
-                  ) : (
-                    <button 
-                      className="py-2 px-4 rounded bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 text-white font-bold hover:scale-105 transition" 
+                      className="py-2 px-4 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
                       onClick={submitAnswer} 
                       disabled={(!transcript && !textAnswer) || loading}
                     >
-                      Save Answer
+                      Save & Next
                     </button>
-                  )}
-                </div>
-              )}
-            </div>
+                    <button 
+                      className="py-2 px-3 rounded-lg bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 text-sm font-medium hover:bg-yellow-500/30 transition-all" 
+                      onClick={skipQuestion}
+                    >
+                      Skip
+                    </button>
+                  </>
+                ) : (
+                  <button 
+                    className="py-2 px-4 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
+                    onClick={submitAnswer} 
+                    disabled={(!transcript && !textAnswer) || loading}
+                  >
+                    Save Answer
+                  </button>
+                )}
+              </div>
+            )}
+            
             {/* Controls for starting/ending interview */}
             {step === 0 && (
-              <div className="w-full flex flex-col gap-4 mt-4">
-                <div className="flex flex-col md:flex-row gap-4">
-                  {/* Topic as creatable input */}
-                  <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="Enter Interview Topic (e.g. React, Data Structures)" className="w-full md:w-1/2 px-4 py-3 rounded-lg bg-zinc-800 text-zinc-100 border border-blue-800 text-lg" />
-                  <input value={experience} onChange={e => setExperience(e.target.value)} placeholder="Your Experience (e.g. 2 years)" className="w-full md:w-1/2 px-4 py-3 rounded-lg bg-zinc-800 text-zinc-100 border border-blue-800 text-lg" />
+              <div className="w-full flex flex-col gap-3 mt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input 
+                    value={topic} 
+                    onChange={e => setTopic(e.target.value)} 
+                    placeholder="Interview Topic (e.g. React, DSA)" 
+                    className="w-full px-4 py-3 rounded-lg bg-[#0a0a0f] border border-white/5 text-gray-200 text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all" 
+                  />
+                  <input 
+                    value={experience} 
+                    onChange={e => setExperience(e.target.value)} 
+                    placeholder="Experience (e.g. 2 years)" 
+                    className="w-full px-4 py-3 rounded-lg bg-[#0a0a0f] border border-white/5 text-gray-200 text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all" 
+                  />
                 </div>
-                <input value={skills} onChange={e => setSkills(e.target.value)} placeholder="Your Skills (comma separated)" className="w-full px-4 py-3 rounded-lg bg-zinc-800 text-zinc-100 border border-blue-800 text-lg" />
-                {/* Number of questions as slider */}
-                <div className="flex flex-col md:flex-row gap-4 items-center">
-                  <label htmlFor="numQuestionsSlider" className="text-zinc-200">Number of Questions:</label>
+                <input 
+                  value={skills} 
+                  onChange={e => setSkills(e.target.value)} 
+                  placeholder="Your Skills (comma separated)" 
+                  className="w-full px-4 py-3 rounded-lg bg-[#0a0a0f] border border-white/5 text-gray-200 text-sm placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all" 
+                />
+                
+                {/* Number of questions slider */}
+                <div className="flex flex-col sm:flex-row gap-3 items-center bg-[#0a0a0f] border border-white/5 rounded-lg p-3">
+                  <label htmlFor="numQuestionsSlider" className="text-gray-400 text-sm whitespace-nowrap">Questions:</label>
                   <input
                     id="numQuestionsSlider"
                     type="range"
@@ -550,70 +599,95 @@ export default function InterviewDashboard() {
                     max={10}
                     value={numQuestions}
                     onChange={e => setNumQuestions(Number(e.target.value))}
-                    className="w-full md:w-1/2 accent-blue-700"
+                    className="flex-1 accent-blue-500"
                     aria-label="Number of Questions"
                     title="Number of Questions"
                   />
-                  <span className="ml-2 text-blue-400 font-bold text-lg">{numQuestions}</span>
+                  <span className="text-blue-400 font-bold text-lg min-w-[2rem] text-center">{numQuestions}</span>
                 </div>
-                <div className="flex gap-4 mt-2 flex-wrap">
-                  <button className="px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-lg font-semibold shadow transition-all" onClick={startCamera} disabled={cameraReady}>Open Camera & Mic</button>
-                  <button className="px-6 py-3 bg-gradient-to-r from-blue-700 via-purple-700 to-pink-700 text-white rounded-xl text-lg font-semibold shadow transition-all" onClick={startInterview} disabled={!cameraReady || !topic || !experience || !skills || loading}>Start Interview</button>
+                
+                <div className="flex gap-3 mt-1 flex-wrap">
+                  <button 
+                    className="flex-1 min-w-[140px] px-5 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-gray-300 rounded-lg text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
+                    onClick={startCamera} 
+                    disabled={cameraReady}
+                  >
+                    {cameraReady ? '✓ Camera Ready' : 'Open Camera & Mic'}
+                  </button>
+                  <button 
+                    className="flex-1 min-w-[140px] px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-lg text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
+                    onClick={startInterview} 
+                    disabled={!cameraReady || !topic || !experience || !skills || loading}
+                  >
+                    Start Interview
+                  </button>
                 </div>
               </div>
             )}
+            
             {/* Final feedback and submit all answers */}
             {(step === 3) && (
-              <button className="mt-6 px-8 py-3 bg-green-700 hover:bg-green-800 text-white rounded-xl text-lg font-bold shadow transition-all" onClick={submitAllAnswers} disabled={loading}>Submit Interview &amp; View Feedback</button>
+              <button 
+                className="mt-4 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg text-sm font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
+                onClick={submitAllAnswers} 
+                disabled={loading}
+              >
+                {loading ? 'Submitting...' : 'Submit Interview & View Feedback'}
+              </button>
             )}
             {step === 4 && (
-              <button className="mt-6 px-8 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-xl text-lg font-bold shadow transition-all" onClick={reset}>Restart Interview</button>
+              <button 
+                className="mt-4 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-lg text-sm font-medium transition-all" 
+                onClick={reset}
+              >
+                Restart Interview
+              </button>
             )}
           </div>
         </div>
 
       {/* Navigation Warning Modal */}
       {showWarningModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="bg-zinc-900 rounded-xl shadow-2xl border-2 border-red-600 max-w-md w-full p-6">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#111118] border border-white/10 rounded-xl max-w-md w-full p-6">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-8 h-8 bg-red-600 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <div className="w-10 h-10 bg-red-500/20 rounded-lg flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-red-400">Warning: Interview in Progress</h3>
+              <h3 className="text-lg font-semibold text-white">Interview in Progress</h3>
             </div>
             
-            <p className="text-zinc-200 mb-6 leading-relaxed">
-              You have an active interview session. If you leave now, <strong className="text-red-300">your progress will be lost</strong> and you'll need to start over.
+            <p className="text-gray-400 text-sm mb-5">
+              You have an active interview session. If you leave now, <span className="text-red-400 font-medium">your progress will be lost</span> and you'll need to start over.
             </p>
             
-            <div className="text-sm text-zinc-400 mb-6 bg-zinc-800 p-3 rounded-lg">
+            <div className="text-xs text-gray-500 mb-5 bg-[#0a0a0f] border border-white/5 p-3 rounded-lg space-y-1">
               <div className="flex justify-between">
                 <span>Topic:</span>
-                <span className="text-blue-300">{topic || 'N/A'}</span>
+                <span className="text-blue-400">{topic || 'N/A'}</span>
               </div>
               <div className="flex justify-between">
                 <span>Progress:</span>
-                <span className="text-blue-300">{currentQuestion} of {numQuestions} questions</span>
+                <span className="text-blue-400">{currentQuestion} of {numQuestions} questions</span>
               </div>
               <div className="flex justify-between">
                 <span>Answers saved:</span>
-                <span className="text-blue-300">{answers.filter(a => a && a !== '(skipped)').length}</span>
+                <span className="text-blue-400">{answers.filter(a => a && a !== '(skipped)').length}</span>
               </div>
             </div>
             
             <div className="flex gap-3">
               <button
                 onClick={cancelNavigation}
-                className="flex-1 px-4 py-3 bg-blue-700 hover:bg-blue-800 text-white rounded-lg font-semibold transition-all"
+                className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-lg text-sm font-medium transition-all"
               >
                 Stay & Continue
               </button>
               <button
                 onClick={confirmNavigation}
-                className="flex-1 px-4 py-3 bg-red-700 hover:bg-red-800 text-white rounded-lg font-semibold transition-all"
+                className="flex-1 px-4 py-2.5 bg-red-500/20 border border-red-500/30 hover:bg-red-500/30 text-red-400 rounded-lg text-sm font-medium transition-all"
               >
                 Leave Anyway
               </button>

@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FaUserShield, FaEnvelope, FaCheckCircle, FaTimesCircle, FaMap, FaCertificate } from "react-icons/fa";
-import AdminNavbar from "./AdminNavbar";
+import AdminLayout from "./AdminLayout";
 import useCurrentUser from "@/lib/useCurrentUser";
+import Link from "next/link";
 
 const AdminPanel = () => {
   const [users, setUsers] = useState<any[]>([]);
@@ -12,14 +12,9 @@ const AdminPanel = () => {
   const [error, setError] = useState<string>("");
   const user = useCurrentUser();
 
-  // Check if user is admin
   useEffect(() => {
-    if (user === null) {
-      // Still loading user data
-      return;
-    }
-    if (user === false || (!user?.isAdmin && user?.role !== 'admin')) {
-      // Not logged in or not admin
+    if (user === null) return;
+    if (user === false || (!user?.isAdmin && user?.role !== "admin")) {
       setError("Access denied. Admin privileges required.");
       setLoading(false);
       return;
@@ -27,14 +22,14 @@ const AdminPanel = () => {
   }, [user]);
 
   useEffect(() => {
-    // Only fetch data if user is admin
-    if (user && (user.isAdmin || user.role === 'admin')) {
-      axios.get("/api/admin/admin-panel")
+    if (user && (user.isAdmin || user.role === "admin")) {
+      axios
+        .get("/api/admin/admin-panel")
         .then((response) => {
           setUsers(response.data.data);
           setLoading(false);
         })
-        .catch((error) => {
+        .catch(() => {
           setError("Failed to fetch user data.");
           setLoading(false);
         });
@@ -43,143 +38,262 @@ const AdminPanel = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-black">
-        <div className="text-xl font-semibold text-white animate-pulse">Loading Admin Data...</div>
-      </div>
+      <AdminLayout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <span className="text-gray-400 text-sm">Loading dashboard...</span>
+          </div>
+        </div>
+      </AdminLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-black">
-        <div className="text-xl font-semibold text-red-400">{error}</div>
-      </div>
+      <AdminLayout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
+              <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <p className="text-red-400 font-medium">{error}</p>
+          </div>
+        </div>
+      </AdminLayout>
     );
   }
 
+  const verifiedUsers = users.filter((u) => u.isVerified).length;
+  const adminUsers = users.filter((u) => u.isAdmin || u.role === "admin").length;
+  const usersWithProgress = users.filter((u) => u.courseProgress && Object.keys(u.courseProgress).length > 0).length;
+
+  const stats = [
+    {
+      label: "Total Users",
+      value: users.length,
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      ),
+      color: "blue",
+    },
+    {
+      label: "Verified",
+      value: verifiedUsers,
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+      color: "green",
+    },
+    {
+      label: "Admins",
+      value: adminUsers,
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      ),
+      color: "purple",
+    },
+    {
+      label: "Active Learners",
+      value: usersWithProgress,
+      icon: (
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+        </svg>
+      ),
+      color: "orange",
+    },
+  ];
+
+  const quickActions = [
+    {
+      label: "Manage Users",
+      href: "/admin/admin-panel/users",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      ),
+      description: "View and manage all registered users",
+    },
+    {
+      label: "Blog Requests",
+      href: "/admin/blog-requests",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      ),
+      description: "Review pending blog write access requests",
+    },
+    {
+      label: "Create Roadmap",
+      href: "/admin/admin-panel/roadmap-create",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+      ),
+      description: "Create a new learning roadmap",
+    },
+    {
+      label: "Create Interview",
+      href: "/admin/top-interview-create",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+      ),
+      description: "Generate AI-powered interview questions",
+    },
+  ];
+
+  const getColorClasses = (color: string) => {
+    const colors: Record<string, { bg: string; text: string; border: string }> = {
+      blue: { bg: "bg-blue-500/20", text: "text-blue-400", border: "border-blue-500/30" },
+      green: { bg: "bg-green-500/20", text: "text-green-400", border: "border-green-500/30" },
+      purple: { bg: "bg-purple-500/20", text: "text-purple-400", border: "border-purple-500/30" },
+      orange: { bg: "bg-orange-500/20", text: "text-orange-400", border: "border-orange-500/30" },
+    };
+    return colors[color] || colors.blue;
+  };
+
   return (
-    <>
-      <AdminNavbar />
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-black py-10 px-2 md:px-4 relative overflow-hidden">
-        {/* Glassmorphism animated background */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.12),transparent_50%)] pointer-events-none"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(37,99,235,0.10),transparent_50%)] pointer-events-none"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(29,78,216,0.07),transparent_70%)] pointer-events-none"></div>
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="h-full w-full bg-[linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black,transparent)]"></div>
-        </div>
-        <div className="relative z-10 w-full max-w-7xl mx-auto">
-          <h1 className="text-5xl font-extrabold text-center text-white mb-10 tracking-tight drop-shadow-lg flex items-center justify-center gap-3">
-            <FaUserShield className="text-blue-400" /> Admin Panel
-          </h1>
-          {/* Admin Actions */}
-          <div className="w-full max-w-5xl mx-auto mb-10 flex flex-col md:flex-row items-center justify-end gap-4 md:gap-6">
-            <a href="/admin/blog-requests" className="px-6 py-3 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-opacity-60 hover:bg-opacity-90 text-white rounded-2xl text-lg font-bold shadow-xl backdrop-blur-lg border border-white/20 transition-all duration-200 hover:scale-105">
-              Blog Requests
-            </a>
-            <a href="/admin/top-interview-create" className="px-6 py-3 bg-gradient-to-r from-pink-700 to-pink-800 text-white rounded-2xl text-lg font-bold shadow-xl backdrop-blur-lg border border-white/20 transition-all duration-200 hover:scale-105">
-              Create Top Interview
-            </a>
-            <a href="/top-interviews" className="px-6 py-3 bg-gradient-to-r from-blue-700 to-blue-800 text-white rounded-2xl text-lg font-bold shadow-xl backdrop-blur-lg border border-white/20 transition-all duration-200 hover:scale-105">
-              View Top Interviews
-            </a>
-          </div>
-          <div className="overflow-x-auto">
-            <div className="w-full max-w-5xl mx-auto bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl shadow-2xl p-2 md:p-8">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="bg-blue-900/80 text-white text-lg rounded-xl">
-                    <th className="py-4 px-6">Username</th>
-                    <th className="py-4 px-6">Email</th>
-                    <th className="py-4 px-6">Verified</th>
-                    <th className="py-4 px-6">Roadmaps</th>
-                    <th className="py-4 px-6">Course Progress</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.map((user) => (
-                    <tr key={user._id} className="border-b border-gray-700/40 hover:bg-white/10 transition-all">
-                      <td className="py-3 px-6 text-white font-semibold flex items-center gap-2">
-                        <FaUserShield className="text-blue-300" /> {user.username}
-                      </td>
-                      <td className="py-3 px-6 text-blue-200 flex items-center gap-2">
-                        <FaEnvelope className="text-blue-400" /> {user.email}
-                      </td>
-                      <td className="py-3 px-6 text-center">
-                        {user.isVerified ? (
-                          <FaCheckCircle className="text-green-400 inline-block text-xl" title="Verified" />
-                        ) : (
-                          <FaTimesCircle className="text-red-400 inline-block text-xl" title="Not Verified" />
-                        )}
-                      </td>
-                      <td className="py-3 px-6">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-blue-300">
-                            <FaMap className="text-green-400" />
-                            <span className="text-sm font-semibold">
-                              {user.completedRoadmaps?.length || 0} Completed
-                            </span>
-                          </div>
-                          {user.completedRoadmaps && user.completedRoadmaps.length > 0 && (
-                            <div className="space-y-1">
-                              {user.completedRoadmaps.slice(0, 2).map((roadmap: any, index: number) => (
-                                <div key={index} className="text-xs text-gray-300 bg-white/10 rounded px-2 py-1">
-                                  <div className="flex items-center gap-1">
-                                    <FaCertificate className="text-yellow-400" />
-                                    <span>ID: {roadmap.roadmapId}</span>
-                                  </div>
-                                  <div className="text-gray-400">
-                                    Tasks: {roadmap.completedTasks?.length || 0} | 
-                                    Assignments: {roadmap.completedAssignments?.length || 0}
-                                  </div>
-                                </div>
-                              ))}
-                              {user.completedRoadmaps.length > 2 && (
-                                <div className="text-xs text-gray-400">
-                                  +{user.completedRoadmaps.length - 2} more roadmaps
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-3 px-6">
-                        {user.courseProgress && Object.keys(user.courseProgress).length > 0 ? (
-                          <div className="space-y-2">
-                            {Object.keys(user.courseProgress).map((course) => {
-                              const { totalTasks, completedTasks, progressPercentage } = user.courseProgress[course];
-                              return (
-                                <div key={course} className="mb-2">
-                                  <div className="flex justify-between text-white text-sm font-medium">
-                                    <span>{course}</span>
-                                    <span>{progressPercentage.toFixed(2)}%</span>
-                                  </div>
-                                  <div className="w-full bg-gray-600 rounded-full h-2.5 mt-1">
-                                    <div
-                                      className="bg-gradient-to-r from-blue-400 via-blue-600 to-purple-500 h-2.5 rounded-full transition-all duration-500 shadow"
-                                      style={{ width: `${progressPercentage}%` }}
-                                    ></div>
-                                  </div>
-                                  <div className="text-xs text-gray-300 mt-1">
-                                    {completedTasks} of {totalTasks} tasks completed
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <span className="text-gray-400">No course data</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+    <AdminLayout>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Dashboard</h1>
+        <p className="text-gray-400 text-sm">Welcome back! Here's an overview of your platform.</p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {stats.map((stat) => {
+          const colors = getColorClasses(stat.color);
+          return (
+            <div
+              key={stat.label}
+              className={`bg-[#111118] border ${colors.border} rounded-xl p-4 sm:p-5`}
+            >
+              <div className={`w-10 h-10 ${colors.bg} rounded-lg flex items-center justify-center mb-3`}>
+                <span className={colors.text}>{stat.icon}</span>
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-white mb-1">{stat.value}</div>
+              <div className="text-xs sm:text-sm text-gray-400">{stat.label}</div>
             </div>
-          </div>
+          );
+        })}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="mb-8">
+        <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {quickActions.map((action) => (
+            <Link
+              key={action.label}
+              href={action.href}
+              className="group bg-[#111118] border border-white/10 rounded-xl p-4 hover:border-blue-500/50 hover:bg-[#151520] transition-all"
+            >
+              <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center mb-3 group-hover:bg-blue-500/30 transition-all">
+                <span className="text-blue-400">{action.icon}</span>
+              </div>
+              <h3 className="text-white font-medium mb-1">{action.label}</h3>
+              <p className="text-xs text-gray-500">{action.description}</p>
+            </Link>
+          ))}
         </div>
       </div>
-    </>
+
+      {/* Recent Users Table */}
+      <div className="bg-[#111118] border border-white/10 rounded-xl overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
+          <h2 className="text-lg font-semibold text-white">Recent Users</h2>
+          <Link
+            href="/admin/admin-panel/users"
+            className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+          >
+            View all →
+          </Link>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">User</th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider hidden sm:table-cell">Email</th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
+                <th className="text-left py-3 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider hidden md:table-cell">Progress</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {users.slice(0, 5).map((user) => (
+                <tr key={user._id} className="hover:bg-white/5 transition-colors">
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-medium">
+                        {user.username?.charAt(0).toUpperCase() || "U"}
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-white">{user.username}</div>
+                        <div className="text-xs text-gray-500 sm:hidden">{user.email}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 text-sm text-gray-400 hidden sm:table-cell">{user.email}</td>
+                  <td className="py-3 px-4">
+                    {user.isVerified ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                        Verified
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400">
+                        <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+                        Pending
+                      </span>
+                    )}
+                  </td>
+                  <td className="py-3 px-4 hidden md:table-cell">
+                    {user.courseProgress && Object.keys(user.courseProgress).length > 0 ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 h-2 bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+                            style={{
+                              width: `${Math.min(
+                                Object.values(user.courseProgress).reduce(
+                                  (acc: number, curr: any) => acc + (curr.progressPercentage || 0),
+                                  0
+                                ) / Object.keys(user.courseProgress).length,
+                                100
+                              )}%`,
+                            }}
+                          />
+                        </div>
+                        <span className="text-xs text-gray-400">
+                          {Object.keys(user.courseProgress).length} courses
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-500">No activity</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </AdminLayout>
   );
 };
 

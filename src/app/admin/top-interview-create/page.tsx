@@ -2,6 +2,8 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import useCurrentUser from "@/lib/useCurrentUser";
+import AdminLayout from "../admin-panel/AdminLayout";
+import { toast } from "react-hot-toast";
 
 const LEVELS = ["Easy", "Medium", "Hard"];
 
@@ -17,19 +19,41 @@ export default function CreateTopInterviewPage() {
   const [numQuestions, setNumQuestions] = useState(5);
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
-  if (user === null) return <div className="text-blue-400 min-h-screen flex items-center justify-center">Loading...</div>;
-  if (!user || (!user.isAdmin && user.role !== 'admin')) return <div className="text-red-400 min-h-screen flex items-center justify-center">Access denied. Admin privileges required.</div>;
+  if (user === null) {
+    return (
+      <AdminLayout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <span className="text-gray-400 text-sm">Loading...</span>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  if (!user || (!user.isAdmin && user.role !== "admin")) {
+    return (
+      <AdminLayout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
+              <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <p className="text-red-400 font-medium">Access denied. Admin privileges required.</p>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    setSuccess("");
     try {
-      // Call Gemini API to generate questions
       const geminiRes = await fetch("/api/top-interviews/generate-questions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -44,7 +68,7 @@ export default function CreateTopInterviewPage() {
       });
       if (!geminiRes.ok) throw new Error("Failed to generate questions");
       const { questions } = await geminiRes.json();
-      // Now create the interview
+
       const res = await fetch("/api/top-interviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -60,96 +84,156 @@ export default function CreateTopInterviewPage() {
         }),
       });
       if (!res.ok) throw new Error("Failed to create interview");
-      setSuccess("Top Interview created!");
+      toast.success("Top Interview created successfully!");
       setTimeout(() => router.push("/top-interviews"), 1200);
     } catch (err: any) {
-      setError(err.message || "Error");
+      toast.error(err.message || "Error creating interview");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-blue-950 flex flex-col items-center py-12 px-2 md:px-8">
-      {/* Back Button - top left, only on md+ screens */}
-      <button
-        onClick={() => router.back()}
-        className="hidden md:flex fixed top-6 left-4 items-center gap-2 text-blue-400 hover:text-blue-300 hover:underline text-xl md:text-2xl px-6 py-3 rounded-2xl bg-zinc-900 shadow-lg border-2 border-blue-700 transition-all z-50"
-        style={{ position: 'fixed', top: '1.5rem', left: '1rem', zIndex: 50 }}
-      >
-        <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
-        <span className="hidden sm:inline">Back</span>
-      </button>
+    <AdminLayout>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Create Top Interview</h1>
+        <p className="text-gray-400 text-sm">Generate AI-powered interview questions for top companies.</p>
+      </div>
 
-      <div className="w-full max-w-2xl bg-zinc-900 border-2 border-blue-900 rounded-3xl shadow-2xl p-8 md:p-12 mt-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-blue-400 mb-6">Create Top Interview</h1>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-          <input
-            className="rounded-lg bg-zinc-800 text-zinc-100 border border-blue-800 p-3"
-            placeholder="Title"
-            value={title}
-            onChange={e => setTitle(e.target.value)}
-            required
-          />
-          <input
-            className="rounded-lg bg-zinc-800 text-zinc-100 border border-blue-800 p-3"
-            placeholder="Company Name"
-            value={company}
-            onChange={e => setCompany(e.target.value)}
-            required
-          />
-          <input
-            className="rounded-lg bg-zinc-800 text-zinc-100 border border-blue-800 p-3"
-            placeholder="Field (e.g. Frontend, Backend, Data Science)"
-            value={field}
-            onChange={e => setField(e.target.value)}
-            required
-          />
-          <input
-            className="rounded-lg bg-zinc-800 text-zinc-100 border border-blue-800 p-3"
-            placeholder="Topics (comma separated)"
-            value={topics}
-            onChange={e => setTopics(e.target.value)}
-            required
-          />
-          <input
-            className="rounded-lg bg-zinc-800 text-zinc-100 border border-blue-800 p-3"
-            placeholder="Skills (comma separated)"
-            value={skills}
-            onChange={e => setSkills(e.target.value)}
-            required
-          />
-          <div className="flex gap-4 items-center">
-            <label className="text-blue-300 font-semibold">Level</label>
-            <select className="rounded-lg bg-zinc-800 text-zinc-100 border border-blue-800 p-3" value={level} onChange={e => setLevel(e.target.value)}>
-              {LEVELS.map(l => <option key={l} value={l}>{l}</option>)}
-            </select>
+      {/* Form Card */}
+      <div className="max-w-2xl">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Title & Company Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Title</label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 bg-[#111118] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                placeholder="Interview title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Company</label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 bg-[#111118] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                placeholder="e.g. Google, Amazon"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                required
+              />
+            </div>
           </div>
-          <div className="flex gap-4 items-center">
-            <label className="text-blue-300 font-semibold">Number of Questions</label>
+
+          {/* Field */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Field</label>
             <input
-              type="number"
-              min={1}
-              max={15}
-              className="rounded-lg bg-zinc-800 text-zinc-100 border border-blue-800 p-3 w-24"
-              value={numQuestions}
-              onChange={e => setNumQuestions(Math.max(1, Math.min(15, Number(e.target.value))))}
+              type="text"
+              className="w-full px-4 py-3 bg-[#111118] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+              placeholder="e.g. Frontend, Backend, Data Science"
+              value={field}
+              onChange={(e) => setField(e.target.value)}
               required
             />
           </div>
-          <textarea
-            className="rounded-lg bg-zinc-800 text-zinc-100 border border-blue-800 p-3"
-            placeholder="Description"
-            value={description}
-            onChange={e => setDescription(e.target.value)}
-            required
-            rows={2}
-          />
-          <button type="submit" className="mt-4 px-8 py-3 bg-green-700 hover:bg-green-800 text-white rounded-xl text-lg font-bold shadow transition-all" disabled={loading}>{loading ? "Creating..." : "Create Interview"}</button>
-          {error && <div className="text-red-400 font-semibold mt-2">{error}</div>}
-          {success && <div className="text-green-400 font-semibold mt-2">{success}</div>}
+
+          {/* Topics & Skills Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Topics</label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 bg-[#111118] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                placeholder="React, Node.js, SQL (comma separated)"
+                value={topics}
+                onChange={(e) => setTopics(e.target.value)}
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Skills</label>
+              <input
+                type="text"
+                className="w-full px-4 py-3 bg-[#111118] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                placeholder="Problem solving, System design"
+                value={skills}
+                onChange={(e) => setSkills(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Level & Questions Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Difficulty Level</label>
+              <select
+                className="w-full px-4 py-3 bg-[#111118] border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+              >
+                {LEVELS.map((l) => (
+                  <option key={l} value={l} className="bg-[#111118]">
+                    {l}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Number of Questions</label>
+              <input
+                type="number"
+                min={1}
+                max={15}
+                className="w-full px-4 py-3 bg-[#111118] border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+                value={numQuestions}
+                onChange={(e) => setNumQuestions(Math.max(1, Math.min(15, Number(e.target.value))))}
+                required
+              />
+            </div>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+            <textarea
+              className="w-full px-4 py-3 bg-[#111118] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all resize-none"
+              placeholder="Brief description of the interview..."
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              required
+            />
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-all flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Generating Questions...
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Create Interview
+              </>
+            )}
+          </button>
         </form>
       </div>
-    </main>
+    </AdminLayout>
   );
 }

@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { FaUserShield, FaEnvelope, FaCheckCircle, FaTimesCircle, FaEye, FaUser, FaCalendarAlt, FaPhone, FaGraduationCap, FaMapMarkerAlt, FaVenusMars, FaBirthdayCake } from "react-icons/fa";
-import AdminNavbar from "../AdminNavbar";
+import AdminLayout from "../AdminLayout";
 import useCurrentUser from "@/lib/useCurrentUser";
 
 interface User {
@@ -23,11 +22,14 @@ interface User {
     completedTasks: string[];
     completedAssignments: string[];
   }>;
-  courseProgress?: Record<string, {
-    totalTasks: number;
-    completedTasks: number;
-    progressPercentage: number;
-  }>;
+  courseProgress?: Record<
+    string,
+    {
+      totalTasks: number;
+      completedTasks: number;
+      progressPercentage: number;
+    }
+  >;
 }
 
 const UserManagement = () => {
@@ -36,14 +38,12 @@ const UserManagement = () => {
   const [error, setError] = useState<string>("");
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const user = useCurrentUser();
 
-  // Check if user is admin
   useEffect(() => {
-    if (user === null) {
-      return;
-    }
-    if (user === false || (!user?.isAdmin && user?.role !== 'admin')) {
+    if (user === null) return;
+    if (user === false || (!user?.isAdmin && user?.role !== "admin")) {
       setError("Access denied. Admin privileges required.");
       setLoading(false);
       return;
@@ -51,13 +51,14 @@ const UserManagement = () => {
   }, [user]);
 
   useEffect(() => {
-    if (user && (user.isAdmin || user.role === 'admin')) {
-      axios.get("/api/admin/admin-panel")
+    if (user && (user.isAdmin || user.role === "admin")) {
+      axios
+        .get("/api/admin/admin-panel")
         .then((response) => {
           setUsers(response.data.data);
           setLoading(false);
         })
-        .catch((error) => {
+        .catch(() => {
           setError("Failed to fetch user data.");
           setLoading(false);
         });
@@ -74,326 +75,292 @@ const UserManagement = () => {
     setShowModal(false);
   };
 
+  const filteredUsers = users.filter(
+    (u) =>
+      u.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      u.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-black">
-        <div className="text-xl font-semibold text-white animate-pulse">Loading User Data...</div>
-      </div>
+      <AdminLayout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <span className="text-gray-400 text-sm">Loading users...</span>
+          </div>
+        </div>
+      </AdminLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-blue-900 to-black">
-        <div className="text-xl font-semibold text-red-400">{error}</div>
-      </div>
+      <AdminLayout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
+              <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <p className="text-red-400 font-medium">{error}</p>
+          </div>
+        </div>
+      </AdminLayout>
     );
   }
 
   return (
-    <>
-      <AdminNavbar />
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-black py-10 px-2 md:px-4 relative overflow-hidden">
-        {/* Glassmorphism animated background */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.12),transparent_50%)] pointer-events-none"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(37,99,235,0.10),transparent_50%)] pointer-events-none"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(29,78,216,0.07),transparent_70%)] pointer-events-none"></div>
-        <div className="absolute inset-0 opacity-20 pointer-events-none">
-          <div className="h-full w-full bg-[linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black,transparent)]"></div>
+    <AdminLayout>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">User Management</h1>
+          <p className="text-gray-400 text-sm">View and manage all registered users.</p>
         </div>
-        
-        <div className="relative z-10 w-full max-w-7xl mx-auto">
-          <h1 className="text-5xl font-extrabold text-center text-white mb-10 tracking-tight drop-shadow-lg flex items-center justify-center gap-3">
-            <FaUser className="text-blue-400" /> User Management
-          </h1>
-          
-          {/* User Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {users.map((user) => (
-              <div key={user._id} className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-2xl shadow-xl p-6 hover:bg-white/15 transition-all duration-300 hover:scale-105">
-                {/* User Header */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                      <FaUser className="text-white text-xl" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white">{user.username}</h3>
-                      <p className="text-blue-300 text-sm">{user.fullName || "Name not provided"}</p>
-                    </div>
-                  </div>
-                  {user.isAdmin && (
-                    <div className="bg-yellow-600 text-yellow-100 px-2 py-1 rounded-full text-xs font-bold">
-                      ADMIN
-                    </div>
-                  )}
+        <div className="flex items-center gap-2 text-sm text-gray-400">
+          <span className="px-3 py-1 bg-[#111118] border border-white/10 rounded-lg">
+            {users.length} total users
+          </span>
+        </div>
+      </div>
+
+      {/* Search Bar */}
+      <div className="mb-6">
+        <div className="relative max-w-md">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search by username or email..."
+            className="w-full pl-10 pr-4 py-3 bg-[#111118] border border-white/10 rounded-lg text-white placeholder:text-gray-500 focus:outline-none focus:border-blue-500/50 focus:ring-1 focus:ring-blue-500/50 transition-all"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Users Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {filteredUsers.map((user) => (
+          <div
+            key={user._id}
+            className="bg-[#111118] border border-white/10 rounded-xl p-5 hover:border-white/20 transition-all"
+          >
+            {/* User Header */}
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-medium text-lg">
+                  {user.username?.charAt(0).toUpperCase() || "U"}
                 </div>
-
-                {/* Basic Info */}
-                <div className="space-y-3 mb-4">
-                  <div className="flex items-center gap-2 text-blue-200">
-                    <FaEnvelope className="text-blue-400" />
-                    <span className="text-sm truncate">{user.email}</span>
-                  </div>
-                  
-                  {user.contactNumber && (
-                    <div className="flex items-center gap-2 text-blue-200">
-                      <FaPhone className="text-green-400" />
-                      <span className="text-sm">{user.contactNumber}</span>
-                    </div>
-                  )}
-
-                  {user.college && (
-                    <div className="flex items-center gap-2 text-blue-200">
-                      <FaGraduationCap className="text-purple-400" />
-                      <span className="text-sm truncate">{user.college}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Status Indicators */}
-                <div className="flex items-center justify-between mb-4">
+                <div>
                   <div className="flex items-center gap-2">
-                    {user.isVerified ? (
-                      <div className="flex items-center gap-1 text-green-400">
-                        <FaCheckCircle />
-                        <span className="text-xs">Verified</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1 text-red-400">
-                        <FaTimesCircle />
-                        <span className="text-xs">Unverified</span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {user.age && (
-                    <div className="flex items-center gap-1 text-blue-300">
-                      <FaBirthdayCake className="text-pink-400" />
-                      <span className="text-xs">{user.age} years</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Progress Overview */}
-                {user.courseProgress && Object.keys(user.courseProgress).length > 0 && (
-                  <div className="mb-4">
-                    <h4 className="text-sm font-semibold text-white mb-2">Course Progress</h4>
-                    <div className="space-y-2">
-                      {Object.entries(user.courseProgress).slice(0, 2).map(([course, progress]) => (
-                        <div key={course}>
-                          <div className="flex justify-between text-xs text-gray-300">
-                            <span className="truncate">{course}</span>
-                            <span>{progress.progressPercentage.toFixed(0)}%</span>
-                          </div>
-                          <div className="w-full bg-gray-600 rounded-full h-1.5">
-                            <div
-                              className="bg-gradient-to-r from-blue-400 to-purple-500 h-1.5 rounded-full"
-                              style={{ width: `${progress.progressPercentage}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      ))}
-                      {Object.keys(user.courseProgress).length > 2 && (
-                        <div className="text-xs text-gray-400">
-                          +{Object.keys(user.courseProgress).length - 2} more courses
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* View Details Button */}
-                <button
-                  onClick={() => openUserDetails(user)}
-                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2 px-4 rounded-xl font-semibold hover:scale-105 transition-all duration-200"
-                >
-                  <FaEye /> View Full Details
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* User Details Modal */}
-        {showModal && selectedUser && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white/15 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-              {/* Modal Header */}
-              <div className="flex items-center justify-between p-6 border-b border-white/20">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                    <FaUser className="text-white text-2xl" />
-                  </div>
-                  <div>
-                    <h2 className="text-3xl font-bold text-white">{selectedUser.username}</h2>
-                    <p className="text-blue-300">{selectedUser.fullName || "Name not provided"}</p>
-                    {selectedUser.isAdmin && (
-                      <span className="inline-block bg-yellow-600 text-yellow-100 px-3 py-1 rounded-full text-xs font-bold mt-2">
-                        ADMIN USER
+                    <span className="text-white font-medium">{user.username}</span>
+                    {user.isAdmin && (
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-yellow-500/20 text-yellow-400">
+                        ADMIN
                       </span>
                     )}
                   </div>
+                  <div className="text-xs text-gray-500 truncate max-w-[180px]">{user.email}</div>
                 </div>
-                <button
-                  onClick={closeModal}
-                  className="text-white hover:text-red-400 text-2xl transition-colors"
-                >
-                  ×
-                </button>
               </div>
+              {user.isVerified ? (
+                <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+                  Verified
+                </span>
+              ) : (
+                <span className="flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-yellow-500/20 text-yellow-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+                  Pending
+                </span>
+              )}
+            </div>
 
-              {/* Modal Content */}
-              <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Personal Information */}
-                <div className="bg-white/10 rounded-2xl p-6">
-                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <FaUser className="text-blue-400" /> Personal Information
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <FaEnvelope className="text-blue-400 w-5" />
-                      <div>
-                        <p className="text-gray-300 text-sm">Email</p>
-                        <p className="text-white">{selectedUser.email}</p>
-                      </div>
-                    </div>
-                    
-                    {selectedUser.contactNumber && (
-                      <div className="flex items-center gap-3">
-                        <FaPhone className="text-green-400 w-5" />
-                        <div>
-                          <p className="text-gray-300 text-sm">Phone</p>
-                          <p className="text-white">{selectedUser.contactNumber}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedUser.age && (
-                      <div className="flex items-center gap-3">
-                        <FaBirthdayCake className="text-pink-400 w-5" />
-                        <div>
-                          <p className="text-gray-300 text-sm">Age</p>
-                          <p className="text-white">{selectedUser.age} years</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedUser.gender && (
-                      <div className="flex items-center gap-3">
-                        <FaVenusMars className="text-purple-400 w-5" />
-                        <div>
-                          <p className="text-gray-300 text-sm">Gender</p>
-                          <p className="text-white">{selectedUser.gender}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedUser.address && (
-                      <div className="flex items-center gap-3">
-                        <FaMapMarkerAlt className="text-red-400 w-5" />
-                        <div>
-                          <p className="text-gray-300 text-sm">Address</p>
-                          <p className="text-white">{selectedUser.address}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    {selectedUser.college && (
-                      <div className="flex items-center gap-3">
-                        <FaGraduationCap className="text-yellow-400 w-5" />
-                        <div>
-                          <p className="text-gray-300 text-sm">College</p>
-                          <p className="text-white">{selectedUser.college}</p>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex items-center gap-3">
-                      <div className="w-5 flex justify-center">
-                        {selectedUser.isVerified ? (
-                          <FaCheckCircle className="text-green-400" />
-                        ) : (
-                          <FaTimesCircle className="text-red-400" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-gray-300 text-sm">Account Status</p>
-                        <p className={`font-semibold ${selectedUser.isVerified ? 'text-green-400' : 'text-red-400'}`}>
-                          {selectedUser.isVerified ? 'Verified' : 'Unverified'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+            {/* User Info */}
+            <div className="space-y-2 mb-4">
+              {user.college && (
+                <div className="flex items-center gap-2 text-xs text-gray-400">
+                  <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+                  </svg>
+                  <span className="truncate">{user.college}</span>
                 </div>
+              )}
+              {user.courseProgress && Object.keys(user.courseProgress).length > 0 && (
+                <div className="flex items-center gap-2 text-xs text-gray-400">
+                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                  <span>{Object.keys(user.courseProgress).length} courses in progress</span>
+                </div>
+              )}
+            </div>
 
-                {/* Course Progress */}
-                <div className="bg-white/10 rounded-2xl p-6">
-                  <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <FaGraduationCap className="text-blue-400" /> Course Progress
-                  </h3>
-                  {selectedUser.courseProgress && Object.keys(selectedUser.courseProgress).length > 0 ? (
-                    <div className="space-y-4">
-                      {Object.entries(selectedUser.courseProgress).map(([course, progress]) => (
-                        <div key={course} className="bg-white/10 rounded-xl p-4">
-                          <div className="flex justify-between items-center mb-2">
-                            <h4 className="text-white font-semibold">{course}</h4>
-                            <span className="text-blue-300 font-bold">{progress.progressPercentage.toFixed(1)}%</span>
-                          </div>
-                          <div className="w-full bg-gray-600 rounded-full h-3 mb-2">
-                            <div
-                              className="bg-gradient-to-r from-blue-400 via-blue-600 to-purple-500 h-3 rounded-full transition-all duration-500"
-                              style={{ width: `${progress.progressPercentage}%` }}
-                            ></div>
-                          </div>
-                          <div className="text-sm text-gray-300">
-                            {progress.completedTasks} of {progress.totalTasks} tasks completed
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-gray-400 text-center py-8">
-                      No course progress available
+            {/* View Details Button */}
+            <button
+              onClick={() => openUserDetails(user)}
+              className="w-full py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-sm font-medium rounded-lg transition-all flex items-center justify-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+              </svg>
+              View Details
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {filteredUsers.length === 0 && (
+        <div className="text-center py-12">
+          <svg className="w-12 h-12 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+          </svg>
+          <p className="text-gray-500">No users found matching your search.</p>
+        </div>
+      )}
+
+      {/* User Details Modal */}
+      {showModal && selectedUser && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-[#111118] border border-white/10 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-5 border-b border-white/10">
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white text-xl font-medium">
+                  {selectedUser.username?.charAt(0).toUpperCase() || "U"}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-white">{selectedUser.username}</h2>
+                    {selectedUser.isAdmin && (
+                      <span className="px-2 py-0.5 rounded text-xs font-bold bg-yellow-500/20 text-yellow-400">ADMIN</span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-400">{selectedUser.fullName || "Name not provided"}</p>
+                </div>
+              </div>
+              <button
+                onClick={closeModal}
+                className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-5 space-y-6">
+              {/* Personal Info */}
+              <div>
+                <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Personal Information</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="bg-white/5 rounded-lg p-3">
+                    <div className="text-xs text-gray-500 mb-1">Email</div>
+                    <div className="text-sm text-white">{selectedUser.email}</div>
+                  </div>
+                  {selectedUser.contactNumber && (
+                    <div className="bg-white/5 rounded-lg p-3">
+                      <div className="text-xs text-gray-500 mb-1">Phone</div>
+                      <div className="text-sm text-white">{selectedUser.contactNumber}</div>
                     </div>
                   )}
-                </div>
-
-                {/* Completed Roadmaps */}
-                {selectedUser.completedRoadmaps && selectedUser.completedRoadmaps.length > 0 && (
-                  <div className="bg-white/10 rounded-2xl p-6 lg:col-span-2">
-                    <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                      <FaCheckCircle className="text-green-400" /> Completed Roadmaps
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {selectedUser.completedRoadmaps.map((roadmap, index) => (
-                        <div key={index} className="bg-white/10 rounded-xl p-4">
-                          <h4 className="text-white font-semibold mb-2">Roadmap ID: {roadmap.roadmapId}</h4>
-                          <div className="text-sm text-gray-300">
-                            <p>Completed Tasks: {roadmap.completedTasks.length}</p>
-                            <p>Completed Assignments: {roadmap.completedAssignments.length}</p>
-                          </div>
-                        </div>
-                      ))}
+                  {selectedUser.age && (
+                    <div className="bg-white/5 rounded-lg p-3">
+                      <div className="text-xs text-gray-500 mb-1">Age</div>
+                      <div className="text-sm text-white">{selectedUser.age} years</div>
+                    </div>
+                  )}
+                  {selectedUser.gender && (
+                    <div className="bg-white/5 rounded-lg p-3">
+                      <div className="text-xs text-gray-500 mb-1">Gender</div>
+                      <div className="text-sm text-white">{selectedUser.gender}</div>
+                    </div>
+                  )}
+                  {selectedUser.college && (
+                    <div className="bg-white/5 rounded-lg p-3">
+                      <div className="text-xs text-gray-500 mb-1">College</div>
+                      <div className="text-sm text-white">{selectedUser.college}</div>
+                    </div>
+                  )}
+                  {selectedUser.address && (
+                    <div className="bg-white/5 rounded-lg p-3">
+                      <div className="text-xs text-gray-500 mb-1">Address</div>
+                      <div className="text-sm text-white">{selectedUser.address}</div>
+                    </div>
+                  )}
+                  <div className="bg-white/5 rounded-lg p-3">
+                    <div className="text-xs text-gray-500 mb-1">Account Status</div>
+                    <div className={`text-sm font-medium ${selectedUser.isVerified ? "text-green-400" : "text-yellow-400"}`}>
+                      {selectedUser.isVerified ? "Verified" : "Pending Verification"}
                     </div>
                   </div>
-                )}
+                </div>
               </div>
 
-              {/* Modal Footer */}
-              <div className="p-6 border-t border-white/20 text-center">
-                <button
-                  onClick={closeModal}
-                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-semibold hover:scale-105 transition-all duration-200"
-                >
-                  Close Details
-                </button>
-              </div>
+              {/* Course Progress */}
+              {selectedUser.courseProgress && Object.keys(selectedUser.courseProgress).length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Course Progress</h3>
+                  <div className="space-y-3">
+                    {Object.entries(selectedUser.courseProgress).map(([course, progress]) => (
+                      <div key={course} className="bg-white/5 rounded-lg p-3">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-white font-medium">{course}</span>
+                          <span className="text-xs text-blue-400 font-bold">{progress.progressPercentage.toFixed(1)}%</span>
+                        </div>
+                        <div className="w-full h-2 bg-gray-700 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"
+                            style={{ width: `${progress.progressPercentage}%` }}
+                          />
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {progress.completedTasks} of {progress.totalTasks} tasks
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Completed Roadmaps */}
+              {selectedUser.completedRoadmaps && selectedUser.completedRoadmaps.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-3">Completed Roadmaps</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {selectedUser.completedRoadmaps.map((roadmap, index) => (
+                      <div key={index} className="bg-white/5 rounded-lg p-3">
+                        <div className="text-sm text-white font-medium mb-1">Roadmap #{roadmap.roadmapId}</div>
+                        <div className="text-xs text-gray-500">
+                          {roadmap.completedTasks.length} tasks • {roadmap.completedAssignments.length} assignments
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-5 border-t border-white/10">
+              <button
+                onClick={closeModal}
+                className="w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-sm font-medium rounded-lg transition-all"
+              >
+                Close
+              </button>
             </div>
           </div>
-        )}
-      </div>
-    </>
+        </div>
+      )}
+    </AdminLayout>
   );
 };
 

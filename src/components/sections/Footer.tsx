@@ -72,15 +72,14 @@ export function Footer() {
 
   return (
     <footer className="w-full relative overflow-hidden pb-10">
-      {/* Enhanced Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.1),transparent_50%)]"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(236,72,153,0.05),transparent_70%)]"></div>
+      {/* Enhanced Background Effects - Updated for new theme */}
+      <div className="absolute inset-0 bg-[#0a0a0f]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)]"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.08),transparent_50%)]"></div>
       
-      {/* Animated Grid Pattern */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="h-full w-full bg-[linear-gradient(rgba(255,255,255,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.1)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black,transparent)]"></div>
+      {/* Subtle Grid Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="h-full w-full bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,black,transparent)]"></div>
       </div>
 
       <div className="w-full max-w-7xl mx-auto relative z-10 px-4 md:px-8">
@@ -104,7 +103,7 @@ export function Footer() {
               </span>
               <br />
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-violet-400 to-cyan-400">
-                Quants programmer
+                DEVELOPMENT
               </span>
             </h1>
             
@@ -380,7 +379,7 @@ export function Footer() {
                     Ayush Tiwari
                   </a>
                   {" "}X{" "}
-                  <span className="text-purple-400 font-semibold">QuantsProgrammer</span>
+                  <span className="text-purple-400 font-semibold">PrepSutra</span>
                   . All Rights Reserved.
                 </div>
                 <div className="h-1 w-1 bg-gray-600 rounded-full hidden md:block"></div>
