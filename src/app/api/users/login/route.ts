@@ -11,14 +11,22 @@ export async function POST(request: NextRequest) {
     const reqBody = await request.json();
     const { email, password } = reqBody;
 
+    // Input validation
+    if(!email || !password){
+      return NextResponse.json(
+        { error: "Please provide both email and password" },
+        { status: 400 }
+      );
+    }
+
     console.log(reqBody);
 
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
-        { error: "User not found" },
-        { status: 400 }
+        { error: "Invalid email or password. Please check your credentials and try again." },
+        { status: 401 }
       );
     }
 
@@ -27,8 +35,8 @@ export async function POST(request: NextRequest) {
     // Check if the user is verified
     if (!user.isVerified) {
       return NextResponse.json(
-        { error: "User is not verified. Please verify your email before logging in." },
-        { status: 400 }
+        { error: "Please verify your email before logging in. Check your inbox for the verification link or use 'Resend Verification'." },
+        { status: 403 }
       );
     }
 
@@ -36,8 +44,8 @@ export async function POST(request: NextRequest) {
     const validPassword = await bcryptjs.compare(password, user.password);
     if (!validPassword) {
       return NextResponse.json(
-        { error: "Password does not match" },
-        { status: 400 }
+        { error: "Invalid email or password. Please check your credentials and try again." },
+        { status: 401 }
       );
     }
 
@@ -70,8 +78,26 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error: any) {
+    console.error("❌ Login error:", error);
+    
+    // Handle network/connection errors
+    if(error.name === 'MongoNetworkError' || error.name === 'MongoTimeoutError'){
+      return NextResponse.json(
+        { error: "Database connection failed. Please check your internet connection and try again." },
+        { status: 503 }
+      );
+    }
+    
+    // Handle JWT errors
+    if(error.name === 'JsonWebTokenError'){
+      return NextResponse.json(
+        { error: "Authentication token error. Please try logging in again." },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
-      { error: error.message },
+      { error: "An unexpected error occurred during login. Please try again later." },
       { status: 500 }
     );
   }
