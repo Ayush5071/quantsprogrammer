@@ -1,83 +1,62 @@
 "use client";
-
-import { useEffect } from "react";
-import { gsap } from "gsap"; // Import GSAP
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function EmailSentPage() {
-  useEffect(() => {
-    // GSAP Animation for smooth opacity increase (from 0 to 1)
-    const timeline = gsap.timeline();
-
-    // Apply GSAP animation
-    timeline
-      .from(".email-sent-message", {
-        opacity: 1, // Start with opacity 1
-        y: -30,     // Start with a little offset on Y-axis for smooth entrance
-        duration: 1, // Duration of the animation
-        ease: "power3.out", // Ease for smooth transition
-      })
-      .from(
-        ".button-container button", {
-          opacity: 1,  // Start button opacity from 0
-          scale: 0.95,  // Scale button for smooth effect
-          duration: 0.8, // Duration for button animation
-          stagger: 0.3,  // Stagger effect for buttons to animate one after another
-          ease: "power3.out", // Ease to make the transition smoother
-        },
-        "-=0.5" // Start the button animation half a second before the first animation ends
-      );
-  }, []);
+  const router = useRouter();
 
   return (
-    <div className="min-h-screen overflow-hidden bg-gradient-to-r from-black via-gray-900 to-black py-12 flex flex-col items-center justify-center relative px-4 sm:px-6 md:px-12">
-      {/* Starry Background */}
-      <div className="absolute top-0 left-0 w-full h-full">
-        {[...Array(200)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute bg-white rounded-full"
-            style={{
-              top: `${Math.random() * 100}vh`,
-              left: `${Math.random() * 100}vw`,
-              width: `${Math.random() * 3 + 1}px`,
-              height: `${Math.random() * 3 + 1}px`,
-              animation: `twinkle ${Math.random() * 3 + 1}s infinite`,
-              opacity: Math.random() + 0.5,
-            }}
-          />
-        ))}
-      </div>
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0f] p-4">
+      {/* Background */}
+      <div className="fixed inset-0 bg-gradient-to-br from-blue-950/40 via-[#0a0a0f] to-[#0a0a0f]" />
+      <div className="fixed top-1/4 left-1/4 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl" />
+      <div className="fixed bottom-1/4 right-1/4 w-56 h-56 bg-indigo-600/8 rounded-full blur-3xl" />
 
-      {/* Header */}
-      <h1 className="text-3xl sm:text-4xl md:text-5xl text-white font-extrabold email-sent-message relative z-10 text-center">
-        Verification Link Sent!
-      </h1>
-      <p className="text-lg sm:text-xl md:text-2xl text-gray-100 mt-4 email-sent-message relative z-10 text-center leading-relaxed max-w-lg sm:max-w-xl md:max-w-2xl mx-auto">
-        A verification link has been sent to your email. Please check your inbox
-        or spam folder. Once verified, you can log in.
-      </p>
+      {/* Back Button */}
+      <button
+        onClick={() => router.push("/")}
+        className="fixed top-4 right-4 z-50 flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 rounded-md transition-all"
+      >
+        <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <span className="hidden sm:inline">Close</span>
+      </button>
 
-      {/* Buttons */}
-      <div className="button-container mt-8 space-y-4 flex flex-col items-center z-10">
-        <Link href="/auth/login">
-          <button className="bg-blue-500 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-blue-600 hover:scale-110 hover:shadow-xl transition-transform duration-300 w-full sm:w-auto">
-            Proceed to Login
-          </button>
-        </Link>
-        <Link href="/auth/resendverification">
-          <button className="bg-gray-600 text-white font-semibold py-3 px-8 rounded-lg shadow-lg hover:bg-gray-700 hover:scale-110 hover:shadow-xl transition-transform duration-300 w-full sm:w-auto">
-            Resend Verification Link
-          </button>
-        </Link>
-      </div>
+      {/* Card */}
+      <div className="relative w-full max-w-[360px] bg-[#111118] border border-white/10 rounded-xl p-6 sm:p-8 shadow-2xl text-center">
+        {/* Success Icon */}
+        <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
+          <svg className="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </div>
 
-      {/* Footer */}
-      <footer className="mt-12 text-sm text-gray-300 z-10 relative text-center">
-        <p>
-          Need help? Contact our <span className="text-blue-400 font-medium">support team</span>.
+        <h1 className="text-xl font-semibold text-white mb-2">Check your email</h1>
+        <p className="text-sm text-gray-400 mb-6">
+          We sent a verification link to your email. Please check your inbox or spam folder.
         </p>
-      </footer>
+
+        <div className="space-y-3">
+          <Link
+            href="/auth/login"
+            className="block w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-medium rounded-lg transition-all active:scale-[0.98]"
+          >
+            Go to Login
+          </Link>
+          
+          <Link
+            href="/auth/resendverification"
+            className="block w-full py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-sm font-medium rounded-lg transition-all"
+          >
+            Resend Verification
+          </Link>
+        </div>
+
+        <p className="text-[10px] text-gray-600 mt-5">
+          Need help? <Link href="/contact-support" className="text-blue-400 hover:text-blue-300">Contact support</Link>
+        </p>
+      </div>
     </div>
   );
 }

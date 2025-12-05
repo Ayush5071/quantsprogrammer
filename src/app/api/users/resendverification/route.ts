@@ -12,7 +12,16 @@ export async function POST(request: NextRequest) {
 
     if (!email) {
       return NextResponse.json(
-        { error: "Email is required" },
+        { error: "Please provide your email address." },
+        { status: 400 }
+      );
+    }
+
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: "Please provide a valid email address." },
         { status: 400 }
       );
     }
@@ -20,26 +29,43 @@ export async function POST(request: NextRequest) {
     const user = await User.findOne({ email });
     if (!user) {
       return NextResponse.json(
-        { error: "User with this email does not exist" },
+        { error: "No account found with this email address." },
         { status: 404 }
       );
     }
 
     if (user.isVerified) {
       return NextResponse.json(
-        { error: "User is already verified" },
+        { error: "Your email is already verified. You can login now." },
         { status: 400 }
       );
     }
 
     // Resend the verification email
-    await sendEmail({ email, emailType: "VERIFY", userId: user._id });
-
-    return NextResponse.json({
-      message: "Verification email sent successfully",
-      success: true,
-    });
+    try {
+      await sendEmail({ email, emailType: "VERIFY", userId: user._id });
+      return NextResponse.json({
+        message: "Verification email sent successfully! Please check your inbox.",
+        success: true,
+      });
+    } catch (emailError: any) {
+      console.error("❌ Failed to resend verification email:", emailError);
+      return NextResponse.json({ 
+        error: "Failed to send verification email. Please try again later or contact support." 
+      }, { status: 500 });
+    }
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("❌ Resend verification error:", error);
+    
+    // Handle network/connection errors
+    if (error.name === 'MongoNetworkError' || error.name === 'MongoTimeoutError') {
+      return NextResponse.json({ 
+        error: "Database connection failed. Please check your internet connection and try again." 
+      }, { status: 503 });
+    }
+    
+    return NextResponse.json({ 
+      error: "An unexpected error occurred. Please try again later." 
+    }, { status: 500 });
   }
 }
