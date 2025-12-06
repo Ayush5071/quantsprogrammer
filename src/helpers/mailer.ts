@@ -31,8 +31,9 @@ export const sendEmail = async ({ email, emailType, userId }: any) => {
         console.log("token inside ->",hashedToken);
 
 
-// Remove trailing slash from DOMAIN if present
-const domain = process.env.DOMAIN?.replace(/\/$/, "");
+// Get domain from environment variable with fallback
+const domain = (process.env.DOMAIN || process.env.NEXT_PUBLIC_BASE_URL || "https://www.prepsutra.tech")?.replace(/\/$/, "");
+console.log("Email domain URL:", domain);
 
 const mailOptions = {
     from: process.env.EMAIL_USER, 

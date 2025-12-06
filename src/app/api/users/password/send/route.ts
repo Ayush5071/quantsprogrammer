@@ -42,7 +42,8 @@ export async function POST(request: NextRequest) {
         console.log("Updated user:", user);
 
         // Build the reset URL
-        const resetUrl = `${process.env.DOMAIN}/auth/resetpassword?token=${resetToken}`;
+        const domain = (process.env.DOMAIN || process.env.NEXT_PUBLIC_BASE_URL || "https://www.prepsutra.tech")?.replace(/\/$/, "");
+        const resetUrl = `${domain}/auth/resetpassword?token=${resetToken}`;
         console.log("Reset URL:", resetUrl);
 
         // Create a transporter for nodemailer

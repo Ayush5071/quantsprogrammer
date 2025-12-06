@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Determine redirect URL based on environment
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || process.env.DOMAIN || "https://www.prepsutra.tech")?.replace(/\/$/, "");
     const redirectUrl = `${baseUrl}/payment/verify`;
     
     // Webhook only works with public URLs (not localhost)
