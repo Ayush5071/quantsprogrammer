@@ -201,35 +201,42 @@ Vercel Analytics   → Performance monitoring
 
 ---
 
-## 📁 Project Structure
+## 📁 Project Structure (Turborepo Monorepo)
 
 ```
 prepsutra/
-├── public/                    # Static assets
-│   ├── official_logo.png      # Brand logo
-│   └── assets/                # Images & media
-├── src/
-│   ├── app/                   # Next.js App Router
-│   │   ├── api/               # API routes
-│   │   ├── auth/              # Auth pages
-│   │   ├── blogs/             # Blog pages
-│   │   ├── company-problems/  # DSA questions
-│   │   ├── explore/           # Roadmaps
-│   │   ├── interview/         # AI interview
-│   │   ├── profile/           # User profile
-│   │   └── top-interviews/    # Interview challenges
-│   ├── components/
-│   │   ├── ui/                # Reusable UI components
-│   │   ├── sections/          # Page sections
-│   │   └── providers/         # Context providers
-│   ├── models/                # Mongoose schemas
-│   ├── lib/                   # Utilities & hooks
-│   ├── helpers/               # Helper functions
-│   └── context/               # React contexts
-├── package.json
-├── tailwind.config.ts
-├── tsconfig.json
-└── next.config.mjs
+├── apps/
+│   └── web/                   # Main Next.js application
+│       ├── public/            # Static assets
+│       ├── src/
+│       │   ├── app/           # Next.js App Router
+│       │   │   ├── api/       # API routes
+│       │   │   ├── auth/      # Auth pages
+│       │   │   ├── blogs/     # Blog pages
+│       │   │   └── ...        # Other pages
+│       │   ├── components/    # UI components
+│       │   ├── lib/           # Utilities & hooks
+│       │   └── helpers/       # Helper functions
+│       ├── package.json
+│       ├── next.config.mjs
+│       └── tsconfig.json
+├── packages/
+│   ├── database/              # Shared MongoDB models
+│   │   └── src/
+│   │       ├── config.ts      # DB connection
+│   │       ├── models/        # Mongoose schemas
+│   │       └── index.ts       # Exports
+│   ├── types/                 # Shared TypeScript types
+│   │   └── src/index.ts
+│   ├── ui/                    # Shared UI components
+│   │   └── src/index.tsx
+│   ├── tsconfig/              # Shared TS configs
+│   │   ├── base.json
+│   │   └── nextjs.json
+│   └── eslint-config/         # Shared ESLint configs
+├── turbo.json                 # Turborepo configuration
+├── pnpm-workspace.yaml        # pnpm workspace config
+└── package.json               # Root package.json
 ```
 
 ---
@@ -238,6 +245,7 @@ prepsutra/
 
 ### Prerequisites
 - Node.js 18+
+- pnpm 9.0+
 - MongoDB Atlas account
 - Google OAuth credentials
 - Instamojo API keys (for payments)
@@ -250,12 +258,17 @@ git clone https://github.com/Ayush5071/quantsprogrammer.git
 cd quantsprogrammer
 ```
 
-2. **Install dependencies**
+2. **Install pnpm (if not installed)**
 ```bash
-npm install
+npm install -g pnpm
 ```
 
-3. **Configure environment variables**
+3. **Install dependencies**
+```bash
+pnpm install
+```
+
+4. **Configure environment variables**
 ```bash
 cp .env.example .env.local
 ```
@@ -290,14 +303,50 @@ INSTAMOJO_SALT=xxx
 DOMAIN=http://localhost:3000
 ```
 
-4. **Run development server**
+5. **Run development server**
 ```bash
-npm run dev
+pnpm dev
 ```
 
-5. **Open browser**
+6. **Build for production**
+```bash
+pnpm build
+```
+
+7. **Open browser**
 ```
 http://localhost:3000
+```
+
+---
+
+## 📦 Workspace Packages
+
+| Package | Description |
+|---------|-------------|
+| `apps/web` | Main Next.js application |
+| `@prepsutra/database` | Shared MongoDB models & connection |
+| `@prepsutra/types` | Shared TypeScript type definitions |
+| `@prepsutra/ui` | Shared UI components |
+| `@prepsutra/tsconfig` | Shared TypeScript configurations |
+| `@prepsutra/eslint-config` | Shared ESLint configurations |
+
+### Adding a New App
+
+```bash
+cd apps
+mkdir my-new-app
+# Set up your new app with its own package.json
+```
+
+### Using Shared Packages
+
+```typescript
+// Import from shared database package
+import { connect, User, Blog } from "@prepsutra/database";
+
+// Import from shared types package
+import { IUser, IBlog } from "@prepsutra/types";
 ```
 
 ---
@@ -308,8 +357,11 @@ http://localhost:3000
 
 1. Push code to GitHub
 2. Import project in Vercel
-3. Add environment variables
-4. Deploy!
+3. Set root directory to `apps/web`
+4. Add environment variables
+5. Deploy!
+
+Vercel automatically detects Turborepo and builds the appropriate app.
 
 ```bash
 vercel --prod

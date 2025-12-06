@@ -1,0 +1,10 @@
+{
+  "extends": "@prepsutra/tsconfig/base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
