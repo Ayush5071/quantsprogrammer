@@ -212,6 +212,7 @@ export default function Home() {
     { name: "Blogs", link: "/blogs" },
     { name: "Roadmaps", link: "/explore" },
     { name: "Company Problems", link: "/company-problems" },
+    { name: "Resume Builder", link: "/resume-builder" },
     {
       name: "Interview",
       dropdown: [

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Map, Mic, BarChart3, PenLine, Award, ArrowRight } from "lucide-react";
+import { Map, Mic, BarChart3, PenLine, Award, ArrowRight, FileText } from "lucide-react";
 
 const features = [
   {
@@ -38,6 +38,13 @@ const features = [
     description: "Earn credentials for completed roadmaps",
     link: "/profile",
     color: "from-yellow-500 to-orange-500",
+  },
+  {
+    icon: FileText,
+    title: "Resume Builder",
+    description: "Create ATS-friendly resumes easily",
+    link: "/resume-builder",
+    color: "from-indigo-500 to-violet-500",
   },
 ];
 
