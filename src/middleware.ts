@@ -35,13 +35,32 @@ export function middleware(request: NextRequest) {
   // Simple token presence check
   const hasToken = Boolean(token && token.length > 10);
 
-  // Try to decode token to check admin status (basic check)
+  // Try to decode token to check admin status
   let isAdmin = false;
+  let userEmail = "";
   if (token) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      isAdmin = payload.isAdmin === true;
-    } catch {
+      userEmail = payload.email?.trim().toLowerCase() || "";
+      
+      // Check both: token's isAdmin flag AND if email is in ADMINS env var
+      const adminEmails = process.env.ADMINS ? process.env.ADMINS.split(",").map(e => e.trim().toLowerCase()) : [];
+      isAdmin = payload.isAdmin === true || adminEmails.includes(userEmail);
+      
+      // Debug logging for admin routes
+      if (path.startsWith('/admin')) {
+        console.log('[Middleware] Admin Route Check:', {
+          path,
+          hasToken,
+          userEmail,
+          isAdminFromToken: payload.isAdmin,
+          adminEmails,
+          isInAdminList: adminEmails.includes(userEmail),
+          finalIsAdmin: isAdmin
+        });
+      }
+    } catch (err) {
+      console.log('[Middleware] Token decode error:', err);
       isAdmin = false;
     }
   }

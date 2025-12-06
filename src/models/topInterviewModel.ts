@@ -9,8 +9,24 @@ const TopInterviewSchema = new mongoose.Schema({
   level: { type: String, required: true },
   skills: { type: String, required: true },
   questions: { type: [String], required: true },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true }, // Fix: use "users" to match User model
-  createdAt: { type: Date, default: Date.now }
+  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
+  createdAt: { type: Date, default: Date.now },
+  // Interview status
+  isEnded: { type: Boolean, default: false },
+  endedAt: { type: Date },
+  endedBy: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+  // Certificate issued to top 3
+  certificatesIssued: { type: Boolean, default: false },
+  winners: [{
+    rank: { type: Number },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
+    score: { type: Number },
+    certificateId: { type: String },
+    issuedAt: { type: Date }
+  }],
+  // Retry control - by default only 1 attempt allowed
+  allowRetryForAll: { type: Boolean, default: false }, // If true, everyone can retry
+  retryAllowedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }] // Specific users allowed to retry
 });
 
 const TopInterview = mongoose.models.TopInterview || mongoose.model("TopInterview", TopInterviewSchema);

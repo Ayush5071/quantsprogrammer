@@ -16,16 +16,27 @@ import {
   Clock,
   ChevronRight,
   Sparkles,
-  Home
+  Home,
+  StopCircle,
+  AlertTriangle,
+  CheckCircle
 } from "lucide-react";
+import useCurrentUser from "@/lib/useCurrentUser";
+import TopInterviewCertificate from "@/components/component/TopInterviewCertificate";
 
 export default function TopInterviewLeaderboardPage() {
   const params = useParams();
   const router = useRouter();
+  const user = useCurrentUser();
   const [attempts, setAttempts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [interview, setInterview] = useState<any>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showEndModal, setShowEndModal] = useState(false);
+  const [endingInterview, setEndingInterview] = useState(false);
+  const [endResult, setEndResult] = useState<any>(null);
+  const [showCertificate, setShowCertificate] = useState(false);
+  const [selectedWinner, setSelectedWinner] = useState<any>(null);
 
   useEffect(() => {
     if (!params?.id) return;
@@ -63,6 +74,43 @@ export default function TopInterviewLeaderboardPage() {
     if (rank === 2) return "bg-gradient-to-r from-gray-400/10 to-gray-500/5 border-l-gray-400";
     if (rank === 3) return "bg-gradient-to-r from-amber-600/10 to-orange-500/5 border-l-amber-600";
     return "bg-white/[0.02] border-l-white/20 hover:bg-white/[0.04]";
+  };
+
+  // Handle ending the interview (admin only)
+  const handleEndInterview = async () => {
+    if (!interview?._id || endingInterview) return;
+    setEndingInterview(true);
+    try {
+      const res = await fetch('/api/top-interviews/end', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ interviewId: interview._id })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to end interview');
+      setEndResult(data);
+      // Refresh interview data
+      const refreshRes = await fetch(`/api/top-interviews`);
+      const refreshData = await refreshRes.json();
+      const found = refreshData.find((i: any) => i._id === params?.id);
+      setInterview(found);
+    } catch (err: any) {
+      setEndResult({ error: err.message });
+    } finally {
+      setEndingInterview(false);
+    }
+  };
+
+  // View winner's certificate
+  const viewWinnerCertificate = (winner: any, rank: number) => {
+    const attempt = uniqueAttempts[rank - 1] as any;
+    setSelectedWinner({
+      ...winner,
+      userName: attempt?.user?.name || attempt?.user?.fullName || attempt?.user?.username || 'User',
+      score: winner.score || attempt?.score,
+      rank
+    });
+    setShowCertificate(true);
   };
 
   if (loading) {
@@ -239,6 +287,66 @@ export default function TopInterviewLeaderboardPage() {
               <div className="text-xs text-gray-500">Questions</div>
             </div>
           </div>
+
+          {/* Interview Status Badge */}
+          {interview.isEnded && (
+            <div className="mt-6 pt-6 border-t border-white/5">
+              <div className="flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+                <StopCircle className="w-5 h-5 text-red-400" />
+                <span className="text-red-400 font-medium">Interview Ended</span>
+                {interview.endedAt && (
+                  <span className="text-red-400/60 text-sm">
+                    • {new Date(interview.endedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                )}
+              </div>
+              
+              {/* Winners List */}
+              {interview.winners && interview.winners.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <p className="text-sm text-gray-400 text-center mb-3">🏆 Certificate Winners</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {interview.winners.map((winner: any) => {
+                      const attempt = uniqueAttempts[winner.rank - 1] as any;
+                      return (
+                        <button
+                          key={winner.rank}
+                          onClick={() => viewWinnerCertificate(winner, winner.rank)}
+                          className="p-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all text-left"
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            {winner.rank === 1 && <Crown className="w-4 h-4 text-yellow-400" />}
+                            {winner.rank === 2 && <Medal className="w-4 h-4 text-gray-300" />}
+                            {winner.rank === 3 && <Award className="w-4 h-4 text-amber-500" />}
+                            <span className="text-white font-medium text-sm truncate">
+                              {attempt?.user?.name || attempt?.user?.fullName || 'User'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500">Score: {winner.score} • Click to view certificate</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Admin End Interview Button */}
+          {user?.isAdmin && !interview.isEnded && uniqueAttempts.length > 0 && (
+            <div className="mt-6 pt-6 border-t border-white/5">
+              <button
+                onClick={() => setShowEndModal(true)}
+                className="w-full px-4 py-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-medium rounded-xl transition-all flex items-center justify-center gap-2"
+              >
+                <StopCircle className="w-5 h-5" />
+                End Interview & Issue Certificates
+              </button>
+              <p className="text-xs text-gray-500 text-center mt-2">
+                This will end the competition and send certificates to top 3 participants.
+              </p>
+            </div>
+          )}
         </motion.div>
 
         {/* Leaderboard Card */}
@@ -399,6 +507,139 @@ export default function TopInterviewLeaderboardPage() {
           </Link>
         </div>
       </main>
+
+      {/* End Interview Confirmation Modal */}
+      {showEndModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-[#111118] border border-white/10 rounded-2xl p-6 max-w-md w-full"
+          >
+            {!endResult ? (
+              <>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-3 bg-red-500/10 rounded-xl">
+                    <AlertTriangle className="w-6 h-6 text-red-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-white">End Interview?</h3>
+                    <p className="text-sm text-gray-400">This action cannot be undone.</p>
+                  </div>
+                </div>
+                
+                <div className="bg-white/5 rounded-xl p-4 mb-6">
+                  <p className="text-gray-300 text-sm mb-3">
+                    Ending this interview will:
+                  </p>
+                  <ul className="space-y-2 text-sm text-gray-400">
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      Lock the leaderboard permanently
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      Issue certificates to top 3 winners
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      Send congratulation emails with certificates
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowEndModal(false)}
+                    className="flex-1 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 font-medium rounded-xl transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleEndInterview}
+                    disabled={endingInterview}
+                    className="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {endingInterview ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Processing...
+                      </>
+                    ) : (
+                      <>
+                        <StopCircle className="w-4 h-4" />
+                        End Interview
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {endResult.error ? (
+                  <div className="text-center py-4">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/10 flex items-center justify-center">
+                      <X className="w-8 h-8 text-red-400" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">Error</h3>
+                    <p className="text-red-400 text-sm mb-4">{endResult.error}</p>
+                    <button
+                      onClick={() => { setEndResult(null); setShowEndModal(false); }}
+                      className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all"
+                    >
+                      Close
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-center py-4">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/10 flex items-center justify-center">
+                      <CheckCircle className="w-8 h-8 text-green-400" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2">Interview Ended!</h3>
+                    <p className="text-gray-400 text-sm mb-4">{endResult.message}</p>
+                    
+                    {endResult.winners && endResult.winners.length > 0 && (
+                      <div className="bg-white/5 rounded-xl p-4 mb-4 text-left">
+                        <p className="text-sm text-gray-400 mb-3">🏆 Certificates Issued To:</p>
+                        <div className="space-y-2">
+                          {endResult.winners.map((w: any) => (
+                            <div key={w.rank} className="flex items-center justify-between text-sm">
+                              <span className="text-white">{w.rank}. {w.userName}</span>
+                              <span className="text-yellow-400">{w.score} pts</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    <button
+                      onClick={() => { setEndResult(null); setShowEndModal(false); }}
+                      className="px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all"
+                    >
+                      Done
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </motion.div>
+        </div>
+      )}
+
+      {/* Certificate Modal */}
+      {showCertificate && selectedWinner && (
+        <TopInterviewCertificate
+          userName={selectedWinner.userName}
+          interviewTitle={interview.title}
+          company={interview.company}
+          rank={selectedWinner.rank}
+          score={selectedWinner.score}
+          certificateId={selectedWinner.certificateId || `TI-${Date.now().toString(36).toUpperCase()}`}
+          issuedAt={selectedWinner.issuedAt || new Date().toISOString()}
+          isModal={true}
+          onClose={() => { setShowCertificate(false); setSelectedWinner(null); }}
+        />
+      )}
     </div>
   );
 }

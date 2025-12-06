@@ -57,12 +57,13 @@ export const authOptions: NextAuthOptions = {
           
           if (dbUser) {
             // Admin check using env variable
-            const adminEmails = process.env.ADMINS ? process.env.ADMINS.split(",") : [];
+            const adminEmails = process.env.ADMINS ? process.env.ADMINS.split(",").map(e => e.trim().toLowerCase()) : [];
+            const userEmail = dbUser.email.trim().toLowerCase();
             
             token.id = dbUser._id.toString();
             token.username = dbUser.username;
             token.email = dbUser.email;
-            token.isAdmin = adminEmails.includes(dbUser.email) || dbUser.isAdmin === true;
+            token.isAdmin = adminEmails.includes(userEmail) || dbUser.isAdmin === true;
             token.fullName = dbUser.fullName || user.name;
             
             // Create JWT token compatible with existing system
@@ -71,7 +72,7 @@ export const authOptions: NextAuthOptions = {
                 id: dbUser._id.toString(),
                 username: dbUser.username,
                 email: dbUser.email,
-                isAdmin: adminEmails.includes(dbUser.email) || dbUser.isAdmin === true,
+                isAdmin: adminEmails.includes(userEmail) || dbUser.isAdmin === true,
               },
               process.env.TOKEN_SECRET!,
               { expiresIn: "1d" }

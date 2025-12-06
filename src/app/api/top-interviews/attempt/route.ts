@@ -12,7 +12,40 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
   if (mongoose.connection.readyState === 0) await connect();
-  // Optionally: check if topInterviewId exists
+  
+  // Check if interview exists and get retry settings
+  const interview = await TopInterview.findById(topInterviewId);
+  if (!interview) {
+    return NextResponse.json({ error: "Interview not found" }, { status: 404 });
+  }
+
+  // Check if user has already attempted this interview
+  const existingAttempt = await TopInterviewAttempt.findOne({
+    topInterview: topInterviewId,
+    user: user
+  });
+
+  if (existingAttempt) {
+    // Check if retry is allowed
+    const canRetry = interview.allowRetryForAll || 
+      interview.retryAllowedUsers?.some((id: any) => id.toString() === user.toString());
+    
+    if (!canRetry) {
+      return NextResponse.json({ 
+        error: "You have already attempted this interview. Only one attempt is allowed.",
+        alreadyAttempted: true,
+        previousScore: existingAttempt.score
+      }, { status: 403 });
+    }
+    
+    // If retry is allowed, remove user from retryAllowedUsers (one-time retry)
+    if (!interview.allowRetryForAll) {
+      await TopInterview.findByIdAndUpdate(topInterviewId, {
+        $pull: { retryAllowedUsers: user }
+      });
+    }
+  }
+
   const attempt = await TopInterviewAttempt.create({
     topInterview: topInterviewId,
     user,

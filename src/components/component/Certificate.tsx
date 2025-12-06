@@ -21,42 +21,81 @@ interface CertificateProps {
   onClose?: () => void;
 }
 
-// Handwritten signature SVG component
-const SignatureSVG = () => (
+// Professional handwritten-style signature for "Ayush Tiwari"
+const AyushTiwariSignature = () => (
   <svg 
-    viewBox="0 0 200 60" 
-    className="w-36 h-12"
-    style={{ filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.1))' }}
+    viewBox="0 0 240 80" 
+    className="w-48 h-16"
+    style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.08))' }}
   >
     <defs>
-      <linearGradient id="signatureGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" style={{ stopColor: '#1e3a5f', stopOpacity: 1 }} />
-        <stop offset="100%" style={{ stopColor: '#2d5a87', stopOpacity: 1 }} />
+      <linearGradient id="sigGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" style={{ stopColor: '#1a365d', stopOpacity: 1 }} />
+        <stop offset="50%" style={{ stopColor: '#2c5282', stopOpacity: 1 }} />
+        <stop offset="100%" style={{ stopColor: '#1a365d', stopOpacity: 1 }} />
       </linearGradient>
     </defs>
-    {/* Stylized "Ayush Tiwari" signature path */}
+    
+    {/* "A" - Capital A with flourish */}
     <path 
-      d="M10 35 Q15 20 25 25 Q35 30 30 40 Q25 50 35 45 L45 35 
-         Q50 30 55 35 Q60 40 65 30 L70 25 Q75 22 80 28 Q85 35 82 40 
-         L90 25 Q95 20 100 30 Q102 35 105 30 
-         M115 25 Q120 22 125 28 L130 35 Q132 40 138 30 
-         Q142 25 148 30 Q155 35 158 28 
-         M165 30 Q170 25 175 32 Q180 38 185 30 Q188 25 192 35"
+      d="M12 55 L28 18 Q30 14 32 18 L48 55 M20 42 L40 42"
       fill="none"
-      stroke="url(#signatureGradient)"
-      strokeWidth="2.5"
+      stroke="url(#sigGradient)"
+      strokeWidth="2.8"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
-    {/* Underline flourish */}
+    
+    {/* "yush" - flowing lowercase */}
     <path 
-      d="M5 48 Q50 52 100 48 Q150 44 195 50"
+      d="M50 32 Q52 28 56 32 L54 50 Q52 58 48 62 
+         M58 30 Q64 28 66 34 L66 50 
+         M70 42 Q74 36 80 38 Q86 40 82 50 
+         M88 32 Q92 28 96 32 L96 50 Q100 50 104 46"
       fill="none"
-      stroke="url(#signatureGradient)"
-      strokeWidth="1.5"
+      stroke="url(#sigGradient)"
+      strokeWidth="2.2"
       strokeLinecap="round"
-      opacity="0.6"
+      strokeLinejoin="round"
     />
+    
+    {/* Space and "T" - Capital T */}
+    <path 
+      d="M120 18 L148 18 M134 18 L134 55"
+      fill="none"
+      stroke="url(#sigGradient)"
+      strokeWidth="2.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    
+    {/* "iwari" - flowing lowercase */}
+    <path 
+      d="M152 30 Q154 28 156 32 L156 50 
+         M152 26 Q154 24 156 26 
+         M162 32 Q168 26 174 32 Q180 38 176 50 Q172 58 166 54 
+         M182 36 Q186 30 192 32 L190 50 
+         M196 30 Q198 28 200 32 L200 50 
+         M196 26 Q198 24 200 26"
+      fill="none"
+      stroke="url(#sigGradient)"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    
+    {/* Decorative underline flourish */}
+    <path 
+      d="M8 62 Q60 68 120 62 Q180 56 232 64"
+      fill="none"
+      stroke="url(#sigGradient)"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      opacity="0.5"
+    />
+    
+    {/* Small decorative dot flourish */}
+    <circle cx="236" cy="64" r="2" fill="url(#sigGradient)" opacity="0.6" />
   </svg>
 );
 
@@ -96,114 +135,116 @@ export default function Certificate({
   const CertificateContent = () => (
     <div 
       ref={certRef} 
-      className="w-[800px] h-[600px] bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-lg shadow-2xl border-[3px] border-slate-800 flex flex-col items-center px-12 py-6 relative overflow-hidden"
+      className="w-[850px] h-[620px] bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-xl shadow-2xl border-4 border-slate-800 flex flex-col items-center px-14 py-8 relative overflow-hidden"
     >
       {/* Elegant Background Pattern */}
-      <div className="absolute inset-0 opacity-[0.03]">
+      <div className="absolute inset-0 opacity-[0.02]">
         <svg width="100%" height="100%" className="absolute inset-0">
-          <pattern id="elegantPattern" width="60" height="60" patternUnits="userSpaceOnUse">
-            <circle cx="30" cy="30" r="1" fill="#1e3a5f"/>
-            <path d="M0 30 L60 30 M30 0 L30 60" stroke="#1e3a5f" strokeWidth="0.5" opacity="0.5"/>
+          <pattern id="elegantPattern" width="50" height="50" patternUnits="userSpaceOnUse">
+            <circle cx="25" cy="25" r="1" fill="#1e3a5f"/>
+            <path d="M0 25 L50 25 M25 0 L25 50" stroke="#1e3a5f" strokeWidth="0.3" opacity="0.5"/>
           </pattern>
           <rect width="100%" height="100%" fill="url(#elegantPattern)" />
         </svg>
       </div>
 
-      {/* Double Border Frame */}
-      <div className="absolute inset-3 border-2 border-slate-300 rounded pointer-events-none" />
-      <div className="absolute inset-5 border border-slate-200 rounded pointer-events-none" />
+      {/* Golden corner decorations */}
+      <div className="absolute top-5 left-5 w-16 h-16 border-t-3 border-l-3 border-blue-600/50 rounded-tl-lg" />
+      <div className="absolute top-5 right-5 w-16 h-16 border-t-3 border-r-3 border-blue-600/50 rounded-tr-lg" />
+      <div className="absolute bottom-5 left-5 w-16 h-16 border-b-3 border-l-3 border-blue-600/50 rounded-bl-lg" />
+      <div className="absolute bottom-5 right-5 w-16 h-16 border-b-3 border-r-3 border-blue-600/50 rounded-br-lg" />
 
       {/* Top Header Bar */}
-      <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-slate-800 via-blue-700 to-slate-800" />
+      <div className="absolute top-0 left-0 right-0 h-3 bg-gradient-to-r from-slate-800 via-blue-700 to-slate-800" />
 
       {/* PrepSutra Logo/Header */}
-      <div className="relative z-10 flex flex-col items-center mt-6 mb-4">
-        <div className="flex items-center gap-3 mb-2">
+      <div className="relative z-10 flex flex-col items-center mt-4 mb-3">
+        <div className="flex items-center gap-4 mb-2">
           <img 
             src="/official_logo.png" 
             alt="PrepSutra Logo" 
-            className="w-12 h-12 rounded-full object-contain shadow-lg"
+            className="w-14 h-14 rounded-full object-contain shadow-lg border-2 border-slate-200"
           />
-          <span className="text-3xl font-bold tracking-wide text-slate-800">PrepSutra</span>
+          <span className="text-4xl font-bold tracking-wide text-slate-800">PrepSutra</span>
         </div>
-        <p className="text-xs text-slate-500 tracking-[0.3em] uppercase">www.prepsutra.tech</p>
+        <p className="text-xs text-slate-500 tracking-[0.4em] uppercase font-medium">www.prepsutra.tech</p>
       </div>
 
       {/* Certificate Title */}
-      <div className="relative z-10 flex flex-col items-center mb-4">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-[1px] bg-gradient-to-r from-transparent to-slate-400" />
-          <h1 className="text-2xl font-bold text-slate-700 tracking-[0.2em] uppercase">
+      <div className="relative z-10 flex flex-col items-center mb-5">
+        <div className="flex items-center gap-5">
+          <div className="w-20 h-[2px] bg-gradient-to-r from-transparent via-blue-600/60 to-transparent" />
+          <h1 className="text-2xl font-bold text-slate-800 tracking-[0.2em] uppercase">
             Certificate of Excellence
           </h1>
-          <div className="w-16 h-[1px] bg-gradient-to-l from-transparent to-slate-400" />
+          <div className="w-20 h-[2px] bg-gradient-to-r from-transparent via-blue-600/60 to-transparent" />
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center flex-1 justify-center -mt-2">
-        <p className="text-sm text-slate-600 mb-2 text-center">This is to certify that</p>
+      <div className="relative z-10 flex flex-col items-center flex-1 justify-center">
+        <p className="text-base text-slate-600 mb-3 text-center">This is to certify that</p>
         
-        <div className="text-3xl font-bold text-slate-900 mb-2 text-center relative px-8">
+        <div className="text-4xl font-bold text-slate-900 mb-3 text-center relative px-12">
           <span className="relative z-10">{displayName}</span>
-          <div className="absolute bottom-1 left-4 right-4 h-2 bg-gradient-to-r from-yellow-200/60 via-yellow-300/60 to-yellow-200/60 -z-0 rounded-full" />
+          <div className="absolute bottom-1 left-6 right-6 h-3 bg-gradient-to-r from-yellow-200/70 via-yellow-300/70 to-yellow-200/70 -z-0 rounded-full" />
         </div>
         
-        <p className="text-sm text-slate-600 mb-3 text-center">has successfully completed the certification for</p>
+        <p className="text-base text-slate-600 mb-4 text-center">has successfully completed the certification for</p>
         
-        <div className="text-xl font-bold text-blue-700 mb-4 text-center px-8 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200 shadow-sm">
+        <div className="text-2xl font-bold text-blue-700 mb-5 text-center px-10 py-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-xl border border-blue-200 shadow-sm">
           {displayTitle}
         </div>
 
         {/* Stats Row */}
-        <div className="flex flex-row items-center justify-center gap-8 bg-slate-50 px-8 py-3 rounded-lg border border-slate-200">
+        <div className="flex flex-row items-center justify-center gap-10 bg-slate-50/80 px-10 py-4 rounded-xl border border-slate-200 shadow-inner">
           <div className="flex flex-col items-center">
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">Date Issued</span>
-            <span className="text-sm font-semibold text-slate-800">{displayDate}</span>
+            <span className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold mb-1">Date Issued</span>
+            <span className="text-sm font-bold text-slate-800">{displayDate}</span>
           </div>
-          <div className="w-px h-8 bg-slate-300" />
+          <div className="w-px h-10 bg-slate-300" />
           <div className="flex flex-col items-center">
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">Score Achieved</span>
-            <span className="text-sm font-semibold text-blue-700">{displayScore}/100 ({displayPercentage}%)</span>
+            <span className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold mb-1">Score Achieved</span>
+            <span className="text-sm font-bold text-green-600">{displayScore}/100 ({displayPercentage}%)</span>
           </div>
-          <div className="w-px h-8 bg-slate-300" />
+          <div className="w-px h-10 bg-slate-300" />
           <div className="flex flex-col items-center">
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider font-medium">Certificate ID</span>
-            <span className="text-xs font-mono font-semibold text-slate-700">{certificateId}</span>
+            <span className="text-[11px] text-slate-500 uppercase tracking-wider font-semibold mb-1">Certificate ID</span>
+            <span className="text-sm font-mono font-bold text-slate-700">{certificateId}</span>
           </div>
         </div>
       </div>
 
       {/* Bottom Section: Signature & Seal */}
-      <div className="absolute bottom-8 left-12 right-12 flex items-end justify-between">
+      <div className="absolute bottom-12 left-14 right-14 flex items-end justify-between">
         {/* Decorative Seal */}
         <div className="flex flex-col items-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 flex items-center justify-center shadow-lg border-2 border-white relative">
-            <div className="absolute inset-1 rounded-full border border-dashed border-white/40" />
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 flex items-center justify-center shadow-xl border-3 border-white relative">
+            <div className="absolute inset-1.5 rounded-full border-2 border-dashed border-white/40" />
             <div className="flex flex-col items-center">
-              <Award className="w-6 h-6 text-yellow-300" />
-              <span className="text-[6px] text-white/90 font-semibold mt-0.5">VERIFIED</span>
+              <Award className="w-7 h-7 text-yellow-300" />
+              <span className="text-[7px] text-white/90 font-bold mt-0.5 tracking-wider">VERIFIED</span>
             </div>
           </div>
-          <span className="text-[10px] text-blue-700 mt-2 font-bold tracking-[0.15em]">PREPSUTRA</span>
+          <span className="text-[11px] text-blue-700 mt-2 font-bold tracking-[0.2em]">PREPSUTRA</span>
         </div>
 
         {/* Footer Text */}
         <div className="flex flex-col items-center absolute left-1/2 -translate-x-1/2 bottom-0">
-          <p className="text-[10px] text-slate-500 tracking-wider italic">Master the Art of Development</p>
+          <p className="text-[11px] text-slate-500 tracking-widest italic font-medium">Master the Art of Development</p>
         </div>
 
         {/* Signature */}
         <div className="flex flex-col items-center">
-          <SignatureSVG />
-          <div className="w-32 h-[1px] bg-slate-400 mt-1 mb-1" />
-          <span className="text-xs text-slate-700 font-medium">Ayush Tiwari</span>
-          <span className="text-[10px] text-slate-500">Founder & Director</span>
+          <AyushTiwariSignature />
+          <div className="w-40 h-[2px] bg-gradient-to-r from-transparent via-slate-400 to-transparent mt-1 mb-2" />
+          <span className="text-sm text-slate-800 font-bold">Ayush Tiwari</span>
+          <span className="text-[11px] text-slate-500 font-medium">Founder & Director</span>
         </div>
       </div>
 
       {/* Bottom Border Bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-2 bg-gradient-to-r from-slate-800 via-blue-700 to-slate-800" />
+      <div className="absolute bottom-0 left-0 right-0 h-3 bg-gradient-to-r from-slate-800 via-blue-700 to-slate-800" />
     </div>
   );
 

@@ -20,7 +20,8 @@ export default function CreateTopInterviewPage() {
   const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
 
-  if (user === null) {
+  // undefined = still loading
+  if (user === undefined) {
     return (
       <AdminLayout>
         <div className="min-h-[60vh] flex items-center justify-center">
@@ -33,7 +34,8 @@ export default function CreateTopInterviewPage() {
     );
   }
 
-  if (!user || (!user.isAdmin && user.role !== "admin")) {
+  // null = not logged in, or user without admin access
+  if (!user || !user.isAdmin) {
     return (
       <AdminLayout>
         <div className="min-h-[60vh] flex items-center justify-center">

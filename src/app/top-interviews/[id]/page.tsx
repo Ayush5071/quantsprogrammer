@@ -26,6 +26,18 @@ export default function AttemptTopInterviewPage() {
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // Attempt eligibility state
+  const [attemptStatus, setAttemptStatus] = useState<{
+    canAttempt: boolean;
+    hasAttempted: boolean;
+    previousScore?: number;
+    previousAttemptDate?: string;
+    reason?: string;
+    message?: string;
+    retryAllowed?: boolean;
+    loading: boolean;
+  }>({ canAttempt: true, hasAttempted: false, loading: true });
 
   // SpeechRecognition hook
   const {
@@ -38,6 +50,50 @@ export default function AttemptTopInterviewPage() {
   // Mobile/iOS STT support check
   const isIOS = typeof window !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isAndroid = typeof window !== 'undefined' && /Android/.test(navigator.userAgent);
+  const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  // Manual mic control for mobile
+  const [micEnabled, setMicEnabled] = useState(false);
+  
+  // Start speech recognition with mobile-friendly settings
+  const startSpeechRecognition = () => {
+    if (!browserSupportsSpeechRecognition || isIOS) return;
+    
+    if (isMobile) {
+      SpeechRecognition.startListening({ 
+        continuous: false, 
+        language: 'en-US' 
+      });
+    } else {
+      SpeechRecognition.startListening({ 
+        continuous: true, 
+        language: 'en-US' 
+      });
+    }
+  };
+  
+  // Handle mobile mic button toggle
+  const toggleMic = () => {
+    if (listening) {
+      SpeechRecognition.stopListening();
+      setMicEnabled(false);
+    } else {
+      startSpeechRecognition();
+      setMicEnabled(true);
+    }
+  };
+  
+  // Auto-restart listening on mobile when speech ends
+  useEffect(() => {
+    if (isMobile && micEnabled && !listening && !isIOS && step === 1) {
+      const timer = setTimeout(() => {
+        if (micEnabled) {
+          startSpeechRecognition();
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [listening, micEnabled, isMobile, isIOS, step]);
 
   // Text-to-Speech: Speak the question when it appears
   const speakQuestion = (text: string) => {
@@ -92,12 +148,41 @@ export default function AttemptTopInterviewPage() {
       .finally(() => setLoading(false));
   }, [params]);
 
+  // Check if user can attempt this interview
+  useEffect(() => {
+    if (!params?.id || !user?._id) {
+      setAttemptStatus(prev => ({ ...prev, loading: false }));
+      return;
+    }
+    
+    fetch(`/api/top-interviews/can-attempt?interviewId=${params.id}&userId=${user._id}`)
+      .then(res => res.json())
+      .then(data => {
+        setAttemptStatus({
+          canAttempt: data.canAttempt ?? true,
+          hasAttempted: data.hasAttempted ?? false,
+          previousScore: data.previousScore,
+          previousAttemptDate: data.previousAttemptDate,
+          reason: data.reason,
+          message: data.message,
+          retryAllowed: data.retryAllowed,
+          loading: false
+        });
+      })
+      .catch(() => {
+        setAttemptStatus(prev => ({ ...prev, loading: false }));
+      });
+  }, [params?.id, user?._id]);
+
   useEffect(() => {
     if (interview && step === 1) {
       stopTTS();
       speakQuestion(interview.questions[currentQuestion]);
       resetTranscript();
-      SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+      // On desktop, auto-start. On mobile, user taps mic button
+      if (!isMobile) {
+        startSpeechRecognition();
+      }
     }
     // eslint-disable-next-line
   }, [currentQuestion, step, interview, ttsEnabled]);
@@ -444,14 +529,103 @@ export default function AttemptTopInterviewPage() {
               </div>
             </div>
 
-            {/* Start button */}
-            <button
-              onClick={() => setStep(1)}
-              className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-lg font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
-            >
-              Start Interview
-              <ChevronRight className="w-5 h-5" />
-            </button>
+            {/* Already Attempted Notice */}
+            {!attemptStatus.loading && attemptStatus.hasAttempted && !attemptStatus.canAttempt && (
+              <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-5 mb-6">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle className="w-5 h-5 text-red-400" />
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-red-400 font-semibold mb-1">Already Attempted</h4>
+                    <p className="text-red-300/80 text-sm mb-3">
+                      You have already completed this interview. Only one attempt is allowed per interview.
+                    </p>
+                    <div className="bg-white/5 rounded-lg p-3 inline-block">
+                      <div className="flex items-center gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-500">Previous Score:</span>
+                          <span className="text-white font-semibold ml-2">{attemptStatus.previousScore}/100</span>
+                        </div>
+                        {attemptStatus.previousAttemptDate && (
+                          <div>
+                            <span className="text-gray-500">Attempted:</span>
+                            <span className="text-gray-300 ml-2">
+                              {new Date(attemptStatus.previousAttemptDate).toLocaleDateString('en-US', {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Retry Allowed Notice */}
+            {!attemptStatus.loading && attemptStatus.hasAttempted && attemptStatus.canAttempt && attemptStatus.retryAllowed && (
+              <div className="bg-green-500/10 border border-green-500/20 rounded-xl p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-green-400 font-medium mb-1">Retry Allowed</h4>
+                    <p className="text-green-300/80 text-sm">
+                      An admin has allowed you to retry this interview. Your previous score was {attemptStatus.previousScore}/100.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Interview Ended Notice */}
+            {interview.isEnded && (
+              <div className="bg-gray-500/10 border border-gray-500/20 rounded-xl p-4 mb-6">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-5 h-5 text-gray-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-gray-400 font-medium mb-1">Interview Ended</h4>
+                    <p className="text-gray-400/80 text-sm">
+                      This interview competition has ended and is no longer accepting new submissions.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Start button or disabled state */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              {attemptStatus.loading ? (
+                <div className="flex-1 py-4 bg-white/10 text-gray-400 text-lg font-semibold rounded-xl flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+                  Checking eligibility...
+                </div>
+              ) : attemptStatus.canAttempt && !interview.isEnded ? (
+                <button
+                  onClick={() => setStep(1)}
+                  className="flex-1 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-lg font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+                >
+                  {attemptStatus.hasAttempted ? 'Retry Interview' : 'Start Interview'}
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              ) : (
+                <div className="flex-1 py-4 bg-gray-500/20 text-gray-500 text-lg font-semibold rounded-xl flex items-center justify-center gap-2 cursor-not-allowed">
+                  {interview.isEnded ? 'Interview Ended' : 'Already Attempted'}
+                </div>
+              )}
+              <button
+                onClick={() => router.push(`/top-interviews/${params?.id}/leaderboard`)}
+                className="py-4 px-6 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 hover:from-yellow-500/20 hover:to-amber-500/20 border border-yellow-500/30 text-yellow-400 hover:text-yellow-300 text-lg font-semibold rounded-xl transition-all flex items-center justify-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <span className="hidden sm:inline">Leaderboard</span>
+              </button>
+            </div>
           </div>
         </main>
       </div>
@@ -631,18 +805,44 @@ export default function AttemptTopInterviewPage() {
                   />
                 </div>
 
-                {/* Speech-to-text indicator */}
+                {/* Speech-to-text indicator with mobile mic toggle */}
                 <div className="flex items-center gap-2 mb-4 p-3 bg-white/5 rounded-lg border border-white/5">
                   <div className={`w-3 h-3 rounded-full ${listening ? 'bg-green-400 animate-pulse' : 'bg-gray-500'}`} />
                   <span className="text-sm text-gray-400">
-                    {listening ? 'Listening...' : 'Speech recognition paused'}
+                    {listening ? 'Listening...' : (isMobile ? 'Tap mic to speak' : 'Speech recognition paused')}
                   </span>
                   {transcript && (
                     <span className="ml-auto text-xs text-gray-500 truncate max-w-[150px]">
                       "{transcript.slice(-50)}..."
                     </span>
                   )}
+                  {/* Mobile Mic Toggle Button */}
+                  {isMobile && !isIOS && browserSupportsSpeechRecognition && (
+                    <button
+                      onClick={toggleMic}
+                      className={`ml-auto p-2 rounded-lg border transition-all ${
+                        listening 
+                          ? 'bg-red-500/20 border-red-500/30 text-red-400 animate-pulse' 
+                          : 'bg-green-500/20 border-green-500/30 text-green-400'
+                      }`}
+                      title={listening ? 'Stop Listening' : 'Start Listening'}
+                      type="button"
+                    >
+                      {listening ? (
+                        <MicOff className="w-5 h-5" />
+                      ) : (
+                        <Mic className="w-5 h-5" />
+                      )}
+                    </button>
+                  )}
                 </div>
+                
+                {/* Mobile mic info */}
+                {isMobile && !isIOS && browserSupportsSpeechRecognition && (
+                  <div className="mb-4 p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-400 text-xs text-center">
+                    📱 Tap the microphone button to start/stop voice input
+                  </div>
+                )}
 
                 {/* Action buttons */}
                 <div className="flex flex-wrap gap-2">
@@ -711,13 +911,33 @@ export default function AttemptTopInterviewPage() {
                   <p className="text-gray-300 whitespace-pre-line text-sm">{feedback}</p>
                 </div>
 
-                <button
-                  onClick={() => router.push("/top-interviews")}
-                  className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to Top Interviews
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <button
+                    onClick={() => router.push('/')}
+                    className="flex-1 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Home
+                  </button>
+                  <button
+                    onClick={() => router.push(`/top-interviews/${params?.id}/leaderboard`)}
+                    className="flex-1 py-3 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 hover:from-yellow-500/20 hover:to-amber-500/20 border border-yellow-500/30 text-yellow-400 hover:text-yellow-300 rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                    </svg>
+                    Leaderboard
+                  </button>
+                  <button
+                    onClick={() => router.push("/top-interviews")}
+                    className="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl font-medium transition-all flex items-center justify-center gap-2"
+                  >
+                    <ArrowLeft className="w-4 h-4" />
+                    More Interviews
+                  </button>
+                </div>
               </div>
             )}
           </div>

@@ -19,7 +19,13 @@ export async function POST(req: NextRequest) {
   const adminUser = await User.findById(tokenUserId).lean();
   // If adminUser is an array, get the first element
   const admin = Array.isArray(adminUser) ? adminUser[0] : adminUser;
-  if (!admin || !admin.isAdmin) {
+  
+  // Check admin via env variable or database flag
+  const adminEmails = process.env.ADMINS ? process.env.ADMINS.split(",").map(e => e.trim().toLowerCase()) : [];
+  const userEmail = (admin as any)?.email?.trim().toLowerCase() || "";
+  const isAdmin = adminEmails.includes(userEmail) || (admin as any)?.isAdmin === true;
+  
+  if (!admin || !isAdmin) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
   const body = await req.json();

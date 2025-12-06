@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { FaTachometerAlt, FaMap, FaListAlt, FaBlog, FaUserShield, FaUsers, FaPenFancy, FaClipboardList } from "react-icons/fa";
+import { FaTachometerAlt, FaMap, FaListAlt, FaBlog, FaUserShield, FaUsers, FaPenFancy, FaClipboardList, FaTrophy } from "react-icons/fa";
 
 const adminLinks = [
   { label: "Dashboard", href: "/admin/admin-panel", icon: <FaTachometerAlt /> },
@@ -10,6 +10,7 @@ const adminLinks = [
   { label: "Blog Requests", href: "/admin/blog-requests", icon: <FaPenFancy /> },
   { label: "Manage Blogs", href: "/admin/admin-panel/blogs", icon: <FaBlog /> },
   { label: "Top Interview Create", href: "/admin/top-interview-create", icon: <FaClipboardList /> },
+  { label: "Manage Top Interviews", href: "/admin/top-interviews", icon: <FaTrophy /> },
   { label: "User Management", href: "/admin/admin-panel/users", icon: <FaUsers /> },
 ];
 

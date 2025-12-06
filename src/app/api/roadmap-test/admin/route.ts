@@ -16,7 +16,11 @@ export async function POST(request: NextRequest) {
 
     // Check if requester is admin
     const admin = await User.findById(adminId);
-    if (!admin?.isAdmin) {
+    const adminEmails = process.env.ADMINS ? process.env.ADMINS.split(",").map(e => e.trim().toLowerCase()) : [];
+    const userEmail = admin?.email?.trim().toLowerCase() || "";
+    const isAdmin = adminEmails.includes(userEmail) || admin?.isAdmin === true;
+    
+    if (!isAdmin) {
       return NextResponse.json({ error: "Admin access required" }, { status: 403 });
     }
 
@@ -71,7 +75,11 @@ export async function GET(request: NextRequest) {
 
     // Check if requester is admin
     const admin = await User.findById(adminId);
-    if (!admin?.isAdmin) {
+    const adminEmails = process.env.ADMINS ? process.env.ADMINS.split(",").map(e => e.trim().toLowerCase()) : [];
+    const userEmail = admin?.email?.trim().toLowerCase() || "";
+    const isAdmin = adminEmails.includes(userEmail) || admin?.isAdmin === true;
+    
+    if (!isAdmin) {
       return NextResponse.json({ error: "Admin access required" }, { status: 403 });
     }
 

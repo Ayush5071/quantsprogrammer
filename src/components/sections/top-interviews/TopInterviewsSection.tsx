@@ -85,15 +85,26 @@ export default function TopInterviewsSection() {
                 Start Interview
               </Link>
               <button
-                className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white text-sm rounded-lg transition-all"
+                className="px-3 py-2 bg-gradient-to-r from-yellow-500/10 to-amber-500/10 hover:from-yellow-500/20 hover:to-amber-500/20 border border-yellow-500/30 text-yellow-400 hover:text-yellow-300 text-sm rounded-lg transition-all flex items-center gap-1.5"
                 onClick={() => router.push(`/top-interviews/${interview._id}/leaderboard`)}
                 title="View Leaderboard"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                 </svg>
+                <span className="hidden sm:inline">Leaderboard</span>
               </button>
             </div>
+
+            {/* Interview Status Badge */}
+            {interview.isEnded && (
+              <div className="mt-3 flex items-center justify-center gap-1.5 text-xs text-red-400 bg-red-500/10 px-2 py-1.5 rounded-lg border border-red-500/20">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 001 1h4a1 1 0 001-1V8a1 1 0 00-1-1H8z" clipRule="evenodd" />
+                </svg>
+                Competition Ended
+              </div>
+            )}
           </div>
         ))}
       </div>

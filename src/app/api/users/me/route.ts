@@ -23,8 +23,14 @@ export async function GET(request: NextRequest) {
                 { status: 400 }
             );
         }
+        
+        // Dynamic admin check using env variable
+        const adminEmails = process.env.ADMINS ? process.env.ADMINS.split(",").map(e => e.trim().toLowerCase()) : [];
+        const userEmail = (user as any).email?.trim().toLowerCase() || "";
+        const isAdmin = adminEmails.includes(userEmail) || (user as any).isAdmin === true;
+        
         return NextResponse.json(
-            { message: "User Found", user },
+            { message: "User Found", user: { ...user, isAdmin } },
             { status: 200 }
         );
     } catch (error: any) {

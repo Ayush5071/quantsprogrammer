@@ -131,6 +131,52 @@ export default function InterviewDashboard() {
   // Mobile/iOS STT support check
   const isIOS = typeof window !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isAndroid = typeof window !== 'undefined' && /Android/.test(navigator.userAgent);
+  const isMobile = typeof window !== 'undefined' && /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
+  // Manual mic control for mobile
+  const [micEnabled, setMicEnabled] = useState(false);
+  
+  // Start speech recognition with mobile-friendly settings
+  const startSpeechRecognition = () => {
+    if (!browserSupportsSpeechRecognition || isIOS) return;
+    
+    // On mobile, use non-continuous mode and restart manually
+    if (isMobile) {
+      SpeechRecognition.startListening({ 
+        continuous: false, 
+        language: 'en-US' 
+      });
+    } else {
+      SpeechRecognition.startListening({ 
+        continuous: true, 
+        language: 'en-US' 
+      });
+    }
+  };
+  
+  // Handle mobile mic button toggle
+  const toggleMic = () => {
+    if (listening) {
+      SpeechRecognition.stopListening();
+      setMicEnabled(false);
+    } else {
+      startSpeechRecognition();
+      setMicEnabled(true);
+    }
+  };
+  
+  // Auto-restart listening on mobile when speech ends (for continuous experience)
+  useEffect(() => {
+    if (isMobile && micEnabled && !listening && !isIOS && step !== 0 && step !== 3 && step !== 4) {
+      // Small delay before restarting to prevent rapid restarts
+      const timer = setTimeout(() => {
+        if (micEnabled) {
+          startSpeechRecognition();
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [listening, micEnabled, isMobile, isIOS, step]);
 
   // Text-to-Speech: Speak the question when it appears
   const speakQuestion = (text: string) => {
@@ -193,9 +239,13 @@ export default function InterviewDashboard() {
     setLoading(false);
     resetTranscript();
     setTextAnswer(''); // Clear both inputs
-    // Start speech recognition automatically if supported
-    if (browserSupportsSpeechRecognition && !isIOS) {
-      SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+    // Start speech recognition automatically if supported (desktop only)
+    if (browserSupportsSpeechRecognition && !isIOS && !isMobile) {
+      startSpeechRecognition();
+    }
+    // On mobile, user needs to tap the mic button to start
+    if (isMobile && !isIOS) {
+      setMicEnabled(false); // User will enable manually
     }
   };
 
@@ -227,12 +277,18 @@ export default function InterviewDashboard() {
       resetTranscript();
       setTextAnswer(''); // Clear both speech and text for next question
       if (browserSupportsSpeechRecognition && !isIOS) {
-        SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+        if (isMobile) {
+          // On mobile, keep mic enabled state but restart recognition
+          if (micEnabled) startSpeechRecognition();
+        } else {
+          startSpeechRecognition();
+        }
       }
     } else {
       // On last question, after saving answer, show submit button
       setStep(3); // Interview finished, show submit button
       SpeechRecognition.stopListening();
+      setMicEnabled(false);
     }
   };
 
@@ -248,11 +304,16 @@ export default function InterviewDashboard() {
       resetTranscript();
       setTextAnswer(''); // Clear both speech and text for next question
       if (browserSupportsSpeechRecognition && !isIOS) {
-        SpeechRecognition.startListening({ continuous: true, language: 'en-US' });
+        if (isMobile) {
+          if (micEnabled) startSpeechRecognition();
+        } else {
+          startSpeechRecognition();
+        }
       }
     } else {
       setStep(3); // Interview finished
       SpeechRecognition.stopListening();
+      setMicEnabled(false);
     }
   };
 
@@ -299,6 +360,7 @@ export default function InterviewDashboard() {
     setAnswers([]);
     resetTranscript();
     setTextAnswer(''); // Clear both speech and text
+    setMicEnabled(false); // Reset mic state
     SpeechRecognition.stopListening();
     if (mediaStream) {
       mediaStream.getTracks().forEach(track => track.stop());
@@ -468,17 +530,47 @@ export default function InterviewDashboard() {
               </div>
             )}
             
+            {/* Mobile Mic Info */}
+            {step !== 0 && isMobile && !isIOS && browserSupportsSpeechRecognition && (
+              <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-xs">
+                📱 Tap the microphone button below to start/stop voice input on mobile.
+              </div>
+            )}
+            
             {/* Both Input Methods Available Simultaneously */}
             {step !== 0 && (
               <div className="space-y-3">
-                {/* Speech-to-Text Display */}
+                {/* Speech-to-Text Display with Mic Toggle for Mobile */}
                 {!speechNotSupported && (
                   <div>
-                    <label className="block text-xs font-medium text-gray-400 mb-1.5">
-                      🎤 Speech Recognition {listening ? '(Listening...)' : '(Ready)'}
-                    </label>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-xs font-medium text-gray-400">
+                        🎤 Speech Recognition {listening ? '(Listening...)' : '(Ready)'}
+                      </label>
+                      {/* Mobile Mic Toggle Button */}
+                      {isMobile && (
+                        <button
+                          onClick={toggleMic}
+                          className={`p-2 rounded-lg border transition-all ${
+                            listening 
+                              ? 'bg-red-500/20 border-red-500/30 text-red-400 animate-pulse' 
+                              : 'bg-green-500/20 border-green-500/30 text-green-400'
+                          }`}
+                          title={listening ? 'Stop Listening' : 'Start Listening'}
+                          type="button"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            {listening ? (
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                            ) : (
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            )}
+                          </svg>
+                        </button>
+                      )}
+                    </div>
                     <div className={`w-full p-3 bg-[#0a0a0f] rounded-lg border text-gray-300 text-sm min-h-[50px] ${listening ? 'border-blue-500/50 ring-1 ring-blue-500/30' : 'border-white/5'}`}>
-                      {transcript ? transcript : <span className="text-gray-600">Say something and it will appear here...</span>}
+                      {transcript ? transcript : <span className="text-gray-600">{isMobile ? 'Tap the mic button and speak...' : 'Say something and it will appear here...'}</span>}
                     </div>
                   </div>
                 )}

@@ -50,12 +50,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Admin check using env variable
-    const adminEmails = process.env.ADMINS ? process.env.ADMINS.split(",") : [];
+    const adminEmails = process.env.ADMINS ? process.env.ADMINS.split(",").map(e => e.trim().toLowerCase()) : [];
+    const userEmail = user.email.trim().toLowerCase();
     const tokenData = {
       id: user._id,
       username: user.username,
       email: user.email,
-      isAdmin: adminEmails.includes(user.email) || user.isAdmin === true,
+      isAdmin: adminEmails.includes(userEmail) || user.isAdmin === true,
     };
 
     const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: "1d" });

@@ -95,6 +95,13 @@ function RoadmapTestContent() {
   // Profile popup state
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [profileMissing, setProfileMissing] = useState<string[]>([]);
+  
+  // Fullscreen and tab switch detection
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [showTabWarning, setShowTabWarning] = useState(false);
+  const [triggerAutoSubmit, setTriggerAutoSubmit] = useState(false);
+  const MAX_TAB_SWITCHES = 3;
 
   // Check eligibility
   useEffect(() => {
@@ -171,6 +178,77 @@ function RoadmapTestContent() {
     setLoading(false);
   };
 
+  // Enter fullscreen when test starts
+  const enterFullscreen = useCallback(async () => {
+    try {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        await elem.requestFullscreen();
+      } else if ((elem as any).webkitRequestFullscreen) {
+        await (elem as any).webkitRequestFullscreen();
+      } else if ((elem as any).msRequestFullscreen) {
+        await (elem as any).msRequestFullscreen();
+      }
+      setIsFullscreen(true);
+    } catch (err) {
+      console.log('Fullscreen not supported or denied');
+    }
+  }, []);
+
+  // Exit fullscreen
+  const exitFullscreen = useCallback(() => {
+    try {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as any).webkitExitFullscreen) {
+        (document as any).webkitExitFullscreen();
+      } else if ((document as any).msExitFullscreen) {
+        (document as any).msExitFullscreen();
+      }
+      setIsFullscreen(false);
+    } catch (err) {
+      console.log('Exit fullscreen failed');
+    }
+  }, []);
+
+  // Listen for fullscreen changes
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+    };
+  }, []);
+
+  // Tab switch / visibility detection
+  useEffect(() => {
+    if (!started || result) return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setTabSwitchCount((prev) => {
+          const newCount = prev + 1;
+          if (newCount >= MAX_TAB_SWITCHES) {
+            // Set flag to trigger auto-submit
+            toast.error('Test auto-submitted due to multiple tab switches!');
+            setTriggerAutoSubmit(true);
+          } else {
+            setShowTabWarning(true);
+            toast.error(`Warning ${newCount}/${MAX_TAB_SWITCHES}: Tab switching detected! Test will be auto-submitted after ${MAX_TAB_SWITCHES} switches.`);
+          }
+          return newCount;
+        });
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [started, result]);
+
   // Timer
   useEffect(() => {
     if (!started || result) return;
@@ -240,6 +318,53 @@ function RoadmapTestContent() {
   };
 
   // Submit test
+  // Force submit test (for auto-submit on tab switches - no confirmation)
+  const forceSubmitTest = async () => {
+    if (!test || submitting) return;
+
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/roadmap-test/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          testId: test._id,
+          roadmapId: test.roadmapId,
+          mcqAnswers,
+          shortAnswers,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to submit test");
+      }
+
+      setResult(data.result);
+      setCertification(data.certification);
+      toast.success("Test submitted! Redirecting to profile...");
+      
+      // Exit fullscreen
+      exitFullscreen();
+      
+      // Redirect to profile after a short delay
+      setTimeout(() => {
+        router.push("/profile");
+      }, 1500);
+    } catch (err: any) {
+      toast.error(err.message);
+      setSubmitting(false);
+    }
+  };
+
+  // Effect to trigger auto-submit when tab switch limit is reached
+  useEffect(() => {
+    if (triggerAutoSubmit && test && !submitting) {
+      forceSubmitTest();
+    }
+  }, [triggerAutoSubmit, test, submitting]);
+
   const handleSubmit = async () => {
     if (!test || submitting) return;
 
@@ -279,12 +404,16 @@ function RoadmapTestContent() {
       toast.error(err.message);
     }
     setSubmitting(false);
+    // Exit fullscreen after submit
+    exitFullscreen();
   };
 
   // Start test
   const handleStart = async () => {
     await fetchTest();
     setStarted(true);
+    // Enter fullscreen mode
+    enterFullscreen();
   };
 
   // Loading state
@@ -665,6 +794,18 @@ function RoadmapTestContent() {
                     </div>
                   </div>
                 </div>
+
+                <div className="flex items-start gap-3 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                  <div className="w-6 h-6 bg-amber-500/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-amber-400 text-sm font-bold">!</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">Fullscreen & Tab Monitoring</div>
+                    <div className="text-gray-400 text-sm">
+                      The test will enter <span className="text-amber-400 font-semibold">fullscreen mode</span>. If you switch tabs or leave the test page <span className="text-red-400 font-semibold">3 times</span>, your test will be <span className="text-red-400 font-semibold">automatically submitted</span>. Stay focused!
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -740,6 +881,45 @@ function RoadmapTestContent() {
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
+      {/* Tab Switch Warning Modal */}
+      <AnimatePresence>
+        {showTabWarning && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-md w-full p-8 bg-[#111118] border border-red-500/30 rounded-2xl"
+            >
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 mx-auto mb-4 bg-red-500/10 rounded-full flex items-center justify-center">
+                  <AlertCircle className="w-8 h-8 text-red-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">⚠️ Tab Switch Detected!</h3>
+                <p className="text-gray-400 text-sm">
+                  You switched away from the test. This is warning <span className="text-red-400 font-bold">{tabSwitchCount}/{MAX_TAB_SWITCHES}</span>.
+                </p>
+                <p className="text-red-400 text-sm mt-2 font-medium">
+                  The test will be automatically submitted after {MAX_TAB_SWITCHES} tab switches!
+                </p>
+              </div>
+
+              <button
+                onClick={() => setShowTabWarning(false)}
+                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold rounded-xl hover:from-blue-500 hover:to-indigo-500 transition-all"
+              >
+                I Understand, Continue Test
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Fixed Header with Timer */}
       <header className="sticky top-0 z-50 bg-[#0a0a0f]/95 backdrop-blur-xl border-b border-white/5">
         <div className="max-w-6xl mx-auto px-4 py-4">
@@ -749,6 +929,13 @@ function RoadmapTestContent() {
                 {currentSection === "mcq" ? "MCQ" : "Short Answer"} - Q{currentQuestion + 1}/
                 {currentQuestions.length}
               </span>
+              {/* Tab switch warning indicator */}
+              {tabSwitchCount > 0 && (
+                <span className="flex items-center gap-1 px-2 py-1 bg-red-500/20 text-red-400 text-xs rounded-lg">
+                  <AlertCircle className="w-3 h-3" />
+                  Warnings: {tabSwitchCount}/{MAX_TAB_SWITCHES}
+                </span>
+              )}
             </div>
 
             <div

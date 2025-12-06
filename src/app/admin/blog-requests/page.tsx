@@ -28,8 +28,11 @@ export default function BlogRequestsAdmin() {
   const user = useCurrentUser();
 
   useEffect(() => {
-    if (user === null) return;
-    if (user === false || (!user?.isAdmin && user?.role !== "admin")) {
+    // undefined = still loading, wait
+    if (user === undefined) return;
+    
+    // null = not logged in or user loaded without admin
+    if (user === null || !user?.isAdmin) {
       setError("Access denied. Admin privileges required.");
       setLoading(false);
       return;
@@ -37,7 +40,7 @@ export default function BlogRequestsAdmin() {
   }, [user]);
 
   useEffect(() => {
-    if (user && (user.isAdmin || user.role === "admin")) {
+    if (user && user.isAdmin) {
       const fetchRequests = async () => {
         try {
           const res = await axios.get("/api/blogs/request/admin");
