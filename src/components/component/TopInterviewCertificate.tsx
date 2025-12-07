@@ -196,7 +196,7 @@ export default function TopInterviewCertificate({
         </div>
         
         <p className="text-sm text-slate-600 mb-3 text-center">
-          has achieved <span className="font-bold text-yellow-600">{getRankTitle()}</span> in the Top Interview Challenge
+          has achieved <span className="font-bold text-yellow-600">{getRankTitle()}</span> in the Coding Arena Challenge
         </p>
         
         <div className="text-xl font-bold text-blue-700 mb-4 text-center px-8 py-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-xl border border-blue-200 shadow-sm">

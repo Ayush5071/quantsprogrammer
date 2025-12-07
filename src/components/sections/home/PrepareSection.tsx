@@ -66,7 +66,7 @@ export default function PrepareSection() {
                 onClick={() => router.push("/top-interviews")}
                 className="px-6 py-3 bg-white/5 text-white font-medium rounded-lg border border-white/10 hover:bg-white/10 transition-all"
               >
-                Top Interviews
+                Coding Arena
               </button>
             </motion.div>
           </div>

@@ -212,14 +212,20 @@ export default function Home() {
     { name: "Blogs", link: "/blogs" },
     { name: "Roadmaps", link: "/explore" },
     { name: "Company Problems", link: "/company-problems" },
-    { name: "Resume Builder", link: "/resume-builder" },
+    {
+      name: "Resume",
+      dropdown: [
+        { name: "Resume Builder", link: "/resume-builder" },
+        { name: "AI Resume Screening", link: "/resume-screening" },
+      ],
+    },
     {
       name: "Interview",
       dropdown: [
         { name: "Mock Interview", link: "/interview" },
         { name: "Prepare for Interviews", link: "/prepare-interviews" },
-        { name: "Top Interviews", link: "/top-interviews" },
-        { name: "Interview History", link: "/top-interview-history" },
+        { name: "Coding Arena", link: "/top-interviews" },
+        { name: "Contest History", link: "/top-interview-history" },
         { name: "Compensation Data", link: "/placement-data" },
       ],
     },

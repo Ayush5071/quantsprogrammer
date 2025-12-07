@@ -75,6 +75,13 @@ const userSchema = new Schema({
             paymentId: { type: String },
             paymentRequestId: { type: String },
             amount: { type: Number },
+        },
+        resumeScreeningPremium: {
+            purchased: { type: Boolean, default: false },
+            purchasedAt: { type: Date },
+            paymentId: { type: String },
+            paymentRequestId: { type: String },
+            amount: { type: Number },
         }
     },
 });

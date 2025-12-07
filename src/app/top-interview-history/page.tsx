@@ -52,8 +52,8 @@ export default function TopInterviewHistoryPage() {
               <span className="hidden sm:inline text-sm">Back</span>
             </button>
             <div className="flex-1">
-              <h1 className="text-xl sm:text-2xl font-bold text-white">Top Interview History</h1>
-              <p className="text-gray-500 text-sm hidden sm:block">View all your past top interview attempts</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-white">Coding Arena History</h1>
+              <p className="text-gray-500 text-sm hidden sm:block">View all your past coding arena attempts</p>
             </div>
           </div>
         </div>
@@ -75,12 +75,12 @@ export default function TopInterviewHistoryPage() {
               </svg>
             </div>
             <h3 className="text-lg font-medium text-white mb-2">No attempts yet</h3>
-            <p className="text-gray-500 text-sm mb-6">Start your first top interview to see your history here.</p>
+            <p className="text-gray-500 text-sm mb-6">Start your first coding arena challenge to see your history here.</p>
             <Link
               href="/top-interviews"
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-sm font-medium rounded-lg transition-all"
             >
-              Browse Top Interviews
+              Browse Coding Arena
             </Link>
           </div>
         ) : (
@@ -94,7 +94,7 @@ export default function TopInterviewHistoryPage() {
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <div className="flex-1 min-w-0">
                     <h3 className="text-white font-medium truncate">
-                      {a.interviewTitle || a.topInterviewTitle || a.topInterview?.title || "Top Interview"}
+                      {a.interviewTitle || a.topInterviewTitle || a.topInterview?.title || "Coding Arena"}
                     </h3>
                     <p className="text-gray-500 text-xs mt-1">
                       {a.createdAt ? new Date(a.createdAt).toLocaleString() : "-"}
@@ -148,7 +148,7 @@ export default function TopInterviewHistoryPage() {
             <div className="flex items-center justify-between p-5 border-b border-white/5">
               <div>
                 <h2 className="text-lg font-semibold text-white">
-                  {modal.attempt.interviewTitle || modal.attempt.topInterviewTitle || modal.attempt.topInterview?.title || "Top Interview"}
+                  {modal.attempt.interviewTitle || modal.attempt.topInterviewTitle || modal.attempt.topInterview?.title || "Coding Arena"}
                 </h2>
                 <p className="text-gray-500 text-xs mt-1">
                   {modal.attempt.createdAt ? new Date(modal.attempt.createdAt).toLocaleString() : "-"}

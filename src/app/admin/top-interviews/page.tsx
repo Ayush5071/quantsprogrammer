@@ -17,7 +17,10 @@ import {
   UserCheck,
   UserX,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  StopCircle,
+  Mail,
+  Award
 } from "lucide-react";
 
 export default function ManageTopInterviewsPage() {
@@ -30,6 +33,8 @@ export default function ManageTopInterviewsPage() {
   const [loadingDetails, setLoadingDetails] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [endingInterview, setEndingInterview] = useState<string | null>(null);
+  const [showEndConfirm, setShowEndConfirm] = useState<string | null>(null);
 
   useEffect(() => {
     fetchInterviews();
@@ -152,6 +157,32 @@ export default function ManageTopInterviewsPage() {
     }
   };
 
+  const handleEndInterview = async (interviewId: string, interviewTitle: string) => {
+    setEndingInterview(interviewId);
+    try {
+      const res = await fetch('/api/top-interviews/end', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ interviewId })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(`"${interviewTitle}" ended! Certificates sent to top 3 winners.`);
+        setShowEndConfirm(null);
+        fetchInterviews();
+        if (expandedInterview === interviewId) {
+          fetchInterviewDetails(interviewId);
+        }
+      } else {
+        toast.error(data.error || 'Failed to end interview');
+      }
+    } catch (err) {
+      toast.error('Failed to end interview');
+    } finally {
+      setEndingInterview(null);
+    }
+  };
+
   if (user === null) {
     return (
       <AdminLayout>
@@ -189,8 +220,8 @@ export default function ManageTopInterviewsPage() {
     <AdminLayout>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Manage Top Interviews</h1>
-        <p className="text-gray-400 text-sm">Control retry permissions and view attempt statistics.</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Manage Coding Arena</h1>
+        <p className="text-gray-400 text-sm">Control retry permissions, end contests and issue certificates to winners.</p>
       </div>
 
       {/* Search */}
@@ -263,6 +294,89 @@ export default function ManageTopInterviewsPage() {
                     </div>
                   ) : interviewDetails ? (
                     <div className="space-y-6">
+                      {/* End Interview Section */}
+                      {!interview.isEnded && (
+                        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h4 className="text-white font-medium flex items-center gap-2">
+                                <StopCircle className="w-4 h-4 text-red-400" />
+                                End Contest & Issue Certificates
+                              </h4>
+                              <p className="text-gray-400 text-xs mt-1">
+                                This will end the contest and send certificates to top 3 winners via email.
+                              </p>
+                            </div>
+                            {showEndConfirm === interview._id ? (
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => setShowEndConfirm(null)}
+                                  className="px-3 py-2 bg-gray-700 text-gray-300 rounded-lg text-sm hover:bg-gray-600 transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  onClick={() => handleEndInterview(interview._id, interview.title)}
+                                  disabled={endingInterview === interview._id}
+                                  className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition-colors flex items-center gap-2"
+                                >
+                                  {endingInterview === interview._id ? (
+                                    <>
+                                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                      Ending...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Mail className="w-4 h-4" />
+                                      Confirm & Send Emails
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            ) : (
+                              <button
+                                onClick={() => setShowEndConfirm(interview._id)}
+                                className="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg text-sm hover:bg-red-500/30 transition-colors flex items-center gap-2"
+                              >
+                                <StopCircle className="w-4 h-4" />
+                                End Contest
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Winners Section (if ended) */}
+                      {interview.isEnded && interview.winners && interview.winners.length > 0 && (
+                        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+                          <h4 className="text-white font-medium mb-4 flex items-center gap-2">
+                            <Award className="w-4 h-4 text-yellow-400" />
+                            Winners (Certificates Issued)
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            {interview.winners.map((winner: any, idx: number) => (
+                              <div key={idx} className={`p-3 rounded-lg flex items-center gap-3 ${
+                                winner.rank === 1 ? 'bg-yellow-500/20 border border-yellow-500/30' :
+                                winner.rank === 2 ? 'bg-gray-400/20 border border-gray-400/30' :
+                                'bg-amber-600/20 border border-amber-600/30'
+                              }`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold ${
+                                  winner.rank === 1 ? 'bg-yellow-500/30 text-yellow-400' :
+                                  winner.rank === 2 ? 'bg-gray-400/30 text-gray-300' :
+                                  'bg-amber-600/30 text-amber-500'
+                                }`}>
+                                  {winner.rank === 1 ? '🥇' : winner.rank === 2 ? '🥈' : '🥉'}
+                                </div>
+                                <div>
+                                  <p className="text-white text-sm font-medium">Rank #{winner.rank}</p>
+                                  <p className="text-gray-400 text-xs">Score: {winner.score}/100</p>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {/* Retry Settings */}
                       <div className="bg-white/5 rounded-lg p-4">
                         <h4 className="text-white font-medium mb-4 flex items-center gap-2">

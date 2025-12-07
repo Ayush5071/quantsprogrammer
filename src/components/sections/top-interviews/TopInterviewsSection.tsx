@@ -36,7 +36,7 @@ export default function TopInterviewsSection() {
           </svg>
         </div>
         <h3 className="text-lg font-medium text-white mb-2">No interviews available</h3>
-        <p className="text-gray-500 text-sm">Check back later for new top interviews.</p>
+        <p className="text-gray-500 text-sm">Check back later for new coding arena challenges.</p>
       </div>
     );
   }

@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { useRouter } from "next/navigation";
-import { Map, Mic, BarChart3, PenLine, Award, ArrowRight, FileText } from "lucide-react";
+import { Map, Mic, BarChart3, PenLine, Award, ArrowRight, FileText, Brain } from "lucide-react";
 
 const features = [
   {
@@ -45,6 +45,13 @@ const features = [
     description: "Create ATS-friendly resumes easily",
     link: "/resume-builder",
     color: "from-indigo-500 to-violet-500",
+  },
+  {
+    icon: Brain,
+    title: "AI Resume Screening",
+    description: "Screen candidates with AI precision",
+    link: "/resume-screening",
+    color: "from-rose-500 to-pink-500",
   },
 ];
 

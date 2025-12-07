@@ -8,7 +8,7 @@ const navLinks = [
   { href: "/explore", label: "Explore", icon: "🗺️" },
   { href: "/blogs", label: "Blogs", icon: "📝" },
   { href: "/profile", label: "Profile", icon: "👤" },
-  { href: "/top-interviews", label: "Top Interviews", icon: "⭐" },
+  { href: "/top-interviews", label: "Coding Arena", icon: "⭐" },
 ];
 
 export default function Navbar() {
@@ -252,7 +252,7 @@ export default function Navbar() {
                         router.push("/top-interview-history");
                       }}
                     >
-                      Top Interview History
+                      Coding Arena History
                     </Link>
                   </motion.div>
                 </div>

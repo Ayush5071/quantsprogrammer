@@ -72,7 +72,7 @@ const navItems = [
     ),
   },
   {
-    label: "Top Interviews",
+    label: "Coding Arena",
     href: "/admin/top-interview-create",
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

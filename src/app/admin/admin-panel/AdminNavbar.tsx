@@ -10,7 +10,7 @@ const adminLinks = [
   { label: "Blog Requests", href: "/admin/blog-requests", icon: <FaPenFancy /> },
   { label: "Manage Blogs", href: "/admin/admin-panel/blogs", icon: <FaBlog /> },
   { label: "Top Interview Create", href: "/admin/top-interview-create", icon: <FaClipboardList /> },
-  { label: "Manage Top Interviews", href: "/admin/top-interviews", icon: <FaTrophy /> },
+  { label: "Manage Coding Arena", href: "/admin/top-interviews", icon: <FaTrophy /> },
   { label: "User Management", href: "/admin/admin-panel/users", icon: <FaUsers /> },
 ];
 

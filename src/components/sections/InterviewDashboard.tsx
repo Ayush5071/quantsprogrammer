@@ -57,7 +57,7 @@ function ResponsiveNavbar({ onNavigate }: { onNavigate: (path: string) => void }
           <div className="hidden md:flex gap-1 items-center">
             <button onClick={() => handleLinkClick('/explore')} className="text-gray-400 hover:text-white text-sm font-medium transition-colors px-3 py-1.5 rounded-md hover:bg-white/5">Explore</button>
             <button onClick={() => handleLinkClick('/blogs')} className="text-gray-400 hover:text-white text-sm font-medium transition-colors px-3 py-1.5 rounded-md hover:bg-white/5">Blogs</button>
-            <button onClick={() => handleLinkClick('/top-interviews')} className="text-gray-400 hover:text-white text-sm font-medium transition-colors px-3 py-1.5 rounded-md hover:bg-white/5">Top Interviews</button>
+            <button onClick={() => handleLinkClick('/top-interviews')} className="text-gray-400 hover:text-white text-sm font-medium transition-colors px-3 py-1.5 rounded-md hover:bg-white/5">Coding Arena</button>
             <button onClick={() => handleLinkClick('/profile')} className="ml-1 px-3 py-1.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-lg text-sm font-medium transition-all">Profile</button>
           </div>
         </div>
@@ -74,7 +74,7 @@ function ResponsiveNavbar({ onNavigate }: { onNavigate: (path: string) => void }
             <button onClick={() => handleLinkClick('/')} className="text-gray-300 hover:text-white text-left text-sm font-medium transition-colors px-3 py-2.5 rounded-lg hover:bg-white/5">Home</button>
             <button onClick={() => handleLinkClick('/explore')} className="text-gray-300 hover:text-white text-left text-sm font-medium transition-colors px-3 py-2.5 rounded-lg hover:bg-white/5">Explore</button>
             <button onClick={() => handleLinkClick('/blogs')} className="text-gray-300 hover:text-white text-left text-sm font-medium transition-colors px-3 py-2.5 rounded-lg hover:bg-white/5">Blogs</button>
-            <button onClick={() => handleLinkClick('/top-interviews')} className="text-gray-300 hover:text-white text-left text-sm font-medium transition-colors px-3 py-2.5 rounded-lg hover:bg-white/5">Top Interviews</button>
+            <button onClick={() => handleLinkClick('/top-interviews')} className="text-gray-300 hover:text-white text-left text-sm font-medium transition-colors px-3 py-2.5 rounded-lg hover:bg-white/5">Coding Arena</button>
             <button onClick={() => handleLinkClick('/profile')} className="text-gray-300 hover:text-white text-left text-sm font-medium transition-colors px-3 py-2.5 rounded-lg hover:bg-white/5">Profile</button>
             <div className="flex flex-col gap-2 mt-2 pt-3 border-t border-white/5">
               <button onClick={() => handleLinkClick('/top-interview-history')} className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg text-sm font-medium text-center transition-all">Interview History</button>

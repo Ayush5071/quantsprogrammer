@@ -16,7 +16,7 @@ const features = [
   {
     icon: "🏆",
     title: "Competitive Interview Challenges",
-    description: "Compete in curated Top Interview challenges, climb global leaderboards, and showcase your problem-solving skills with detailed performance analytics and rankings.",
+    description: "Compete in curated Coding Arena challenges, climb global leaderboards, and showcase your problem-solving skills with detailed performance analytics and rankings.",
     highlight: "Global Leaderboards",
   },
   {

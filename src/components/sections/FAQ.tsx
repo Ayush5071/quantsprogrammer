@@ -27,9 +27,9 @@ const faqData = [
       "First, request blog publishing access from your profile dashboard. Once approved by an admin (usually within 24 hours), you can write and publish technical blogs using our rich text editor similar to Medium. This helps build your developer brand and showcase your expertise to the community.",
   },
   {
-    question: "What are Top Interviews and leaderboards?",
+    question: "What is Coding Arena and leaderboards?",
     answer:
-      "Top Interviews are curated, challenging interview questions created by admins that feature competitive leaderboards. Unlike mock interviews focused on practice, these are designed for competition where you can rank against other users, showcase your skills, and climb the global leaderboard.",
+      "Coding Arena is our competitive contest platform with curated, challenging interview questions created by admins that feature competitive leaderboards. Unlike mock interviews focused on practice, these are designed for competition where you can rank against other users, showcase your skills, and climb the global leaderboard.",
   },
   {
     question: "Are the roadmaps updated with latest technologies?",

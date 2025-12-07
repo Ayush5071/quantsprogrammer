@@ -249,7 +249,7 @@ export default function TopInterviewLeaderboardPage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Sparkles className="w-4 h-4 text-yellow-400" />
-                <span className="text-xs text-yellow-400 font-medium uppercase tracking-wider">Top Interview</span>
+                <span className="text-xs text-yellow-400 font-medium uppercase tracking-wider">Coding Arena</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-white mb-1">{interview.title}</h2>
               <p className="text-gray-400 text-sm line-clamp-2">{interview.description}</p>

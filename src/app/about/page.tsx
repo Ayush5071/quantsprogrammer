@@ -62,7 +62,7 @@ export default function AboutPage() {
     },
     {
       icon: Trophy,
-      title: "Top Interviews",
+      title: "Coding Arena",
       description: "Admin-created challenges with leaderboards and podium for top 3",
       color: "text-yellow-400",
     },
@@ -310,7 +310,7 @@ export default function AboutPage() {
               <div>
                 <div className="flex items-center gap-3 mb-4">
                   <Trophy className="w-8 h-8 text-yellow-400" />
-                  <h2 className="text-2xl font-bold text-white">Top Interviews</h2>
+                  <h2 className="text-2xl font-bold text-white">Coding Arena</h2>
                 </div>
                 <p className="text-gray-400 mb-4">
                   Compete in admin-created interview challenges. Top 3 performers get featured on the podium!

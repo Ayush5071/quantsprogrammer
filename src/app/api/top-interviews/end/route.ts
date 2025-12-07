@@ -68,7 +68,7 @@ async function sendWinnerEmail(
           <!-- Achievement Card -->
           <div style="margin: 0 30px 30px; padding: 25px; background: rgba(59, 130, 246, 0.1); border-radius: 16px; border: 1px solid rgba(59, 130, 246, 0.2);">
             <div style="text-align: center; margin-bottom: 20px;">
-              <span style="color: #60a5fa; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Top Interview</span>
+              <span style="color: #60a5fa; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Coding Arena</span>
               <h3 style="color: #fff; font-size: 22px; margin: 8px 0 0 0; font-weight: bold;">${interviewTitle}</h3>
             </div>
             
@@ -100,7 +100,7 @@ async function sendWinnerEmail(
           
           <!-- Footer -->
           <div style="padding: 25px; background: rgba(0,0,0,0.3); text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
-            <p style="color: #6b7280; font-size: 13px; margin: 0 0 10px 0;">Thank you for participating in PrepSutra Top Interviews!</p>
+            <p style="color: #6b7280; font-size: 13px; margin: 0 0 10px 0;">Thank you for participating in PrepSutra Coding Arena!</p>
             <p style="color: #4b5563; font-size: 12px; margin: 0;">
               <a href="${domain}" style="color: #60a5fa; text-decoration: none;">www.prepsutra.tech</a>
             </p>

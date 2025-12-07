@@ -37,7 +37,7 @@ export default function TopInterviewsPage() {
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-3">Login Required</h1>
           <p className="text-gray-400 text-sm mb-6">
-            Sign in to access Top Interviews, track your progress, and compete on the leaderboard.
+            Sign in to access Coding Arena, track your progress, and compete on the leaderboard.
           </p>
           <Link
             href="/auth/login"
@@ -74,7 +74,7 @@ export default function TopInterviewsPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <h1 className="text-lg sm:text-xl font-bold text-white">Top Interviews</h1>
+              <h1 className="text-lg sm:text-xl font-bold text-white">Coding Arena</h1>
             </div>
 
             {/* Desktop Navigation */}
