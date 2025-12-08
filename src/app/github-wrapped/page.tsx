@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import { 
   Github, Sparkles, Rocket, Code2, GitBranch, Star, 
   GitPullRequest, Bug, Coffee, Moon, Sun, Zap, Trophy,
   Share2, Download, Twitter, Linkedin, Copy, Check,
   ChevronRight, ChevronLeft, Loader2, Calendar, Flame,
-  Heart, Target, Award, Brain, Clock
+  Heart, Target, Award, Brain, Clock, Home, ArrowLeft
 } from "lucide-react";
 import { toast, Toaster } from "react-hot-toast";
 import html2canvas from "html2canvas";
@@ -983,12 +984,25 @@ export default function GitHubWrappedPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-8"
+          className="flex items-center justify-between mb-8"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400 text-sm mb-4">
+          {/* Back to Home */}
+          <Link
+            href="/"
+            className="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="hidden sm:inline text-sm font-medium">Home</span>
+          </Link>
+
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 border border-cyan-500/20 rounded-full text-cyan-400 text-sm">
             <Github className="w-4 h-4" />
             <span>DevWrapped 2024</span>
           </div>
+
+          {/* Spacer for centering */}
+          <div className="w-20 hidden sm:block" />
         </motion.div>
 
         {/* Main Content */}

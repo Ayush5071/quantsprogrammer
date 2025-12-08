@@ -12,7 +12,8 @@ function ResponsiveNavbar({ onNavigate }: { onNavigate: (path: string) => void }
   const [open, setOpen] = useReactState(false);
   const handleLinkClick = (path: string) => {
     setOpen(false);
-    onNavigate(path);
+    // Use direct navigation to prevent history loop issues
+    window.location.href = path;
   };
 
   return (
