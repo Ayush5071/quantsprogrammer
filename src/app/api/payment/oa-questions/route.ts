@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import jwt from "jsonwebtoken";
+import { getPricing } from "@/helpers/getPricing";
 
 connect();
 
@@ -84,6 +85,9 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Get dynamic pricing
+    const pricing = await getPricing();
+    
     // Update user's purchase status
     const user = await User.findByIdAndUpdate(
       userId,
@@ -93,7 +97,7 @@ export async function POST(request: NextRequest) {
             purchased: true,
             purchasedAt: new Date(),
             paymentId: paymentId || `INS_${Date.now()}`,
-            amount: amount || 99,
+            amount: amount || pricing.oaQuestions,
           }
         }
       },

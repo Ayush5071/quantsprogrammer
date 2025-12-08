@@ -11,18 +11,32 @@ export default function AuthCallback() {
   const [synced, setSynced] = useState(false);
 
   useEffect(() => {
-    if (status === "authenticated" && session?.accessToken && !synced) {
-      // Sync token to localStorage and cookie
-      localStorage.setItem("token", session.accessToken);
-      document.cookie = `token=${session.accessToken}; path=/; max-age=86400; SameSite=Lax`;
+    if (status === "authenticated" && session && !synced) {
+      // Use the JWT token from session (created in authOptions.ts jwt callback)
+      const tokenToUse = session.accessToken || session.user?.id;
       
-      setSynced(true);
-      toast.success("Signed in successfully!");
-      
-      // Small delay to ensure cookie is set
-      setTimeout(() => {
-        router.push("/");
-      }, 500);
+      if (tokenToUse) {
+        // Sync token to localStorage and cookie
+        localStorage.setItem("token", tokenToUse);
+        // Make sure token is properly formatted in cookie
+        document.cookie = `token=${tokenToUse}; path=/; max-age=86400; SameSite=Lax`;
+        
+        console.log('[Callback] Token set successfully:', {
+          tokenLength: tokenToUse.length,
+          isJWT: tokenToUse.includes('.') && tokenToUse.split('.').length === 3
+        });
+        
+        setSynced(true);
+        toast.success("Signed in successfully!");
+        
+        // Small delay to ensure cookie is set
+        setTimeout(() => {
+          router.push("/");
+        }, 500);
+      } else {
+        console.warn('[Callback] No token found in session:', session);
+        toast.error("Failed to set authentication token");
+      }
     } else if (status === "unauthenticated") {
       router.push("/auth/login");
     }

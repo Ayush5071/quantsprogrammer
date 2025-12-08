@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDataFromToken } from "@/helpers/getToken";
+import { generateContentWithConfig } from "@/lib/gemini";
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -94,29 +95,10 @@ Traits to analyze (0–10 scale each):
 Return ONLY the JSON object, nothing else.`;
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 2000,
-          },
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Gemini API error:", errorText);
-      throw new Error(`Gemini API error: ${errorText}`);
-    }
-
-    const data = await response.json();
-    const textContent = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const textContent = await generateContentWithConfig(prompt, {
+      temperature: 0.3,
+      maxOutputTokens: 2000,
+    });
 
     if (!textContent) {
       throw new Error("Invalid response from Gemini");

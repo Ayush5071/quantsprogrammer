@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@google/genai": "^1.31.0",
     "@react-icons/all-files": "^4.1.0",
     "@react-three/fiber": "^8.17.10",
     "@tabler/icons-react": "^3.19.0",
@@ -22,6 +23,7 @@
     "bcryptjs": "^2.4.3",
     "cloudinary": "^2.6.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
     "framer-motion": "^11.15.0",
     "gsap": "^3.12.5",
     "html-react-parser": "^5.2.5",
@@ -50,7 +52,8 @@
     "simplex-noise": "^4.0.3",
     "swr": "^2.3.4",
     "tailwind-merge": "^2.5.5",
-    "three": "^0.171.0"
+    "three": "^0.171.0",
+    "unpdf": "^1.4.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

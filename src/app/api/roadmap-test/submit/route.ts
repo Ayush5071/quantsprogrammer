@@ -4,8 +4,7 @@ import Certification from "@/models/certificationModel";
 import User from "@/models/userModel";
 import { NextResponse, NextRequest } from "next/server";
 import { getDataFromToken } from "@/helpers/getToken";
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+import { generateContentWithConfig } from "@/lib/gemini";
 
 connect();
 
@@ -59,31 +58,18 @@ Scoring Guidelines:
 Be fair but strict. Evaluate based on technical accuracy and completeness.`;
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: evaluationPrompt }] }],
-          generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 4096,
-          },
-        }),
-      }
-    );
+    const jsonText = await generateContentWithConfig(evaluationPrompt, {
+      temperature: 0.3,
+      maxOutputTokens: 4096,
+    });
 
-    const data = await response.json();
-
-    if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+    if (!jsonText) {
       throw new Error("Invalid response from Gemini");
     }
 
-    let jsonText = data.candidates[0].content.parts[0].text;
-    jsonText = jsonText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const cleanedText = jsonText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
 
-    const parsed = JSON.parse(jsonText);
+    const parsed = JSON.parse(cleanedText);
 
     const scores = parsed.evaluations.map((e: any) => ({
       questionIndex: e.questionIndex,

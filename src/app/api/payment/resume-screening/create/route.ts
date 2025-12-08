@@ -20,7 +20,7 @@ async function getUserFromRequest(request: NextRequest) {
   }
 }
 
-// POST - Create a payment request
+// POST - Create a payment request for Resume Screening Premium
 export async function POST(request: NextRequest) {
   try {
     const user = await getUserFromRequest(request);
@@ -33,28 +33,28 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if already purchased
-    if (user.purchases?.oaQuestions?.purchased) {
+    if (user.purchases?.resumeScreeningPremium?.purchased) {
       return NextResponse.json(
-        { error: "You have already purchased OA Questions access" },
+        { error: "You have already purchased Resume Screening Premium" },
         { status: 400 }
       );
     }
 
     // Determine redirect URL based on environment
     const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || process.env.DOMAIN || "https://www.prepsutra.tech")?.replace(/\/$/, "");
-    const redirectUrl = `${baseUrl}/payment/verify`;
+    const redirectUrl = `${baseUrl}/payment/verify-resume-screening`;
     
     // Webhook only works with public URLs (not localhost)
     const isLocalhost = baseUrl.includes("localhost") || baseUrl.includes("127.0.0.1");
-    const webhookUrl = isLocalhost ? undefined : `${baseUrl}/api/payment/webhook`;
+    const webhookUrl = isLocalhost ? undefined : `${baseUrl}/api/payment/webhook-resume-screening`;
 
-    // Get dynamic pricing
+    // Get dynamic pricing from admin settings
     const pricing = await getPricing();
 
-    // Build request body
+    // Build request body with dynamic pricing
     const bodyParams: Record<string, string> = {
-      amount: pricing.oaQuestions.toString(), // Dynamic pricing from admin panel
-      purpose: `OA_QUESTIONS_${user._id}`,
+      amount: pricing.resumeScreeningPremium.toString(), // Dynamic pricing
+      purpose: `RESUME_SCREENING_${user._id}`,
       buyer_name: user.fullName || user.username || "Customer",
       email: user.email,
       phone: user.contactNumber || "9999999999",
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       bodyParams.webhook = webhookUrl;
     }
 
-    // Create payment request using API Key + Auth Token
+    // Create payment request using Instamojo API
     const response = await fetch("https://www.instamojo.com/api/1.1/payment-requests/", {
       method: "POST",
       headers: {
@@ -84,8 +84,15 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok || !data.success) {
       console.error("Instamojo API error:", data);
+      // Handle error message which can be string or object
+      let errorMsg = "Failed to create payment request. Please try again.";
+      if (typeof data.message === "string") {
+        errorMsg = data.message;
+      } else if (data.message && typeof data.message === "object") {
+        errorMsg = Object.values(data.message).flat().join(", ");
+      }
       return NextResponse.json(
-        { error: data.message || "Failed to create payment request. Please try again." },
+        { error: errorMsg },
         { status: 500 }
       );
     }

@@ -55,6 +55,25 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [oaPrice, setOaPrice] = useState<number>(10);
+
+  // Fetch dynamic pricing
+  useEffect(() => {
+    const fetchPricing = async () => {
+      try {
+        const res = await fetch("/api/admin/pricing");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.pricing?.oaQuestions) {
+            setOaPrice(data.pricing.oaQuestions);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch pricing:", error);
+      }
+    };
+    fetchPricing();
+  }, []);
 
   // Check if user should see purchase modal on first visit
   useEffect(() => {
@@ -158,7 +177,7 @@ export default function Home() {
               <span className="text-gray-400">One-time Payment</span>
               <div className="flex items-center gap-2">
                 <span className="text-gray-500 line-through text-sm">₹99</span>
-                <span className="text-2xl font-bold text-white">₹10</span>
+                <span className="text-2xl font-bold text-white">₹{oaPrice}</span>
               </div>
             </div>
             <div className="space-y-2 text-left">
@@ -190,7 +209,7 @@ export default function Home() {
             ) : (
               <>
                 <Sparkles className="w-5 h-5" />
-                Pay ₹10 & Unlock Now
+                Pay ₹{oaPrice} & Unlock Now
               </>
             )}
           </button>

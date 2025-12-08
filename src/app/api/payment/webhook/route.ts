@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import crypto from "crypto";
+import { getPricing } from "@/helpers/getPricing";
 
 connect();
 
@@ -54,8 +55,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Payment not successful" }, { status: 200 });
     }
 
-    // Verify the amount paid is correct (₹10)
-    const EXPECTED_AMOUNT = 10;
+    // Verify the amount paid is correct using dynamic pricing
+    const pricing = await getPricing();
+    const EXPECTED_AMOUNT = pricing.oaQuestions;
     const paidAmount = parseFloat(amount);
     if (paidAmount < EXPECTED_AMOUNT) {
       console.error(`Invalid amount: expected ₹${EXPECTED_AMOUNT}, got ₹${paidAmount}`);
@@ -80,7 +82,7 @@ export async function POST(request: NextRequest) {
             purchasedAt: new Date(),
             paymentId: payment_id,
             paymentRequestId: payment_request_id,
-            amount: parseFloat(amount) || 10,
+            amount: parseFloat(amount) || pricing.oaQuestions,
           }
         }
       },

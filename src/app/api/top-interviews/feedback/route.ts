@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { generateContent } from "@/lib/gemini";
 
 // POST: Evaluate Top Interview answers with strict scoring and feedback
 export async function POST(req: NextRequest) {
@@ -22,21 +23,10 @@ Respond ONLY in this exact JSON format (no markdown, no code block):
 Questions and Answers:
 ${questions.map((q: string, i: number) => `Q${i+1}: ${q}\nA${i+1}: ${answers[i] || "(skipped)"}`).join("\n")}`;
 
-  const geminiRes = await fetch(
-    "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=" +
-      process.env.GEMINI_API_KEY,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
-      })
-    }
-  );
-  const geminiData = await geminiRes.json();
+  const geminiText = await generateContent(prompt);
   let feedback = [];
   try {
-    const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    const text = geminiText;
     const match = text.match(/\[[\s\S]*\]/);
     if (match) {
       feedback = JSON.parse(match[0]);

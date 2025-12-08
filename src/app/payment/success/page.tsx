@@ -22,6 +22,20 @@ function PaymentSuccessContent() {
 
         console.log("Payment params:", { paymentId, paymentStatus, paymentRequestId });
 
+        // Fetch dynamic pricing
+        let oaPrice = 10;
+        try {
+          const pricingRes = await fetch("/api/admin/pricing");
+          if (pricingRes.ok) {
+            const pricingData = await pricingRes.json();
+            if (pricingData.pricing?.oaQuestions) {
+              oaPrice = pricingData.pricing.oaQuestions;
+            }
+          }
+        } catch (e) {
+          console.error("Failed to fetch pricing:", e);
+        }
+
         // Instamojo uses "Credit" for successful payments
         if (paymentStatus === "Credit" || paymentStatus === "success" || paymentId) {
           // Record the successful payment
@@ -33,7 +47,7 @@ function PaymentSuccessContent() {
             body: JSON.stringify({
               paymentId: paymentId || paymentRequestId || `INS_${Date.now()}`,
               status: "success",
-              amount: 199,
+              amount: oaPrice,
             }),
           });
 

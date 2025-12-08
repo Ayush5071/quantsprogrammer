@@ -119,6 +119,77 @@ export default function InterviewDashboard() {
   const [inputMode, setInputMode] = useState<'speech' | 'text' | 'both'>('both'); // Allow both by default
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<(() => void) | null>(null);
+  
+  // Subscription state
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [canInterview, setCanInterview] = useState(true);
+  const [remainingFreeInterviews, setRemainingFreeInterviews] = useState<number | string>(1);
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [subscriptionPrice, setSubscriptionPrice] = useState(10);
+  const [purchaseLoading, setPurchaseLoading] = useState(false);
+  const [checkingSubscription, setCheckingSubscription] = useState(true);
+
+  // Check subscription status on mount
+  useEffect(() => {
+    const checkSubscription = async () => {
+      try {
+        const [statusRes, pricingRes] = await Promise.all([
+          fetch("/api/payment/mock-interviews"),
+          fetch("/api/admin/pricing")
+        ]);
+        
+        if (statusRes.ok) {
+          const data = await statusRes.json();
+          setIsSubscribed(data.subscribed || false);
+          setCanInterview(data.canInterview !== false);
+          setRemainingFreeInterviews(data.remainingFreeInterviews ?? 1);
+        }
+        
+        if (pricingRes.ok) {
+          const pricingData = await pricingRes.json();
+          if (pricingData.pricing?.mockInterviews) {
+            setSubscriptionPrice(pricingData.pricing.mockInterviews);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking subscription:", error);
+      } finally {
+        setCheckingSubscription(false);
+      }
+    };
+    
+    checkSubscription();
+  }, []);
+
+  // Handle subscription purchase
+  const handlePurchaseSubscription = async () => {
+    setPurchaseLoading(true);
+    try {
+      const response = await fetch("/api/payment/mock-interviews/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        alert(data.error || "Failed to create payment request. Please try again.");
+        setPurchaseLoading(false);
+        return;
+      }
+      
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        alert("Payment URL not received. Please try again.");
+        setPurchaseLoading(false);
+      }
+    } catch (error) {
+      console.error("Payment error:", error);
+      alert("Failed to initiate payment. Please try again.");
+      setPurchaseLoading(false);
+    }
+  };
 
   // SpeechRecognition hook
   const {
@@ -181,12 +252,32 @@ export default function InterviewDashboard() {
   // Text-to-Speech: Speak the question when it appears
   const speakQuestion = (text: string) => {
     if (ttsEnabled && typeof window !== "undefined" && 'speechSynthesis' in window) {
+      // Cancel any ongoing speech first
+      window.speechSynthesis.cancel();
       setIsSpeaking(true);
       const utter = new window.SpeechSynthesisUtterance(text);
       utter.lang = 'en-US';
       utter.onend = () => setIsSpeaking(false);
+      utter.onerror = () => setIsSpeaking(false);
       window.speechSynthesis.speak(utter);
     }
+  };
+
+  // Stop speech when TTS is disabled
+  const stopSpeaking = () => {
+    if (typeof window !== "undefined" && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  };
+
+  // Toggle TTS and stop current speech if disabling
+  const toggleTTS = () => {
+    if (ttsEnabled) {
+      // Turning off - stop any current speech
+      stopSpeaking();
+    }
+    setTtsEnabled(v => !v);
   };
 
   // Add a flag to track if camera is open
@@ -219,6 +310,13 @@ export default function InterviewDashboard() {
       alert("Please open your camera & mic before starting the interview.");
       return;
     }
+    
+    // Check if user can start interview (subscription or daily limit)
+    if (!canInterview && !isSubscribed) {
+      setShowSubscriptionModal(true);
+      return;
+    }
+    
     setLoading(true);
     setFeedback("");
     setScore(null);
@@ -233,19 +331,36 @@ export default function InterviewDashboard() {
       body: JSON.stringify({ topic, experience, skills, numQuestions })
     });
     const data = await res.json();
+    
+    // Handle limit reached error
+    if (res.status === 403 && data.limitReached) {
+      setLoading(false);
+      setCanInterview(false);
+      setShowSubscriptionModal(true);
+      return;
+    }
+    
+    if (!res.ok) {
+      setLoading(false);
+      alert(data.error || "Failed to start interview. Please try again.");
+      return;
+    }
+    
+    // Update remaining free interviews for UI
+    if (!isSubscribed) {
+      setRemainingFreeInterviews(0);
+      setCanInterview(false);
+    }
+    
     setQuestions(data.questions || [data.question]);
     setQuestion((data.questions && data.questions[0]) || data.question);
     setStep(1);
     setLoading(false);
     resetTranscript();
     setTextAnswer(''); // Clear both inputs
-    // Start speech recognition automatically if supported (desktop only)
-    if (browserSupportsSpeechRecognition && !isIOS && !isMobile) {
+    // Start speech recognition automatically if supported (desktop only - not mobile)
+    if (browserSupportsSpeechRecognition && !isMobile) {
       startSpeechRecognition();
-    }
-    // On mobile, user needs to tap the mic button to start
-    if (isMobile && !isIOS) {
-      setMicEnabled(false); // User will enable manually
     }
   };
 
@@ -256,8 +371,10 @@ export default function InterviewDashboard() {
 
   // Submit answer (combines speech-to-text and typed text)
   const submitAnswer = async () => {
-    // Combine transcript and typed text - both can be used simultaneously
-    const combinedAnswer = [transcript, textAnswer].filter(Boolean).join(' ').trim();
+    // On mobile, only use typed text; on desktop, combine transcript and typed text
+    const combinedAnswer = isMobile 
+      ? textAnswer.trim() 
+      : [transcript, textAnswer].filter(Boolean).join(' ').trim();
     if (!combinedAnswer) return;
     
     setLoading(true);
@@ -276,13 +393,9 @@ export default function InterviewDashboard() {
       setAiThinking(false);
       resetTranscript();
       setTextAnswer(''); // Clear both speech and text for next question
-      if (browserSupportsSpeechRecognition && !isIOS) {
-        if (isMobile) {
-          // On mobile, keep mic enabled state but restart recognition
-          if (micEnabled) startSpeechRecognition();
-        } else {
-          startSpeechRecognition();
-        }
+      // Only start speech recognition on desktop
+      if (browserSupportsSpeechRecognition && !isMobile) {
+        startSpeechRecognition();
       }
     } else {
       // On last question, after saving answer, show submit button
@@ -449,6 +562,85 @@ export default function InterviewDashboard() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(99,102,241,0.06),transparent_50%)]" />
       </div>
       
+      {/* Subscription Modal */}
+      {showSubscriptionModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-gradient-to-br from-[#111118] to-[#1a1a2e] border border-white/10 rounded-2xl p-6 md:p-8 max-w-md w-full">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-yellow-500/20 to-orange-500/20 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-white mb-2">
+                Daily Limit Reached
+              </h2>
+              <p className="text-gray-400 text-sm mb-6">
+                Free users can do 1 mock interview per day. Upgrade to premium for unlimited interviews!
+              </p>
+              
+              <div className="bg-white/5 rounded-xl p-4 mb-6">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-gray-400">Unlimited Interviews</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500 line-through text-sm">₹99</span>
+                    <span className="text-2xl font-bold text-white">₹{subscriptionPrice}</span>
+                  </div>
+                </div>
+                <div className="space-y-2 text-left">
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Unlimited mock interviews daily</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Detailed AI feedback</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-300">
+                    <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Lifetime access - one-time payment</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={handlePurchaseSubscription}
+                  disabled={purchaseLoading}
+                  className="w-full py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl hover:from-yellow-400 hover:to-orange-400 transition flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {purchaseLoading ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                      </svg>
+                      Get Premium - ₹{subscriptionPrice}
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowSubscriptionModal(false)}
+                  className="text-gray-400 hover:text-white text-sm transition"
+                >
+                  Maybe later
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      
       <div className="relative z-10 w-full max-w-6xl mx-auto py-6 md:py-12">
         <ResponsiveNavbar onNavigate={(path) => handleNavigation(() => router.push(path))} />
         
@@ -467,6 +659,35 @@ export default function InterviewDashboard() {
           <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">
             Practice real interview questions, get instant feedback, and track your progress with our AI-powered system.
           </p>
+          
+          {/* Subscription Status Banner */}
+          {!checkingSubscription && step === 0 && (
+            <div className="mt-4">
+              {isSubscribed ? (
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full text-sm text-green-400">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Premium Active - Unlimited Interviews
+                </div>
+              ) : (
+                <div className="inline-flex items-center gap-3 px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-full text-sm">
+                  <span className="text-yellow-400">
+                    {canInterview 
+                      ? `Free: ${remainingFreeInterviews} interview${remainingFreeInterviews === 1 ? '' : 's'} left today`
+                      : "Daily limit reached"
+                    }
+                  </span>
+                  <button
+                    onClick={() => setShowSubscriptionModal(true)}
+                    className="text-xs px-3 py-1 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded-full transition"
+                  >
+                    Upgrade ₹{subscriptionPrice}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
         {/* Main Dashboard Card */}
         <div className="grid md:grid-cols-2 gap-6 md:gap-10 bg-[#111118] border border-white/5 rounded-xl p-5 md:p-8">
@@ -487,7 +708,7 @@ export default function InterviewDashboard() {
                   <span className="text-sm sm:text-base flex-1">{question}</span>
                   <button
                     className={`p-2 rounded-lg border transition-all flex-shrink-0 ${ttsEnabled ? 'bg-blue-500/20 border-blue-500/30 text-blue-400' : 'bg-white/5 border-white/10 text-gray-500'}`}
-                    onClick={() => setTtsEnabled(v => !v)}
+                    onClick={toggleTTS}
                     title={ttsEnabled ? 'Disable Text-to-Speech' : 'Enable Text-to-Speech'}
                     type="button"
                     aria-label={ttsEnabled ? 'Disable Text-to-Speech' : 'Enable Text-to-Speech'}
@@ -530,47 +751,26 @@ export default function InterviewDashboard() {
               </div>
             )}
             
-            {/* Mobile Mic Info */}
-            {step !== 0 && isMobile && !isIOS && browserSupportsSpeechRecognition && (
-              <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-xs">
-                📱 Tap the microphone button below to start/stop voice input on mobile.
+            {/* Mobile Voice Input Warning */}
+            {step !== 0 && isMobile && (
+              <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-yellow-400 text-xs">
+                ⚠️ Voice input is not supported on mobile devices. Please use a PC/laptop for voice features. You can type your answer below.
               </div>
             )}
             
             {/* Both Input Methods Available Simultaneously */}
             {step !== 0 && (
               <div className="space-y-3">
-                {/* Speech-to-Text Display with Mic Toggle for Mobile */}
-                {!speechNotSupported && (
+                {/* Speech-to-Text Display - Only show on desktop */}
+                {!speechNotSupported && !isMobile && (
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <label className="block text-xs font-medium text-gray-400">
                         🎤 Speech Recognition {listening ? '(Listening...)' : '(Ready)'}
                       </label>
-                      {/* Mobile Mic Toggle Button */}
-                      {isMobile && (
-                        <button
-                          onClick={toggleMic}
-                          className={`p-2 rounded-lg border transition-all ${
-                            listening 
-                              ? 'bg-red-500/20 border-red-500/30 text-red-400 animate-pulse' 
-                              : 'bg-green-500/20 border-green-500/30 text-green-400'
-                          }`}
-                          title={listening ? 'Stop Listening' : 'Start Listening'}
-                          type="button"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            {listening ? (
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
-                            ) : (
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                            )}
-                          </svg>
-                        </button>
-                      )}
                     </div>
                     <div className={`w-full p-3 bg-[#0a0a0f] rounded-lg border text-gray-300 text-sm min-h-[50px] ${listening ? 'border-blue-500/50 ring-1 ring-blue-500/30' : 'border-white/5'}`}>
-                      {transcript ? transcript : <span className="text-gray-600">{isMobile ? 'Tap the mic button and speak...' : 'Say something and it will appear here...'}</span>}
+                      {transcript ? transcript : <span className="text-gray-600">Say something and it will appear here...</span>}
                     </div>
                   </div>
                 )}
@@ -578,7 +778,7 @@ export default function InterviewDashboard() {
                 {/* Manual Text Input */}
                 <div>
                   <label className="block text-xs font-medium text-gray-400 mb-1.5">
-                    ⌨️ Type Your Answer
+                    ⌨️ Type Your Answer {isMobile && "(Recommended on mobile)"}
                   </label>
                   <textarea
                     value={textAnswer}
@@ -589,8 +789,8 @@ export default function InterviewDashboard() {
                   />
                 </div>
                 
-                {/* Combined Answer Preview */}
-                {(transcript || textAnswer) && (
+                {/* Combined Answer Preview - only on desktop when using both */}
+                {!isMobile && (transcript || textAnswer) && (
                   <div>
                     <label className="block text-xs font-medium text-green-400 mb-1.5">
                       📝 Final Answer Preview

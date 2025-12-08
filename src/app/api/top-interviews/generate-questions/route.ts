@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { generateContent } from "@/lib/gemini";
 
 export async function POST(req: NextRequest) {
   const { numQuestions, field, company, topics, level, skills } = await req.json();
@@ -23,29 +24,12 @@ export async function POST(req: NextRequest) {
 
   try {
     console.log("[API] Sending prompt to Gemini:", prompt);
-    const geminiRes = await fetch(
-      "https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=" +
-        process.env.GEMINI_API_KEY,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
-      }
-    );
-
-    if (!geminiRes.ok) {
-      const errorText = await geminiRes.text();
-      console.error("[API] Gemini API error:", errorText);
-      return NextResponse.json({ error: `Gemini API error: ${errorText}` }, { status: 500 });
-    }
-
-    const geminiData = await geminiRes.json();
-    console.log("[API] Gemini raw response:", JSON.stringify(geminiData));
+    const geminiText = await generateContent(prompt);
+    console.log("[API] Gemini response:", geminiText);
+    
     let questions: string[] = [];
     try {
-      const text = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      const text = geminiText;
       console.log("[API] Gemini extracted text:", text);
       const match = text.match(/\[[\s\S]*\]/);
       if (match) {

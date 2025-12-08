@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import jwt from "jsonwebtoken";
+import { getPricing } from "@/helpers/getPricing";
 
 connect();
 
@@ -29,6 +30,9 @@ export async function GET(request: NextRequest) {
     const product = searchParams.get("product"); // 'resume-screening' or default (oa-questions)
 
     const user = await getUserFromRequest(request);
+    
+    // Fetch dynamic pricing
+    const pricing = await getPricing();
 
     // If payment status is Credit, verify with Instamojo API
     if (paymentStatus === "Credit" && paymentId && paymentRequestId) {
@@ -71,7 +75,7 @@ export async function GET(request: NextRequest) {
                   purchasedAt: new Date(),
                   paymentId: paymentId,
                   paymentRequestId: paymentRequestId,
-                  amount: parseFloat(data.payment_request?.amount) || (isResumeScreening ? 49 : 10),
+                  amount: parseFloat(data.payment_request?.amount) || (isResumeScreening ? pricing.resumeScreeningPremium : pricing.oaQuestions),
                 }
               }
             });
@@ -112,7 +116,7 @@ export async function GET(request: NextRequest) {
               purchasedAt: new Date(),
               paymentId: paymentId,
               paymentRequestId: paymentRequestId,
-              amount: isResumeScreening ? 49 : 10,
+              amount: isResumeScreening ? pricing.resumeScreeningPremium : pricing.oaQuestions,
             }
           }
         });

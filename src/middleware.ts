@@ -32,32 +32,41 @@ export function middleware(request: NextRequest) {
   // Get token from cookies
   const token = request.cookies.get("token")?.value;
   
-  // Simple token presence check
-  const hasToken = Boolean(token && token.length > 10);
+  // Simple token presence check - must be at least 20 chars (valid JWT or token)
+  const hasToken = Boolean(token && token.length > 20);
 
   // Try to decode token to check admin status
   let isAdmin = false;
   let userEmail = "";
-  if (token) {
+  if (token && token.length > 20) {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      userEmail = payload.email?.trim().toLowerCase() || "";
-      
-      // Check both: token's isAdmin flag AND if email is in ADMINS env var
-      const adminEmails = process.env.ADMINS ? process.env.ADMINS.split(",").map(e => e.trim().toLowerCase()) : [];
-      isAdmin = payload.isAdmin === true || adminEmails.includes(userEmail);
-      
-      // Debug logging for admin routes
-      if (path.startsWith('/admin')) {
-        console.log('[Middleware] Admin Route Check:', {
-          path,
-          hasToken,
-          userEmail,
-          isAdminFromToken: payload.isAdmin,
-          adminEmails,
-          isInAdminList: adminEmails.includes(userEmail),
-          finalIsAdmin: isAdmin
-        });
+      // Check if it's a JWT token (has 3 parts separated by dots)
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        // It's a JWT - decode the payload
+        const payload = JSON.parse(atob(parts[1]));
+        userEmail = payload.email?.trim().toLowerCase() || "";
+        
+        // Check both: token's isAdmin flag AND if email is in ADMINS env var
+        const adminEmails = process.env.ADMINS ? process.env.ADMINS.split(",").map(e => e.trim().toLowerCase()) : [];
+        isAdmin = payload.isAdmin === true || adminEmails.includes(userEmail);
+        
+        // Debug logging for admin routes
+        if (path.startsWith('/admin')) {
+          console.log('[Middleware] Admin Route Check (JWT):', {
+            path,
+            hasToken,
+            userEmail,
+            isAdminFromToken: payload.isAdmin,
+            adminEmails,
+            isInAdminList: adminEmails.includes(userEmail),
+            finalIsAdmin: isAdmin
+          });
+        }
+      } else {
+        // Not a JWT, but token exists - allow it (NextAuth or other session token)
+        console.log('[Middleware] Non-JWT token found, allowing access');
+        isAdmin = false; // Default to non-admin for non-JWT tokens
       }
     } catch (err) {
       console.log('[Middleware] Token decode error:', err);

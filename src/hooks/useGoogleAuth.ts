@@ -11,12 +11,22 @@ export function useGoogleAuth() {
 
   // Sync token when session is available
   useEffect(() => {
-    if (status === "authenticated" && session?.accessToken) {
-      // Store token in localStorage
-      localStorage.setItem("token", session.accessToken);
+    if (status === "authenticated" && session) {
+      // Get the JWT token from session (created by authOptions.ts jwt callback)
+      const tokenToUse = session.accessToken;
       
-      // Store token in cookie
-      document.cookie = `token=${session.accessToken}; path=/; max-age=86400; SameSite=Lax`;
+      if (tokenToUse) {
+        // Store token in localStorage
+        localStorage.setItem("token", tokenToUse);
+        
+        // Store token in cookie
+        document.cookie = `token=${tokenToUse}; path=/; max-age=86400; SameSite=Lax`;
+        
+        console.log('[useGoogleAuth] Token synced:', {
+          tokenLength: tokenToUse.length,
+          isJWT: tokenToUse.includes('.') && tokenToUse.split('.').length === 3
+        });
+      }
     }
   }, [session, status]);
 

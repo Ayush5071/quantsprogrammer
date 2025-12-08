@@ -206,6 +206,8 @@ export default function BulkResumeScreeningPage() {
   const [purchaseLoading, setPurchaseLoading] = useState(false);
   const [expandedResult, setExpandedResult] = useState<string | null>(null);
   const [processingStatus, setProcessingStatus] = useState<string>("");
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [premiumPrice, setPremiumPrice] = useState<number>(10);
 
   // Check authentication and premium status
   useEffect(() => {
@@ -229,50 +231,83 @@ export default function BulkResumeScreeningPage() {
       }
     };
     checkAuth();
+    
+    // Fetch dynamic pricing
+    const fetchPricing = async () => {
+      try {
+        const res = await axios.get("/api/admin/pricing");
+        if (res.data.pricing) {
+          setPremiumPrice(res.data.pricing.resumeScreeningPremium || 10);
+        }
+      } catch (error) {
+        console.error("Failed to fetch pricing:", error);
+      }
+    };
+    fetchPricing();
   }, [router]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     const pdfFiles = selectedFiles.filter(f => f.type === "application/pdf");
     
+    if (pdfFiles.length === 0) {
+      toast.error("Please select PDF files only");
+      return;
+    }
+    
+    // If not premium and trying to upload multiple files, show modal
     if (!isPremium && pdfFiles.length > 1) {
-      toast.error("Free users can only upload 1 PDF. Upgrade to Premium for bulk uploads!");
-      setFiles([pdfFiles[0]]);
+      setShowPremiumModal(true);
+      setFiles([pdfFiles[0]]); // Only keep first file
+      toast.error("Free users can only analyze 1 resume at a time");
     } else {
       setFiles(pdfFiles);
     }
   };
 
+  const handleFolderUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = Array.from(e.target.files || []);
+    const pdfFiles = selectedFiles.filter(f => f.type === "application/pdf");
+    
+    if (pdfFiles.length === 0) {
+      toast.error("No PDF files found in the folder");
+      return;
+    }
+    
+    // Folder upload requires premium
+    if (!isPremium) {
+      setShowPremiumModal(true);
+      return;
+    }
+    
+    setFiles(pdfFiles);
+    toast.success(`Found ${pdfFiles.length} PDF files`);
+  };
+
   const extractTextFromPDF = async (file: File): Promise<{ text: string; pageCount: number }> => {
     try {
-      // Use PDF.js to extract text
-      const pdfjsLib = await import("pdfjs-dist");
-      
-      // Set worker source - try multiple CDN options
-      if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-      }
+      // Use server-side API for reliable PDF text extraction
+      const formData = new FormData();
+      formData.append("file", file);
 
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const pageCount = pdf.numPages;
-      
-      console.log(`PDF ${file.name}: ${pageCount} page(s)`);
-      
-      let fullText = "";
-      for (let i = 1; i <= pageCount; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item: any) => item.str).join(" ");
-        fullText += pageText + "\n";
-      }
+      const response = await axios.post("/api/resume/extract-text", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      return { text: fullText, pageCount };
-    } catch (err) {
+      if (response.data.success) {
+        console.log(`PDF ${file.name}: ${response.data.pageCount} page(s), ${response.data.textLength} chars`);
+        return { 
+          text: response.data.text, 
+          pageCount: response.data.pageCount 
+        };
+      } else {
+        throw new Error(response.data.error || "Extraction failed");
+      }
+    } catch (err: any) {
       console.error(`PDF extraction error for ${file.name}:`, err);
       // Return page count 1 to not disqualify, but with error message in text
       return { 
-        text: `Error extracting text from ${file.name}. Please ensure it's a valid PDF file.`, 
+        text: `Error extracting text from ${file.name}. ${err.response?.data?.error || err.message || "Please ensure it's a valid PDF file."}`, 
         pageCount: 1 
       };
     }
@@ -325,21 +360,17 @@ export default function BulkResumeScreeningPage() {
   const handlePurchasePremium = async () => {
     setPurchaseLoading(true);
     try {
-      // Record the purchase directly (simulating successful payment for ₹5)
-      const response = await axios.post("/api/payment/resume-screening", {
-        paymentId: `RSP_${Date.now()}`,
-        status: "success",
-        amount: 5
-      });
+      // Create Instamojo payment request
+      const response = await axios.post("/api/payment/resume-screening/create");
       
-      if (response.data.success) {
-        toast.success("Premium access granted! You can now upload multiple resumes.");
-        setIsPremium(true);
+      if (response.data.success && response.data.paymentUrl) {
+        // Redirect to Instamojo payment page
+        window.location.href = response.data.paymentUrl;
       } else {
-        toast.error("Failed to activate premium access");
+        toast.error(response.data.error || "Failed to create payment request");
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.error || "Failed to process payment");
+      toast.error(error.response?.data?.error || "Failed to initiate payment");
     } finally {
       setPurchaseLoading(false);
     }
@@ -447,7 +478,7 @@ export default function BulkResumeScreeningPage() {
                     ) : (
                       <>
                         <Zap className="w-5 h-5" />
-                        Get Premium - ₹49
+                        Get Premium - ₹{premiumPrice}
                       </>
                     )}
                   </button>
@@ -486,41 +517,99 @@ export default function BulkResumeScreeningPage() {
                   <div>
                     <h3 className="font-semibold text-white">
                       Upload Resume PDFs
-                      {!isPremium && <span className="text-yellow-400 text-xs ml-2">(1 file max)</span>}
                     </h3>
                     <p className="text-xs text-gray-400">
-                      {isPremium ? "Select multiple PDF files or a folder" : "Free users: 1 PDF only. Upgrade for bulk uploads."}
+                      {isPremium ? "Upload single or multiple PDF files" : "Free: 1 PDF only. Upgrade for bulk uploads."}
                     </p>
                   </div>
+                  {!isPremium && (
+                    <span className="ml-auto px-2 py-1 bg-yellow-500/20 text-yellow-400 text-xs rounded-full flex items-center gap-1">
+                      <Lock className="w-3 h-3" />
+                      1 file limit
+                    </span>
+                  )}
                 </div>
                 
-                <div className="border-2 border-dashed border-gray-700 rounded-xl p-8 text-center hover:border-blue-500/50 transition-colors">
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    multiple={isPremium}
-                    onChange={handleFileChange}
-                    className="hidden"
-                    id="resume-upload"
-                    {...(isPremium ? { webkitdirectory: "", directory: "" } as any : {})}
-                  />
-                  <label htmlFor="resume-upload" className="cursor-pointer">
-                    <Upload className="w-12 h-12 text-gray-500 mx-auto mb-3" />
-                    <p className="text-gray-400 mb-2">
-                      {isPremium ? "Click to select PDF files or drag a folder" : "Click to select a PDF file"}
-                    </p>
-                    <p className="text-xs text-gray-500">Only PDF files accepted</p>
-                  </label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Single File Upload */}
+                  <div className="border-2 border-dashed border-gray-700 rounded-xl p-6 text-center hover:border-blue-500/50 transition-colors">
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="single-upload"
+                    />
+                    <label htmlFor="single-upload" className="cursor-pointer block">
+                      <FileText className="w-10 h-10 text-blue-400 mx-auto mb-2" />
+                      <p className="text-gray-300 text-sm font-medium mb-1">Single PDF</p>
+                      <p className="text-xs text-gray-500">Free for everyone</p>
+                    </label>
+                  </div>
+
+                  {/* Multiple Files Upload */}
+                  <div 
+                    className={`border-2 border-dashed rounded-xl p-6 text-center transition-colors ${
+                      isPremium 
+                        ? "border-gray-700 hover:border-purple-500/50 cursor-pointer" 
+                        : "border-gray-800 bg-gray-900/50"
+                    }`}
+                    onClick={() => !isPremium && setShowPremiumModal(true)}
+                  >
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      multiple
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="multi-upload"
+                      disabled={!isPremium}
+                    />
+                    <label 
+                      htmlFor={isPremium ? "multi-upload" : undefined} 
+                      className={isPremium ? "cursor-pointer block" : "block"}
+                      onClick={(e) => !isPremium && e.preventDefault()}
+                    >
+                      <div className="relative">
+                        <Users className={`w-10 h-10 mx-auto mb-2 ${isPremium ? "text-purple-400" : "text-gray-600"}`} />
+                        {!isPremium && (
+                          <Lock className="w-4 h-4 text-yellow-400 absolute -top-1 -right-1 bg-gray-900 rounded-full p-0.5" />
+                        )}
+                      </div>
+                      <p className={`text-sm font-medium mb-1 ${isPremium ? "text-gray-300" : "text-gray-500"}`}>
+                        Multiple PDFs
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {isPremium ? "Click to select files" : (
+                          <span className="text-yellow-400">Premium - ₹{premiumPrice}</span>
+                        )}
+                      </p>
+                    </label>
+                  </div>
                 </div>
 
                 {files.length > 0 && (
                   <div className="mt-4 space-y-2">
-                    <p className="text-sm text-gray-400">{files.length} file(s) selected:</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-gray-400">{files.length} file(s) selected:</p>
+                      <button 
+                        onClick={() => setFiles([])}
+                        className="text-xs text-red-400 hover:text-red-300"
+                      >
+                        Clear all
+                      </button>
+                    </div>
                     <div className="max-h-32 overflow-y-auto space-y-1">
                       {files.map((file, i) => (
                         <div key={i} className="flex items-center gap-2 text-sm text-gray-300 bg-gray-800/50 px-3 py-2 rounded-lg">
                           <FileText className="w-4 h-4 text-blue-400" />
-                          {file.name}
+                          <span className="flex-1 truncate">{file.name}</span>
+                          <button
+                            onClick={() => setFiles(files.filter((_, idx) => idx !== i))}
+                            className="text-gray-500 hover:text-red-400"
+                          >
+                            <XCircle className="w-4 h-4" />
+                          </button>
                         </div>
                       ))}
                     </div>
@@ -802,6 +891,94 @@ export default function BulkResumeScreeningPage() {
           </div>
         )}
       </div>
+
+      {/* Premium Modal */}
+      {showPremiumModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-md bg-gradient-to-b from-gray-900 to-gray-950 border border-gray-800 rounded-2xl p-8 shadow-2xl">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowPremiumModal(false)}
+              className="absolute top-4 right-4 p-2 hover:bg-gray-800 rounded-lg transition-colors"
+            >
+              <XCircle className="w-5 h-5 text-gray-400" />
+            </button>
+
+            {/* Icon */}
+            <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-yellow-500/20 to-amber-500/20 rounded-full flex items-center justify-center">
+              <Crown className="w-10 h-10 text-yellow-400" />
+            </div>
+
+            {/* Content */}
+            <h2 className="text-2xl font-bold text-center text-white mb-2">
+              Upgrade to Premium
+            </h2>
+            <p className="text-center text-gray-400 mb-6">
+              Unlock bulk resume screening and analyze unlimited PDFs at once!
+            </p>
+
+            {/* Features */}
+            <div className="space-y-3 mb-6">
+              <div className="flex items-center gap-3 text-sm">
+                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                <span className="text-gray-300">Upload unlimited PDFs at once</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                <span className="text-gray-300">Folder/directory upload support</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                <span className="text-gray-300">Batch AI analysis with rankings</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                <span className="text-gray-300">Top performers dashboard</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                <span className="text-gray-300">Lifetime access - one-time payment</span>
+              </div>
+            </div>
+
+            {/* Price */}
+            <div className="text-center mb-6">
+              <div className="inline-flex items-baseline gap-1">
+                <span className="text-4xl font-bold text-white">₹{premiumPrice}</span>
+                <span className="text-gray-400">only</span>
+              </div>
+              <p className="text-xs text-gray-500 mt-1">One-time payment, lifetime access</p>
+            </div>
+
+            {/* Buttons */}
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  setShowPremiumModal(false);
+                  handlePurchasePremium();
+                }}
+                disabled={purchaseLoading}
+                className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-black font-bold rounded-xl transition-all disabled:opacity-50"
+              >
+                {purchaseLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <Zap className="w-5 h-5" />
+                    Get Premium Now - ₹{premiumPrice}
+                  </>
+                )}
+              </button>
+              <button
+                onClick={() => setShowPremiumModal(false)}
+                className="w-full px-6 py-3 text-gray-400 hover:text-white hover:bg-gray-800 rounded-xl transition-colors"
+              >
+                Continue with Free (1 PDF)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDataFromToken } from "@/helpers/getToken";
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+import { generateContentWithConfig } from "@/lib/gemini";
 
 interface CandidateInfo {
   name: string;
@@ -64,122 +63,34 @@ async function screenResumeWithGemini(
   resumeText: string,
   fileName: string
 ): Promise<Omit<ScreeningResult, 'fileName' | 'pageCount' | 'isDisqualified' | 'disqualificationReason'>> {
-  const prompt = `You are an expert HR Intelligence System that evaluates resumes for job fit, detects fake claims, and analyzes personality traits. You must return structured, unbiased, and evidence-based results.
+  const prompt = `Analyze this resume against the job description. Return ONLY a JSON object.
 
-### JOB DESCRIPTION:
-${jobDescription}
+JOB: ${jobDescription.substring(0, 1000)}
 
-### CANDIDATE RESUME:
-${resumeText}
+RESUME: ${resumeText.substring(0, 2500)}
 
-### OBJECTIVE:
-Analyze this resume and extract:
-
-1. **Candidate Information** - Extract name, email, and phone number from resume
-2. **Skill Match Score (0–100)** – based on overlap and relevance of skills with the JD.
-3. **Experience Relevance Score (0–100)** – based on role similarity, industry, seniority.
-4. **Fake Resume Probability (0–100%)** – detect exaggerated or unrealistic claims.
-5. **Culture Fit Score (0–100)** – infer personality traits from resume language.
-6. **Final Candidate Score (0–100)** – weighted aggregation of all metrics.
-7. **Personality Traits (0–10 each)**: Leadership, Communication, Collaboration, Stability, Innovation, Ownership
-8. **Evidence** – 3–5 bullet points justifying the scores.
-
-### OUTPUT FORMAT (MANDATORY - Return ONLY valid JSON, no markdown):
-{
-  "candidateInfo": {
-    "name": "Full Name or 'Not Found'",
-    "email": "email@example.com or 'Not Found'",
-    "phone": "Phone Number or 'Not Found'"
-  },
-  "skillMatch": 0-100,
-  "experienceRelevance": 0-100,
-  "fakeResumeProbability": "0-100%",
-  "cultureFit": 0-100,
-  "finalCandidateScore": 0-100,
-  "traits": {
-    "leadership": 0-10,
-    "communication": 0-10,
-    "collaboration": 0-10,
-    "stability": 0-10,
-    "innovation": 0-10,
-    "ownership": 0-10
-  },
-  "evidence": [
-    "Point 1",
-    "Point 2",
-    "Point 3"
-  ]
-}
-
-Return ONLY the JSON object, nothing else.`;
+Return this exact JSON structure with real values:
+{"candidateInfo":{"name":"extracted name","email":"extracted email","phone":"extracted phone"},"skillMatch":75,"experienceRelevance":70,"fakeResumeProbability":"10%","cultureFit":80,"finalCandidateScore":75,"traits":{"leadership":7,"communication":8,"collaboration":7,"stability":8,"innovation":7,"ownership":8},"evidence":["reason 1","reason 2","reason 3"]}`;
 
   try {
-    if (!GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY not configured");
-    }
-    
     console.log(`\n=== Screening Resume: ${fileName} ===`);
-    console.log(`Resume text (first 500 chars): ${resumeText.substring(0, 500)}...`);
     console.log(`Resume text length: ${resumeText.length} characters`);
     
-    // Retry logic for rate limiting
-    let response;
-    let retryCount = 0;
-    const maxRetries = 3;
-    const models = ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-1.5-pro"]; // Try different models
-    let modelIndex = 0;
+    // Use the new Gemini SDK with gemini-2.5-flash
+    console.log("[BulkScreen] Calling Gemini API...");
+    const text = await generateContentWithConfig(prompt, {
+      temperature: 0.5,
+      maxOutputTokens: 8000,  // Increased to avoid MAX_TOKENS cutoff
+    });
     
-    while (retryCount < maxRetries) {
-      const currentModel = models[modelIndex % models.length];
-      console.log(`Trying model: ${currentModel}`);
-      
-      response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${currentModel}:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.3,
-              maxOutputTokens: 2000,
-            },
-          }),
-        }
-      );
-      
-      // If rate limited (429), wait and retry
-      if (response.status === 429) {
-        retryCount++;
-        const waitTime = 15000 * retryCount; // 15s, 30s, 45s
-        console.log(`Rate limited for ${fileName}. Waiting ${waitTime/1000}s before retry ${retryCount}/${maxRetries}...`);
-        await delay(waitTime);
-        continue;
-      }
-      
-      break; // Success or other error, exit loop
-    }
-
-    if (!response || !response.ok) {
-      const errorData = response ? await response.text() : "No response";
-      console.error(`Gemini API error for ${fileName}:`, response?.status, errorData);
-      throw new Error(`Gemini API error: ${response?.status || "unknown"}`);
-    }
-
-    const data = await response.json();
-    
-    // Check for blocked content or empty response
-    if (data.candidates?.[0]?.finishReason === "SAFETY") {
-      console.warn(`Content blocked for ${fileName}`);
-      throw new Error("Content blocked by safety filters");
-    }
-    
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    console.log("[BulkScreen] Gemini response received:", text ? `${text.length} chars` : "EMPTY");
     
     if (!text) {
-      console.error(`Empty response for ${fileName}:`, JSON.stringify(data));
+      console.error(`[BulkScreen] Empty response for ${fileName}`);
       throw new Error("Empty AI response");
     }
+    
+    console.log("[BulkScreen] Response preview:", text.substring(0, 300));
 
     // Parse JSON from response
     const jsonMatch = text.match(/\{[\s\S]*\}/);

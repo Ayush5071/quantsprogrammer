@@ -9,15 +9,11 @@ connect();
 // Helper to get user ID from request
 async function getUserIdFromRequest(request: NextRequest): Promise<string | null> {
   try {
-    // Try to get token from cookie first
     const cookieToken = request.cookies.get("token")?.value;
-    
-    // Try Authorization header as fallback
     const authHeader = request.headers.get("authorization");
     const headerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
     
     const token = cookieToken || headerToken;
-    
     if (!token) return null;
     
     const decoded = jwt.verify(token, process.env.TOKEN_SECRET!) as { id: string };
@@ -27,43 +23,55 @@ async function getUserIdFromRequest(request: NextRequest): Promise<string | null
   }
 }
 
-// GET - Check if user has purchased resume screening premium
+// GET - Check subscription status and daily usage
 export async function GET(request: NextRequest) {
   try {
     const userId = await getUserIdFromRequest(request);
     
     if (!userId) {
       return NextResponse.json(
-        { purchased: false, message: "Not authenticated" },
+        { subscribed: false, canInterview: false, message: "Not authenticated" },
         { status: 200 }
       );
     }
     
-    const user = await User.findById(userId).select("purchases");
+    const user = await User.findById(userId).select("purchases mockInterviewUsage");
     
     if (!user) {
       return NextResponse.json(
-        { purchased: false, message: "User not found" },
+        { subscribed: false, canInterview: false, message: "User not found" },
         { status: 200 }
       );
     }
     
-    const purchased = user.purchases?.resumeScreeningPremium?.purchased || false;
+    const subscribed = user.purchases?.mockInterviews?.purchased || false;
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    
+    // Check daily usage
+    const usageDate = user.mockInterviewUsage?.date;
+    const usageCount = usageDate === today ? (user.mockInterviewUsage?.count || 0) : 0;
+    
+    // Free users can do 1 interview per day
+    const canInterview = subscribed || usageCount < 1;
+    const remainingFreeInterviews = subscribed ? "unlimited" : Math.max(0, 1 - usageCount);
     
     return NextResponse.json({
-      purchased,
-      purchasedAt: user.purchases?.resumeScreeningPremium?.purchasedAt || null,
+      subscribed,
+      canInterview,
+      usageToday: usageCount,
+      remainingFreeInterviews,
+      subscribedAt: user.purchases?.mockInterviews?.purchasedAt || null,
     });
   } catch (error: any) {
-    console.error("Error checking purchase status:", error);
+    console.error("Error checking mock interview status:", error);
     return NextResponse.json(
-      { error: "Failed to check purchase status" },
+      { error: "Failed to check subscription status" },
       { status: 500 }
     );
   }
 }
 
-// POST - Record successful payment
+// POST - Record successful payment / subscription activation
 export async function POST(request: NextRequest) {
   try {
     const userId = await getUserIdFromRequest(request);
@@ -85,19 +93,19 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Get dynamic pricing
+    // Get dynamic pricing for fallback
     const pricing = await getPricing();
     
-    // Update user's purchase status
+    // Update user's subscription status
     const user = await User.findByIdAndUpdate(
       userId,
       {
         $set: {
-          "purchases.resumeScreeningPremium": {
+          "purchases.mockInterviews": {
             purchased: true,
             purchasedAt: new Date(),
-            paymentId: paymentId || `RSP_${Date.now()}`,
-            amount: amount || pricing.resumeScreeningPremium,
+            paymentId: paymentId || `MI_${Date.now()}`,
+            amount: amount || pricing.mockInterviews,
           }
         }
       },
@@ -113,13 +121,13 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      message: "Premium access granted successfully",
-      purchased: true,
+      message: "Mock interview subscription activated successfully",
+      subscribed: true,
     });
   } catch (error: any) {
-    console.error("Error recording purchase:", error);
+    console.error("Error recording subscription:", error);
     return NextResponse.json(
-      { error: "Failed to record purchase" },
+      { error: "Failed to record subscription" },
       { status: 500 }
     );
   }

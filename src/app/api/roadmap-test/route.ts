@@ -4,8 +4,7 @@ import Roadmap from "@/models/roadmapModel";
 import User from "@/models/userModel";
 import { NextResponse, NextRequest } from "next/server";
 import { getDataFromToken } from "@/helpers/getToken";
-
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+import { generateContentWithConfig } from "@/lib/gemini";
 
 connect();
 
@@ -63,36 +62,23 @@ Important:
 - correctAnswer is the index (0-3) of the correct option
 - Ensure all 30 MCQs and 10 short answer questions are included
 - Questions should be relevant to the roadmap topics
-- Make questions challenging but fair`;
+- Make questions challenging but fair
+- Be creative and generate unique, diverse questions each time`;
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 8192,
-          },
-        }),
-      }
-    );
-
-    const data = await response.json();
+    const jsonText = await generateContentWithConfig(prompt, {
+      temperature: 0.9, // Higher temperature for more creative/diverse questions
+      maxOutputTokens: 8192,
+    });
     
-    if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
+    if (!jsonText) {
       throw new Error("Invalid response from Gemini");
     }
 
-    let jsonText = data.candidates[0].content.parts[0].text;
-    
     // Clean up the response - remove markdown code blocks if present
-    jsonText = jsonText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    const cleanedText = jsonText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
     
-    const parsed = JSON.parse(jsonText);
+    const parsed = JSON.parse(cleanedText);
     
     // Validate the response
     if (!parsed.mcqQuestions || parsed.mcqQuestions.length < 30) {
@@ -190,10 +176,23 @@ export async function POST(request: NextRequest) {
 
     // Check for existing test
     let test = await RoadmapTest.findOne({ roadmapId });
+    
+    // Check if test exists and is not expired (4 days)
+    const isExpired = test && test.expiresAt && new Date() > new Date(test.expiresAt);
+    
+    if (isExpired) {
+      console.log(`Test for roadmap ${roadmapId} expired. Deleting and regenerating...`);
+      await RoadmapTest.deleteOne({ roadmapId });
+      test = null;
+    }
 
-    // Generate new test if doesn't exist or admin requested regeneration
+    // Generate new test if doesn't exist, expired, or admin requested regeneration
     if (!test || (regenerate && user.isAdmin)) {
+      console.log(`Generating new test for roadmap: ${roadmap.title}`);
       const { mcqQuestions, shortAnswerQuestions } = await generateTestWithGemini(roadmap);
+      
+      // Set expiration to 4 days from now
+      const expiresAt = new Date(Date.now() + 4 * 24 * 60 * 60 * 1000);
       
       if (test && regenerate) {
         // Update existing test
@@ -201,6 +200,8 @@ export async function POST(request: NextRequest) {
         test.shortAnswerQuestions = shortAnswerQuestions;
         test.lastRegeneratedBy = userId;
         test.lastRegeneratedAt = new Date();
+        test.generatedAt = new Date();
+        test.expiresAt = expiresAt;
         await test.save();
       } else {
         // Create new test
@@ -209,6 +210,7 @@ export async function POST(request: NextRequest) {
           roadmapTitle: roadmap.title,
           mcqQuestions,
           shortAnswerQuestions,
+          expiresAt,
         });
       }
     }
@@ -221,6 +223,7 @@ export async function POST(request: NextRequest) {
       duration: test.duration,
       totalMarks: test.totalMarks,
       passingPercentage: test.passingPercentage,
+      expiresAt: test.expiresAt, // Include expiration for UI if needed
       mcqQuestions: test.mcqQuestions.map((q: any) => ({
         question: q.question,
         options: q.options,
@@ -235,6 +238,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       test: testForUser,
       message: regenerate ? "Test regenerated successfully" : "Test retrieved successfully",
+      cached: !regenerate && !isExpired, // Indicate if test was from cache
+      expiresAt: test.expiresAt,
     });
   } catch (error: any) {
     console.error("Error in test generation:", error);
