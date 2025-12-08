@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+import { generateContentWithConfig } from "@/lib/gemini";
 
 interface GitHubUser {
   login: string;
@@ -373,19 +371,13 @@ Generate creative, funny, and slightly sarcastic content in JSON format:
   ]
 }
 
-Be creative, use modern internet humor, make pop culture references, and be encouraging while being slightly roasty. Keep each tagline under 100 characters. Fun facts should be full sentences.`;
+Be creative, use modern internet humor, make pop culture references, and be encouraging while being slightly roasty. Keep each tagline under 100 characters. Fun facts should be full sentences. Return ONLY valid JSON, no markdown.`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: prompt,
-      config: {
-        temperature: 0.9,
-        maxOutputTokens: 1500,
-      },
+    const text = await generateContentWithConfig(prompt, {
+      temperature: 0.9,
+      maxOutputTokens: 1500,
     });
-
-    const text = response.text || "";
     
     // Extract JSON from response
     const jsonMatch = text.match(/\{[\s\S]*\}/);

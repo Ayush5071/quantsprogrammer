@@ -25,6 +25,7 @@ import HowItWorks from "@/components/sections/home/HowItWorks";
 import FAQSection from "@/components/sections/home/FAQSection";
 import CTASection from "@/components/sections/home/CTASection";
 import GitHubWrappedPromo from "@/components/sections/home/GitHubWrappedPromo";
+import PremiumDeals from "@/components/sections/home/PremiumDeals";
 
 import { gsap } from "gsap";
 import Loading from "@/components/ui/Loading";
@@ -50,6 +51,7 @@ const MemoizedHowItWorks = memo(HowItWorks);
 const MemoizedFAQSection = memo(FAQSection);
 const MemoizedCTASection = memo(CTASection);
 const MemoizedGitHubWrappedPromo = memo(GitHubWrappedPromo);
+const MemoizedPremiumDeals = memo(PremiumDeals);
 const MemoizedFooter = memo(Footer);
 
 export default function Home() {
@@ -233,7 +235,14 @@ export default function Home() {
     { name: "Blogs", link: "/blogs" },
     { name: "Roadmaps", link: "/explore" },
     { name: "Company Problems", link: "/company-problems" },
-    { name: "GitHub Wrapped", link: "/github-wrapped" },
+    {
+      name: "Wrapped 2025",
+      dropdown: [
+        { name: "GitHub Wrapped", link: "/github-wrapped" },
+        { name: "Codeforces Wrapped", link: "/codeforces-wrapped" },
+        { name: "LeetCode Wrapped", link: "/leetcode-wrapped" },
+      ],
+    },
     {
       name: "Resume",
       dropdown: [
@@ -333,6 +342,7 @@ export default function Home() {
             <MemoizedStatsSection />
             <MemoizedGitHubWrappedPromo />
             <MemoizedFeaturesGrid />
+            <MemoizedPremiumDeals />
             <MemoizedPrepareSection />
             <MemoizedHowItWorks />
             <MemoizedFAQSection />

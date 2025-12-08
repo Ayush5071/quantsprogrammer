@@ -23,17 +23,29 @@ import {
 export function Footer() {
   const user = useCurrentUser();
   const navItems = [
-    { name: "About", link: "/#about", icon: <FaUsers className="h-4 w-4" /> },
-    { name: "Blog & Facts", link: "/blogs", icon: <FaCode className="h-4 w-4" /> },
-    { name: "RoadMaps", link: "/explore", icon: <FaRocket className="h-4 w-4" /> },
-    { name: "Contact", link: "/#contact", icon: <FaGlobe className="h-4 w-4" /> },
+    { name: "About", link: "/about", icon: <FaUsers className="h-4 w-4" /> },
+    { name: "Blogs", link: "/blogs", icon: <FaCode className="h-4 w-4" /> },
+    { name: "Roadmaps", link: "/explore", icon: <FaRocket className="h-4 w-4" /> },
+    { name: "Company Problems", link: "/company-problems", icon: <FaGlobe className="h-4 w-4" /> },
+    { name: "Mock Interview", link: "/interview", icon: <FaRocket className="h-4 w-4" /> },
+    { name: "Resume Builder", link: "/resume-builder", icon: <FaShieldAlt className="h-4 w-4" /> },
   ];
 
   const features = [
-    { name: "AI Interviews", icon: <FaRocket className="h-4 w-4" />, color: "text-blue-400" },
-    { name: "Career Roadmaps", icon: <FaCode className="h-4 w-4" />, color: "text-purple-400" },
-    { name: "Certification", icon: <FaShieldAlt className="h-4 w-4" />, color: "text-green-400" },
-    { name: "Premium Support", icon: <FaStar className="h-4 w-4" />, color: "text-yellow-400" },
+    { name: "AI Mock Interviews", link: "/interview", icon: <FaRocket className="h-4 w-4" />, color: "text-blue-400" },
+    { name: "Resume Builder", link: "/resume-builder", icon: <FaCode className="h-4 w-4" />, color: "text-purple-400" },
+    { name: "AI Resume Screening", link: "/resume-screening", icon: <FaShieldAlt className="h-4 w-4" />, color: "text-cyan-400" },
+    { name: "Coding Arena", link: "/top-interviews", icon: <FaShieldAlt className="h-4 w-4" />, color: "text-green-400" },
+    { name: "GitHub Wrapped", link: "/github-wrapped", icon: <FaStar className="h-4 w-4" />, color: "text-gray-400" },
+    { name: "Codeforces Wrapped", link: "/codeforces-wrapped", icon: <FaStar className="h-4 w-4" />, color: "text-orange-400" },
+    { name: "LeetCode Wrapped", link: "/leetcode-wrapped", icon: <FaStar className="h-4 w-4" />, color: "text-yellow-400" },
+  ];
+
+  const legalLinks = [
+    { name: "Terms & Conditions", link: "/terms-and-conditions" },
+    { name: "Refund Policy", link: "/refund-policy" },
+    { name: "Shipping Policy", link: "/shipping-policy" },
+    { name: "Contact Support", link: "/contact-support" },
   ];
 
   const socialLinks = [
@@ -257,21 +269,23 @@ export function Footer() {
               </div>
               Features
             </h3>
-            <div className="space-y-2 sm:space-y-3 md:space-y-4">
+            <div className="space-y-2 sm:space-y-3">
               {features.map((feature, index) => (
-                <motion.div
+                <motion.a
                   key={feature.name}
+                  href={feature.link}
                   initial={{ opacity: 0, scale: 0.9 }}
                   whileInView={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                  transition={{ duration: 0.5, delay: 0.5 + index * 0.05 }}
                   whileHover={{ scale: 1.02 }}
-                  className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-300 cursor-pointer"
+                  className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-white/5 rounded-xl hover:bg-white/10 transition-all duration-300 cursor-pointer group"
                 >
-                  <div className={`${feature.color} text-sm sm:text-base`}>
+                  <div className={`${feature.color} text-sm sm:text-base group-hover:scale-110 transition-transform duration-300`}>
                     {feature.icon}
                   </div>
-                  <span className="text-gray-300 font-medium text-sm sm:text-base">{feature.name}</span>
-                </motion.div>
+                  <span className="text-gray-300 font-medium text-sm group-hover:text-white transition-colors duration-300">{feature.name}</span>
+                  <FaArrowRight className="h-2.5 w-2.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 ml-auto text-gray-400" />
+                </motion.a>
               ))}
             </div>
             <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 backdrop-blur-lg border border-green-500/20 rounded-2xl">
