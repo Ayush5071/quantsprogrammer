@@ -96,6 +96,67 @@ const userSchema = new Schema({
         date: { type: String }, // YYYY-MM-DD format
         count: { type: Number, default: 0 },
     },
+    // Profile photo
+    profilePhoto: { type: String },
+    // Bio
+    bio: { type: String, maxlength: 500 },
+    // Social links
+    linkedIn: { type: String },
+    twitter: { type: String },
+    portfolio: { type: String },
+    // Coding profiles
+    codingProfiles: {
+        github: {
+            username: { type: String },
+            connected: { type: Boolean, default: false },
+            stats: {
+                totalCommits: { type: Number, default: 0 },
+                totalStars: { type: Number, default: 0 },
+                publicRepos: { type: Number, default: 0 },
+                followers: { type: Number, default: 0 },
+            },
+            lastUpdated: { type: Date },
+        },
+        leetcode: {
+            username: { type: String },
+            connected: { type: Boolean, default: false },
+            stats: {
+                totalSolved: { type: Number, default: 0 },
+                easySolved: { type: Number, default: 0 },
+                mediumSolved: { type: Number, default: 0 },
+                hardSolved: { type: Number, default: 0 },
+                ranking: { type: Number },
+                contestRating: { type: Number },
+            },
+            lastUpdated: { type: Date },
+        },
+        codeforces: {
+            username: { type: String },
+            connected: { type: Boolean, default: false },
+            stats: {
+                rating: { type: Number, default: 0 },
+                maxRating: { type: Number, default: 0 },
+                rank: { type: String },
+                problemsSolved: { type: Number, default: 0 },
+                contestsParticipated: { type: Number, default: 0 },
+            },
+            lastUpdated: { type: Date },
+        },
+        codechef: {
+            username: { type: String },
+            connected: { type: Boolean, default: false },
+            stats: {
+                rating: { type: Number, default: 0 },
+                stars: { type: Number, default: 0 },
+                globalRank: { type: Number },
+                problemsSolved: { type: Number, default: 0 },
+            },
+            lastUpdated: { type: Date },
+        },
+    },
+    // Profile visibility
+    isPublicProfile: { type: Boolean, default: true },
+    profileSlug: { type: String, unique: true, sparse: true },
 });
 
 if (mongoose.models.users) {

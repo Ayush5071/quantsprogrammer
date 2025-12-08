@@ -820,15 +820,15 @@ export default function BulkResumeScreeningPage() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           <div className="bg-gray-800/50 rounded-lg p-3">
                             <p className="text-xs text-gray-400 mb-1">Name</p>
-                            <p className="text-white font-medium">{res.candidateInfo.name}</p>
+                            <p className="text-white font-medium">{res.candidateInfo?.name || "Not Found"}</p>
                           </div>
                           <div className="bg-gray-800/50 rounded-lg p-3">
                             <p className="text-xs text-gray-400 mb-1">Email</p>
-                            <p className="text-white font-medium">{res.candidateInfo.email}</p>
+                            <p className="text-white font-medium">{res.candidateInfo?.email || "Not Found"}</p>
                           </div>
                           <div className="bg-gray-800/50 rounded-lg p-3">
                             <p className="text-xs text-gray-400 mb-1">Phone</p>
-                            <p className="text-white font-medium">{res.candidateInfo.phone}</p>
+                            <p className="text-white font-medium">{res.candidateInfo?.phone || "Not Found"}</p>
                           </div>
                         </div>
 
@@ -856,11 +856,13 @@ export default function BulkResumeScreeningPage() {
                         <div>
                           <p className="text-sm font-medium text-gray-400 mb-2">Analysis Evidence</p>
                           <ul className="space-y-1">
-                            {res.evidence.map((ev, i) => (
-                              <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
-                                <CheckCircle className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
-                                {ev}
-                              </li>
+                            {(res.evidence && Array.isArray(res.evidence) ? res.evidence : []).map((ev, i) => (
+                              ev && (
+                                <li key={i} className="flex items-start gap-2 text-sm text-gray-300">
+                                  <CheckCircle className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                                  {String(ev)}
+                                </li>
+                              )
                             ))}
                           </ul>
                         </div>

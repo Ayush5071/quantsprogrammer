@@ -29,9 +29,9 @@ export async function POST(req: NextRequest) {
     
     let questions: string[] = [];
     try {
-      const text = geminiText;
+      const text = typeof geminiText === 'string' ? geminiText : '';
       console.log("[API] Gemini extracted text:", text);
-      const match = text.match(/\[[\s\S]*\]/);
+      const match = text?.match(/\[[\s\S]*\]/);
       if (match) {
         questions = JSON.parse(match[0]);
       } else {

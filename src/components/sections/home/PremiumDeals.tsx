@@ -259,10 +259,10 @@ export default function PremiumDeals() {
           className="mt-16 md:mt-20 grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6"
         >
           {[
-            { icon: Users, label: "Happy Users", value: "10,000+" },
+            { icon: Users, label: "Happy Users", value: "150+" },
             { icon: Trophy, label: "Success Rate", value: "95%" },
-            { icon: BadgeCheck, label: "Certifications", value: "5,000+" },
-            { icon: TrendingUp, label: "Avg. Improvement", value: "40%" }
+            { icon: BadgeCheck, label: "Certifications", value: "50+" },
+            { icon: TrendingUp, label: "Avg. Improvement", value: "30%" }
           ].map((stat, index) => (
             <motion.div
               key={stat.label}

@@ -27,6 +27,7 @@ html {
 body {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  min-height: 100vh;
 }
 
 /* Smooth scrolling and mobile optimization */
@@ -42,6 +43,19 @@ body {
 
 body,html{
   scroll-behavior: smooth;
+  min-height: 100%;
+}
+
+/* Locomotive Scroll container fix for footer visibility */
+[data-scroll-container] {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure footer is fully visible */
+footer {
+  flex-shrink: 0;
 }
 
 @font-face {

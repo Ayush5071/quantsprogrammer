@@ -4,6 +4,9 @@ import { connect } from "@/dbConfig/dbConfig";
 import User from "@/models/userModel";
 import jwt from "jsonwebtoken";
 
+// Increase timeout for Vercel/serverless functions
+export const maxDuration = 30; // 30 seconds max timeout
+
 connect();
 
 // Helper to get user ID from request
@@ -75,16 +78,25 @@ export async function POST(req: NextRequest) {
 
   console.log("[Gemini Interview] Prompt:", prompt);
 
-  const geminiText = await generateContent(prompt);
-  console.log("[Gemini Interview] Response:", geminiText);
+  let geminiText;
+  try {
+    geminiText = await generateContent(prompt);
+    console.log("[Gemini Interview] Response:", geminiText);
+  } catch (err) {
+    console.error("[Gemini Interview] Gemini API Error:", err);
+    return NextResponse.json({
+      questions: ["Sorry, could not generate questions due to a server error. Please try again."]
+    });
+  }
   
   let questions: string[] = [];
   try {
-    // Try to extract JSON array from the response, even if extra text is present
-    const text = geminiText;
+    // Ensure geminiText is a string
+    const text = typeof geminiText === 'string' ? geminiText : JSON.stringify(geminiText);
     console.log("[Gemini Interview] Extracted Text:", text);
+    
     // Use a more compatible regex for JSON array extraction
-    const match = text.match(/\[[\s\S]*\]/);
+    const match = text?.match(/\[[\s\S]*\]/);
     if (match) {
       questions = JSON.parse(match[0]);
     } else {

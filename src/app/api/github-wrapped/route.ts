@@ -379,8 +379,9 @@ Be creative, use modern internet humor, make pop culture references, and be enco
       maxOutputTokens: 1500,
     });
     
-    // Extract JSON from response
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    // Ensure text is a string and extract JSON
+    const textStr = typeof text === 'string' ? text : '';
+    const jsonMatch = textStr?.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const parsed = JSON.parse(jsonMatch[0]);
       return parsed;

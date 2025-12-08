@@ -4,8 +4,12 @@ import mongoose from "mongoose";
 import { connect } from "@/dbConfig/dbConfig";
 import { generateContent } from "@/lib/gemini";
 
+// Increase timeout for Vercel/serverless functions
+export const maxDuration = 30; // 30 seconds max timeout
+
 // Bulletproof extract and clean function for Gemini output
-function extractAndCleanJson(raw: string): string {
+function extractAndCleanJson(raw: string | undefined | null): string {
+  if (!raw || typeof raw !== 'string') return '{}';
   let cleaned = raw.replace(/```json|```/gi, '').trim();
   // Replace smart quotes and Unicode quotes with standard quotes
   cleaned = cleaned
@@ -40,8 +44,18 @@ export async function POST(req: NextRequest) {
     const prompt = `You are an expert technical interviewer. Here are the interview questions and my answers. Please provide constructive, actionable feedback for my overall performance and a single overall score out of 10. Be very strict cut marks as much as possible : only give a score of 8, 9, or 10 for truly perfect, expert-level answers. Give 0, 1, 2, 3, or 4 for poor, incorrect, or missing answers. If the answers are mostly wrong or missing, give 0. Respond ONLY in this exact JSON format (no markdown, no code block): { "feedback": "...", "score": 7 }\n\nQuestions and Answers:\n${questions.map((q: string, i: number) => `Q${i+1}: ${q}\nA${i+1}: ${answers[i] || "(skipped)"}`).join("\n")}`;
     console.log("[Interview Feedback] Batch prompt:", prompt);
     
-    const geminiText = await generateContent(prompt);
-    console.log("[Interview Feedback] Gemini batch response:", geminiText);
+    let geminiText;
+    try {
+      geminiText = await generateContent(prompt);
+      console.log("[Interview Feedback] Gemini batch response:", geminiText);
+    } catch (err) {
+      console.error("[Interview Feedback] Gemini API Error:", err);
+      return NextResponse.json({ 
+        feedback: "Sorry, could not generate feedback due to a server error. Please try again.", 
+        score: 0 
+      });
+    }
+    
     let feedback = "No feedback";
     let score = 0;
     try {
@@ -51,8 +65,8 @@ export async function POST(req: NextRequest) {
       score = parsed.score;
     } catch (err) {
       // Fallback: try to extract feedback and score with regex
-      const feedbackMatch = geminiText.match(/"feedback"\s*:\s*"([^"]+)"/);
-      const scoreMatch = geminiText.match(/"score"\s*:\s*(\d+)/);
+      const feedbackMatch = geminiText?.match(/"feedback"\s*:\s*"([^"]+)"/);
+      const scoreMatch = geminiText?.match(/"score"\s*:\s*(\d+)/);
       feedback = feedbackMatch ? feedbackMatch[1] : "Sorry, could not get feedback. Please try again.";
       score = scoreMatch ? Number(scoreMatch[1]) : 0;
       console.error("[Interview Feedback] Batch parse error (fallback used):", err, geminiText);
@@ -74,8 +88,17 @@ export async function POST(req: NextRequest) {
   const singlePrompt = `You are an expert technical interviewer. Here is the interview question and my answer. Please provide constructive, actionable feedback and a single score out of 10. Be very strict: only give a score of 8, 9, or 10 for truly perfect, expert-level answers. Give 5, 6, or 7 only for partially correct answers. Give 0, 1, 2, 3, or 4 for poor, incorrect, or missing answers. If the answer is mostly wrong or missing, give 0. Respond ONLY in this exact JSON format (no markdown, no code block): { "feedback": "...", "score": 7 }\n\nQuestion: ${question}\nAnswer: ${answer}`;
   console.log("[Interview Feedback] Single prompt:", singlePrompt);
   
-  const singleGeminiText = await generateContent(singlePrompt);
-  console.log("[Interview Feedback] Gemini single response:", singleGeminiText);
+  let singleGeminiText;
+  try {
+    singleGeminiText = await generateContent(singlePrompt);
+    console.log("[Interview Feedback] Gemini single response:", singleGeminiText);
+  } catch (err) {
+    console.error("[Interview Feedback] Gemini API Error:", err);
+    return NextResponse.json({ 
+      feedback: "Sorry, could not generate feedback due to a server error. Please try again.", 
+      score: 0 
+    });
+  }
   
   let feedback = "No feedback";
   let score = 0;
@@ -86,8 +109,8 @@ export async function POST(req: NextRequest) {
     score = parsed.score;
   } catch (err) {
     // Fallback: try to extract feedback and score with regex
-    const feedbackMatch = singleGeminiText.match(/"feedback"\s*:\s*"([^"]+)"/);
-    const scoreMatch = singleGeminiText.match(/"score"\s*:\s*(\d+)/);
+    const feedbackMatch = singleGeminiText?.match(/"feedback"\s*:\s*"([^"]+)"/);
+    const scoreMatch = singleGeminiText?.match(/"score"\s*:\s*(\d+)/);
     feedback = feedbackMatch ? feedbackMatch[1] : "Sorry, could not get feedback. Please try again.";
     score = scoreMatch ? Number(scoreMatch[1]) : 0;
     console.error("[Interview Feedback] Single parse error (fallback used):", err, singleGeminiText);

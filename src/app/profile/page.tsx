@@ -3,16 +3,45 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 import InterviewHistory from "./InterviewHistory";
 import Certificate from "@/components/component/Certificate";
+import { ProfilePhotoModal, CodingProfilesModal } from "@/components/component/CodingProfileModals";
 import { 
   User, Mail, MapPin, GraduationCap, Phone, Calendar, 
   Edit3, Save, X, LogOut, Key, ChevronRight, BarChart3,
   Trophy, BookOpen, ArrowLeft, Menu, Settings, PenSquare,
-  CheckCircle, AlertCircle, Award, FileText, Eye, Download
+  CheckCircle, AlertCircle, Award, FileText, Eye, Download,
+  Camera, Code2, Share2, ExternalLink, Github, Zap
 } from "lucide-react";
+
+interface CodingProfile {
+  username?: string;
+  stats?: {
+    totalCommits?: number;
+    publicRepos?: number;
+    followers?: number;
+    following?: number;
+    totalStars?: number;
+    totalSolved?: number;
+    easySolved?: number;
+    mediumSolved?: number;
+    hardSolved?: number;
+    ranking?: number;
+    acceptanceRate?: number;
+    rating?: number;
+    maxRating?: number;
+    rank?: string;
+    problemsSolved?: number;
+    contests?: number;
+    stars?: string;
+    globalRank?: number;
+  };
+  lastFetched?: Date;
+}
 
 interface User {
   username: string;
@@ -27,6 +56,17 @@ interface User {
   contactNumber?: string;
   _id?: string;
   isAdmin?: boolean;
+  profilePhoto?: {
+    url?: string;
+    publicId?: string;
+    uploadedAt?: Date;
+  };
+  codingProfiles?: {
+    github?: CodingProfile;
+    leetcode?: CodingProfile;
+    codeforces?: CodingProfile;
+    codechef?: CodingProfile;
+  };
   sampleTestAttempt?: {
     completed: boolean;
     score: number;
@@ -97,22 +137,79 @@ export default function ProfilePage() {
   const [blogRequest, setBlogRequest] = useState<any>(null);
   const [canCreateBlog, setCanCreateBlog] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'history' | 'certificates' | 'tests'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'history' | 'certificates' | 'tests' | 'coding'>('overview');
   const [certifications, setCertifications] = useState<any[]>([]);
   const [loadingCerts, setLoadingCerts] = useState(true);
   const [selectedCertificate, setSelectedCertificate] = useState<any>(null);
   const [testAttempts, setTestAttempts] = useState<Record<string, any>>({});
+  
+  // Coding Profiles & Photo Modal States
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [showCodingModal, setShowCodingModal] = useState(false);
+  const [codingProfiles, setCodingProfiles] = useState<any>({});
+  const [loadingProfiles, setLoadingProfiles] = useState(false);
 
   // Cached user data fetching
   const fetchUserDetails = useCallback(async () => {
     try {
       const res = await axios.get("/api/users/me");
       setUserData(res.data.user);
+      // Also set coding profiles from user data
+      if (res.data.user?.codingProfiles) {
+        setCodingProfiles(res.data.user.codingProfiles);
+      }
     } catch (error: any) {
       console.error(error.message);
       toast.error("Failed to fetch user details");
     }
   }, []);
+
+  // Fetch coding profiles separately
+  const fetchCodingProfiles = useCallback(async () => {
+    setLoadingProfiles(true);
+    try {
+      const res = await axios.get("/api/users/coding-profiles");
+      if (res.data.codingProfiles) {
+        setCodingProfiles(res.data.codingProfiles);
+      }
+    } catch (error) {
+      console.error("Error fetching coding profiles:", error);
+    }
+    setLoadingProfiles(false);
+  }, []);
+
+  // Handle profile photo update
+  const handlePhotoUpdate = useCallback(async (photoData: { url?: string; publicId?: string } | null) => {
+    if (userData) {
+      setUserData({
+        ...userData,
+        profilePhoto: photoData ? { ...photoData, uploadedAt: new Date() } : undefined
+      });
+    }
+    setShowPhotoModal(false);
+  }, [userData]);
+
+  // Handle coding profile update
+  const handleProfilesUpdate = useCallback(async () => {
+    await fetchCodingProfiles();
+    await fetchUserDetails();
+    setShowCodingModal(false);
+  }, [fetchCodingProfiles, fetchUserDetails]);
+
+  // Calculate total problems solved
+  const totalProblemsSolved = useMemo(() => {
+    let total = 0;
+    if (codingProfiles?.leetcode?.stats?.totalSolved) {
+      total += codingProfiles.leetcode.stats.totalSolved;
+    }
+    if (codingProfiles?.codeforces?.stats?.problemsSolved) {
+      total += codingProfiles.codeforces.stats.problemsSolved;
+    }
+    if (codingProfiles?.codechef?.stats?.problemsSolved) {
+      total += codingProfiles.codechef.stats.problemsSolved;
+    }
+    return total;
+  }, [codingProfiles]);
 
   // Fetch roadmaps and progress (no cache for progress to get fresh data)
   const fetchRoadmapsAndProgress = useCallback(async () => {
@@ -360,13 +457,36 @@ export default function ProfilePage() {
 
       <main className="max-w-7xl mx-auto px-4 py-8">
         {/* Profile Header Card */}
-        <div className="bg-[#111118] border border-white/5 rounded-2xl p-6 sm:p-8 mb-6">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-[#111118] border border-white/5 rounded-2xl p-6 sm:p-8 mb-6"
+        >
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-            {/* Avatar */}
-            <div className="relative">
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-4xl font-bold text-white shadow-lg shadow-blue-500/20">
-                {userData?.username?.[0]?.toUpperCase() || '?'}
-              </div>
+            {/* Avatar with Edit Photo Button */}
+            <div className="relative group">
+              {userData?.profilePhoto?.url ? (
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl overflow-hidden shadow-lg shadow-blue-500/20">
+                  <Image
+                    src={userData.profilePhoto.url}
+                    alt="Profile"
+                    width={112}
+                    height={112}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-4xl font-bold text-white shadow-lg shadow-blue-500/20">
+                  {userData?.username?.[0]?.toUpperCase() || '?'}
+                </div>
+              )}
+              {/* Edit Photo Overlay */}
+              <button
+                onClick={() => setShowPhotoModal(true)}
+                className="absolute inset-0 rounded-2xl bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity cursor-pointer"
+              >
+                <Camera className="w-6 h-6 text-white" />
+              </button>
               <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center ${
                 userData?.isVerified ? 'bg-green-500' : 'bg-amber-500'
               }`}>
@@ -412,6 +532,20 @@ export default function ProfilePage() {
             {/* Quick Actions */}
             <div className="flex flex-row sm:flex-col gap-2">
               <button
+                onClick={() => setShowCodingModal(true)}
+                className="p-2 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 hover:from-emerald-500/20 hover:to-cyan-500/20 border border-emerald-500/20 rounded-lg text-emerald-400 hover:text-emerald-300 transition-all"
+                title="Coding Profiles"
+              >
+                <Code2 className="w-5 h-5" />
+              </button>
+              <Link
+                href={`/u/${userData?.username}`}
+                className="p-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 hover:from-purple-500/20 hover:to-pink-500/20 border border-purple-500/20 rounded-lg text-purple-400 hover:text-purple-300 transition-all"
+                title="View Public Profile"
+              >
+                <ExternalLink className="w-5 h-5" />
+              </Link>
+              <button
                 onClick={() => setEditMode(true)}
                 className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-gray-400 hover:text-white transition-all"
                 title="Edit Profile"
@@ -427,12 +561,13 @@ export default function ProfilePage() {
               </button>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* Tab Navigation */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {[
             { id: 'overview', label: 'Overview', icon: User },
+            { id: 'coding', label: 'Coding Profiles', icon: Code2 },
             { id: 'progress', label: 'Progress', icon: BarChart3 },
             { id: 'tests', label: 'Tests', icon: FileText },
             { id: 'certificates', label: 'Certificates', icon: Award },
@@ -462,6 +597,34 @@ export default function ProfilePage() {
             </button>
           ))}
         </div>
+
+
+
+        {/* Add Coding Profiles CTA (when no profiles exist) */}
+        {!codingProfiles?.github?.username && !codingProfiles?.leetcode?.username && 
+         !codingProfiles?.codeforces?.username && !codingProfiles?.codechef?.username && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="bg-gradient-to-br from-[#111118] to-[#0a0a0f] border border-emerald-500/20 rounded-2xl p-6 mb-6 text-center"
+          >
+            <div className="p-3 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 rounded-xl w-fit mx-auto mb-4">
+              <Code2 className="w-8 h-8 text-emerald-400" />
+            </div>
+            <h3 className="text-xl font-bold text-white mb-2">Showcase Your Coding Journey</h3>
+            <p className="text-gray-400 mb-4 max-w-md mx-auto">
+              Connect your coding profiles from GitHub, LeetCode, Codeforces, and CodeChef to display your achievements and share with others.
+            </p>
+            <button
+              onClick={() => setShowCodingModal(true)}
+              className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 rounded-xl text-white font-medium transition-all inline-flex items-center gap-2"
+            >
+              <Zap className="w-4 h-4" />
+              Add Coding Profiles
+            </button>
+          </motion.div>
+        )}
 
         {/* Tab Content */}
         {activeTab === 'overview' && (
@@ -851,6 +1014,246 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
+            )}
+          </div>
+        )}
+
+
+        {/* Coding Profiles Tab Content */}
+        {activeTab === 'coding' && (
+          <div className="space-y-6">
+            {(codingProfiles?.github?.username || codingProfiles?.leetcode?.username || 
+              codingProfiles?.codeforces?.username || codingProfiles?.codechef?.username) ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-gradient-to-br from-[#111118] to-[#0a0a0f] border border-white/5 rounded-2xl p-6 mb-6 overflow-hidden relative"
+              >
+                {/* Background decoration */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-emerald-500/5 to-cyan-500/5 rounded-full blur-3xl" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-blue-500/5 to-purple-500/5 rounded-full blur-3xl" />
+                <div className="relative z-10">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-xl">
+                        <Zap className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-white">Coding Profiles</h3>
+                        <p className="text-sm text-gray-400">Your coding journey stats</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setShowCodingModal(true)}
+                        className="px-3 py-1.5 text-sm bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-gray-400 hover:text-white transition-all flex items-center gap-1.5"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        Edit
+                      </button>
+                      <Link
+                        href={activeTab === 'coding' ? `/coding-dashboard/${userData?.username}` : `/u/${userData?.username}`}
+                        className="px-3 py-1.5 text-sm bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 hover:from-emerald-500/20 hover:to-cyan-500/20 border border-emerald-500/20 rounded-lg text-emerald-400 hover:text-emerald-300 transition-all flex items-center gap-1.5"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                        Share
+                      </Link>
+                    </div>
+                  </div>
+                  {/* Total Stats */}
+                  {totalProblemsSolved > 0 && (
+                    <div className="mb-6 p-4 bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-blue-500/10 border border-emerald-500/20 rounded-xl">
+                      <div className="flex items-center justify-center gap-4">
+                        <div className="text-center">
+                          <div className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">
+                            {totalProblemsSolved}
+                          </div>
+                          <div className="text-sm text-gray-400">Total Problems Solved</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {/* Platform Cards Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* GitHub */}
+                    {codingProfiles?.github?.username && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-gradient-to-br from-gray-900 to-gray-800 border border-white/10 rounded-xl p-4 hover:border-white/20 transition-all group"
+                      >
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-8 h-8 rounded-lg bg-[#333] flex items-center justify-center">
+                            <Github className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="font-medium text-white">GitHub</span>
+                        </div>
+                        <a 
+                          href={`https://github.com/${codingProfiles.github.username}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-gray-400 hover:text-white transition-colors flex items-center gap-1 mb-3"
+                        >
+                          @{codingProfiles.github.username}
+                          <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="bg-black/30 rounded-lg p-2 text-center">
+                            <div className="font-semibold text-white">{codingProfiles.github.stats?.publicRepos || 0}</div>
+                            <div className="text-xs text-gray-500">Repos</div>
+                          </div>
+                          <div className="bg-black/30 rounded-lg p-2 text-center">
+                            <div className="font-semibold text-white">{codingProfiles.github.stats?.followers || 0}</div>
+                            <div className="text-xs text-gray-500">Followers</div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                    {/* LeetCode */}
+                    {codingProfiles?.leetcode?.username && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.1 }}
+                        className="bg-gradient-to-br from-orange-950/50 to-yellow-950/50 border border-orange-500/20 rounded-xl p-4 hover:border-orange-500/40 transition-all group"
+                      >
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-500 to-yellow-500 flex items-center justify-center">
+                            <span className="text-white font-bold text-xs">LC</span>
+                          </div>
+                          <span className="font-medium text-white">LeetCode</span>
+                        </div>
+                        <a 
+                          href={`https://leetcode.com/${codingProfiles.leetcode.username}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-gray-400 hover:text-orange-300 transition-colors flex items-center gap-1 mb-3"
+                        >
+                          @{codingProfiles.leetcode.username}
+                          <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                        <div className="space-y-2">
+                          <div className="bg-black/30 rounded-lg p-2 text-center">
+                            <div className="font-semibold text-white">{codingProfiles.leetcode.stats?.totalSolved || 0}</div>
+                            <div className="text-xs text-gray-500">Problems Solved</div>
+                          </div>
+                          <div className="flex gap-1 text-xs">
+                            <span className="flex-1 bg-green-500/20 text-green-400 rounded px-1.5 py-0.5 text-center">{codingProfiles.leetcode.stats?.easySolved || 0} E</span>
+                            <span className="flex-1 bg-yellow-500/20 text-yellow-400 rounded px-1.5 py-0.5 text-center">{codingProfiles.leetcode.stats?.mediumSolved || 0} M</span>
+                            <span className="flex-1 bg-red-500/20 text-red-400 rounded px-1.5 py-0.5 text-center">{codingProfiles.leetcode.stats?.hardSolved || 0} H</span>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                    {/* Codeforces */}
+                    {codingProfiles?.codeforces?.username && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.2 }}
+                        className="bg-gradient-to-br from-blue-950/50 to-purple-950/50 border border-blue-500/20 rounded-xl p-4 hover:border-blue-500/40 transition-all group"
+                      >
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                            <span className="text-white font-bold text-xs">CF</span>
+                          </div>
+                          <span className="font-medium text-white">Codeforces</span>
+                        </div>
+                        <a 
+                          href={`https://codeforces.com/profile/${codingProfiles.codeforces.username}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-gray-400 hover:text-blue-300 transition-colors flex items-center gap-1 mb-3"
+                        >
+                          @{codingProfiles.codeforces.username}
+                          <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="bg-black/30 rounded-lg p-2 text-center">
+                            <div className="font-semibold text-white">{codingProfiles.codeforces.stats?.rating || 0}</div>
+                            <div className="text-xs text-gray-500">Rating</div>
+                          </div>
+                          <div className="bg-black/30 rounded-lg p-2 text-center">
+                            <div className="font-semibold text-white">{codingProfiles.codeforces.stats?.problemsSolved || 0}</div>
+                            <div className="text-xs text-gray-500">Solved</div>
+                          </div>
+                        </div>
+                        {codingProfiles.codeforces.stats?.rank && (
+                          <div className="mt-2 text-center text-xs">
+                            <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full capitalize">
+                              {codingProfiles.codeforces.stats.rank}
+                            </span>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                    {/* CodeChef */}
+                    {codingProfiles?.codechef?.username && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: 0.3 }}
+                        className="bg-gradient-to-br from-amber-950/50 to-orange-950/50 border border-amber-500/20 rounded-xl p-4 hover:border-amber-500/40 transition-all group"
+                      >
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center">
+                            <span className="text-white font-bold text-xs">CC</span>
+                          </div>
+                          <span className="font-medium text-white">CodeChef</span>
+                        </div>
+                        <a 
+                          href={`https://www.codechef.com/users/${codingProfiles.codechef.username}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-gray-400 hover:text-amber-300 transition-colors flex items-center gap-1 mb-3"
+                        >
+                          @{codingProfiles.codechef.username}
+                          <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </a>
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div className="bg-black/30 rounded-lg p-2 text-center">
+                            <div className="font-semibold text-white">{codingProfiles.codechef.stats?.rating || 0}</div>
+                            <div className="text-xs text-gray-500">Rating</div>
+                          </div>
+                          <div className="bg-black/30 rounded-lg p-2 text-center">
+                            <div className="font-semibold text-white">{codingProfiles.codechef.stats?.problemsSolved || 0}</div>
+                            <div className="text-xs text-gray-500">Solved</div>
+                          </div>
+                        </div>
+                        {codingProfiles.codechef.stats?.stars && (
+                          <div className="mt-2 text-center">
+                            <span className="text-amber-400">{codingProfiles.codechef.stats.stars}</span>
+                          </div>
+                        )}
+                      </motion.div>
+                    )}
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="bg-gradient-to-br from-[#111118] to-[#0a0a0f] border border-emerald-500/20 rounded-2xl p-6 mb-6 text-center"
+              >
+                <div className="p-3 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 rounded-xl w-fit mx-auto mb-4">
+                  <Code2 className="w-8 h-8 text-emerald-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Showcase Your Coding Journey</h3>
+                <p className="text-gray-400 mb-4 max-w-md mx-auto">
+                  Connect your coding profiles from GitHub, LeetCode, Codeforces, and CodeChef to display your achievements and share with others.
+                </p>
+                <button
+                  onClick={() => setShowCodingModal(true)}
+                  className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 rounded-xl text-white font-medium transition-all inline-flex items-center gap-2"
+                >
+                  <Zap className="w-4 h-4" />
+                  Add Coding Profiles
+                </button>
+              </motion.div>
             )}
           </div>
         )}

@@ -176,7 +176,9 @@ Be witty but not mean. Keep taglines under 80 characters. Be encouraging. Return
       maxOutputTokens: 1000,
     });
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    // Ensure text is a string and extract JSON
+    const textStr = typeof text === 'string' ? text : '';
+    const jsonMatch = textStr?.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }

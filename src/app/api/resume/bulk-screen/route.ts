@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getDataFromToken } from "@/helpers/getToken";
 import { generateContentWithConfig } from "@/lib/gemini";
 
+// Increase timeout for Vercel/serverless functions
+export const maxDuration = 60; // 60 seconds max timeout
+
 interface CandidateInfo {
   name: string;
   email: string;
@@ -63,14 +66,23 @@ async function screenResumeWithGemini(
   resumeText: string,
   fileName: string
 ): Promise<Omit<ScreeningResult, 'fileName' | 'pageCount' | 'isDisqualified' | 'disqualificationReason'>> {
-  const prompt = `Analyze this resume against the job description. Return ONLY a JSON object.
+  const prompt = `Analyze this resume against the job description. Return ONLY a valid JSON object with no markdown, no backticks, just raw JSON.
 
-JOB: ${jobDescription.substring(0, 1000)}
+JOB SUMMARY: ${jobDescription.substring(0, 500)}
 
-RESUME: ${resumeText.substring(0, 2500)}
+RESUME TEXT: ${resumeText.substring(0, 2000)}
 
-Return this exact JSON structure with real values:
-{"candidateInfo":{"name":"extracted name","email":"extracted email","phone":"extracted phone"},"skillMatch":75,"experienceRelevance":70,"fakeResumeProbability":"10%","cultureFit":80,"finalCandidateScore":75,"traits":{"leadership":7,"communication":8,"collaboration":7,"stability":8,"innovation":7,"ownership":8},"evidence":["reason 1","reason 2","reason 3"]}`;
+Return exactly this JSON structure:
+{
+  "candidateInfo": {"name": "Name or Unknown", "email": "email@example.com or Not Found", "phone": "1234567890 or Not Found"},
+  "skillMatch": 75,
+  "experienceRelevance": 70,
+  "fakeResumeProbability": "Low/Medium/High",
+  "cultureFit": 80,
+  "finalCandidateScore": 75,
+  "traits": {"leadership": 7, "communication": 8, "collaboration": 7, "stability": 8, "innovation": 7, "ownership": 8},
+  "evidence": ["Strong point 1", "Strong point 2", "Area to improve"]
+}`;
 
   try {
     console.log(`\n=== Screening Resume: ${fileName} ===`);
@@ -78,10 +90,15 @@ Return this exact JSON structure with real values:
     
     // Use the new Gemini SDK with gemini-2.5-flash
     console.log("[BulkScreen] Calling Gemini API...");
-    const text = await generateContentWithConfig(prompt, {
+    
+    // Call Gemini API with reduced tokens to avoid timeouts
+    const apiResponse = await generateContentWithConfig(prompt, {
       temperature: 0.5,
-      maxOutputTokens: 8000,  // Increased to avoid MAX_TOKENS cutoff
+      maxOutputTokens: 2000,
     });
+    
+    // Ensure text is a string
+    const text: string = typeof apiResponse === 'string' ? apiResponse : String(apiResponse || '');
     
     console.log("[BulkScreen] Gemini response received:", text ? `${text.length} chars` : "EMPTY");
     
@@ -92,13 +109,24 @@ Return this exact JSON structure with real values:
     
     console.log("[BulkScreen] Response preview:", text.substring(0, 300));
 
-    // Parse JSON from response
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      throw new Error("Invalid AI response format");
+    // Safely parse JSON from response
+    let result;
+    try {
+      // Try direct JSON parse first
+      result = JSON.parse(text);
+    } catch {
+      // Fall back to regex matching
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch || !jsonMatch[0]) {
+        throw new Error("Invalid AI response format: " + text.substring(0, 100));
+      }
+      result = JSON.parse(jsonMatch[0]);
     }
-
-    const result = JSON.parse(jsonMatch[0]);
+    
+    // Ensure all required fields exist
+    if (!result.evidence) result.evidence = [];
+    if (!result.candidateInfo) result.candidateInfo = { name: "Unknown", email: "Not Found", phone: "Not Found" };
+    if (!result.traits) result.traits = { leadership: 0, communication: 0, collaboration: 0, stability: 0, innovation: 0, ownership: 0 };
     return result;
   } catch (error: any) {
     console.error(`Error screening resume ${fileName}:`, error.message || error);

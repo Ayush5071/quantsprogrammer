@@ -31,6 +31,12 @@ export function Footer() {
     { name: "Resume Builder", link: "/resume-builder", icon: <FaShieldAlt className="h-4 w-4" /> },
   ];
 
+  const prepareItems = [
+    { name: "Blogs", link: "/blogs", icon: <FaCode className="h-4 w-4" />, color: "text-blue-400" },
+    { name: "Roadmaps", link: "/explore", icon: <FaRocket className="h-4 w-4" />, color: "text-purple-400" },
+    { name: "Company Problems", link: "/company-problems", icon: <FaGlobe className="h-4 w-4" />, color: "text-cyan-400" },
+  ];
+
   const features = [
     { name: "AI Mock Interviews", link: "/interview", icon: <FaRocket className="h-4 w-4" />, color: "text-blue-400" },
     { name: "Resume Builder", link: "/resume-builder", icon: <FaCode className="h-4 w-4" />, color: "text-purple-400" },
@@ -83,7 +89,7 @@ export function Footer() {
 
 
   return (
-    <footer className="w-full relative overflow-hidden pb-10">
+    <footer className="w-full relative overflow-hidden pb-20" data-scroll-section>
       {/* Enhanced Background Effects - Updated for new theme */}
       <div className="absolute inset-0 bg-[#0a0a0f]"></div>
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.08),transparent_50%)]"></div>

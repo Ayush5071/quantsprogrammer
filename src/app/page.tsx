@@ -232,9 +232,14 @@ export default function Home() {
   // Memoized nav items - simplified for new navbar
   const navItems = useMemo(() => [
     { name: "About", link: "/about" },
-    { name: "Blogs", link: "/blogs" },
-    { name: "Roadmaps", link: "/explore" },
-    { name: "Company Problems", link: "/company-problems" },
+    {
+      name: "Prepare",
+      dropdown: [
+        { name: "Blogs", link: "/blogs" },
+        { name: "Roadmaps", link: "/explore" },
+        { name: "Company Problems", link: "/company-problems" },
+      ],
+    },
     {
       name: "Wrapped 2025",
       dropdown: [
@@ -331,12 +336,12 @@ export default function Home() {
       {loading ? (
         <Loading />
       ) : (
-        <div className="relative bg-[#0a0a0f] overflow-x-hidden" data-scroll-container>
+        <div className="relative bg-[#0a0a0f] overflow-x-hidden min-h-screen" data-scroll-container>
           {/* Navigation */}
           <FloatingNav navItems={navItems} />
           
           {/* Main Content */}
-          <main className="relative z-10 min-h-screen flex flex-col pt-20">
+          <main className="relative z-10 flex flex-col pt-20 pb-0">
             {/* New Modern Sections */}
             <MemoizedNewHero />
             <MemoizedStatsSection />

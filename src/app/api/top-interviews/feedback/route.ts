@@ -23,11 +23,18 @@ Respond ONLY in this exact JSON format (no markdown, no code block):
 Questions and Answers:
 ${questions.map((q: string, i: number) => `Q${i+1}: ${q}\nA${i+1}: ${answers[i] || "(skipped)"}`).join("\n")}`;
 
-  const geminiText = await generateContent(prompt);
+  let geminiText;
+  try {
+    geminiText = await generateContent(prompt);
+  } catch (err) {
+    console.error("[Top Interviews Feedback] Gemini API error:", err);
+    return NextResponse.json({ feedback: [{ feedback: "API error. Please try again.", score: 0 }] });
+  }
+  
   let feedback = [];
   try {
-    const text = geminiText;
-    const match = text.match(/\[[\s\S]*\]/);
+    const text = typeof geminiText === 'string' ? geminiText : '';
+    const match = text?.match(/\[[\s\S]*\]/);
     if (match) {
       feedback = JSON.parse(match[0]);
     } else {
