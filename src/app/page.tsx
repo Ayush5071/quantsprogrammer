@@ -55,7 +55,6 @@ const MemoizedPremiumDeals = memo(PremiumDeals);
 const MemoizedFooter = memo(Footer);
 
 export default function Home() {
-  useLocomotiveScroll();
   const [loading, setLoading] = useState(true);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);

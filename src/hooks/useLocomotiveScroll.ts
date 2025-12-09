@@ -1,6 +1,8 @@
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 const useLocomotiveScroll = () => {
+  const pathname = usePathname();
   useEffect(() => {
     if (typeof window === "undefined") return;
     let scroll: any = null;
@@ -18,8 +20,8 @@ const useLocomotiveScroll = () => {
         scroll = new LocomotiveScroll({
           el: scrollEl,
           smooth: true,
-          lerp: 0.12, // Increased from 0.08 for more responsive scrolling
-          multiplier: 1.5, // Increased from 1 for higher scroll sensitivity
+          lerp: 0.12,
+          multiplier: 1.5,
           class: "is-reveal",
           reloadOnContextChange: true,
         });
@@ -47,7 +49,7 @@ const useLocomotiveScroll = () => {
         scroll.destroy();
       }
     };
-  }, []);
+  }, [pathname]);
 };
 
 export default useLocomotiveScroll;
