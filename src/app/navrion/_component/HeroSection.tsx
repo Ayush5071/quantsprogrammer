@@ -1,100 +1,86 @@
+"use client";
+
 import React from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Globe2, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, Sparkles, Play } from "lucide-react";
+import { GridScan } from "@/components/GridScan";
 
 export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="w-full px-4 pt-16 pb-20 bg-[radial-gradient(circle_at_top,_rgba(129,140,248,0.18),_transparent_55%),_radial-gradient(circle_at_bottom,_rgba(56,189,248,0.16),_transparent_55%)]"
+      className="h-screen w-full flex flex-col items-center justify-center px-4 relative overflow-hidden bg-[#0a0a0f] text-white"
     >
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row items-center gap-12">
-        {/* Left */}
-        <div className="flex-1">
-          <motion.span
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-medium bg-white/5 border border-white/10 text-gray-200 mb-4"
-          >
-            <Sparkles className="w-3 h-3 text-purple-400" />
-            Freelance Web Development Studio
-          </motion.span>
-
-          <motion.h1
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.05 }}
-            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight mb-4"
-          >
-            <span className="bg-gradient-to-r from-blue-400 via-cyan-300 to-purple-400 bg-clip-text text-transparent">
-              Beautiful & High-Performance
-            </span>{" "}
-            Websites for Ambitious Brands.
-          </motion.h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-gray-300 text-sm sm:text-base max-w-xl mb-6"
-          >
-            NAVRION builds fast, modern, and pixel-perfect websites for
-            individuals, startups, and growing businesses. From landing pages
-            to full-stack web apps, we handle everything end-to-end.
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.15 }}
-            className="flex flex-wrap items-center gap-3 mb-6"
-          >
-            <Link
-              href="#pricing"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-purple-600 to-blue-500 text-sm font-semibold shadow-lg shadow-purple-600/30 hover:-translate-y-[1px] hover:shadow-purple-500/50 transition-all"
-            >
-              View Pricing
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-            <Link
-              href="#work"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs sm:text-sm text-gray-100 hover:bg-white/10 transition-all"
-            >
-              See Live Work
-              <Globe2 className="w-4 h-4" />
-            </Link>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="flex flex-wrap gap-6 text-xs text-gray-400"
-          >
-            <div>
-              <span className="block text-gray-200 font-semibold">
-                Starting at ₹2,499
-              </span>
-              <span className="block">Static & portfolio websites</span>
-            </div>
-            <div>
-              <span className="block text-gray-200 font-semibold">
-                Dynamic from ₹7,999
-              </span>
-              <span className="block">
-                E-commerce, dashboards, e-learning & more
-              </span>
-            </div>
-          </motion.div>
+      {/* Subtle gradient orbs */}
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-pink-600/8 rounded-full blur-[128px] pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/7 rounded-full blur-[128px] pointer-events-none" />
+      <div
+        className="absolute inset-0 group"
+        tabIndex={0}   
+      >
+        <GridScan
+          sensitivity={0.28} /* slightly lower sensitivity for much subtler interaction */
+          lineThickness={0.9}
+          linesColor="#ffb3d9" /* soft pinkish grid lines */
+          gridScale={0.16} /* slightly larger grid for calmer look */
+          scanColor="#ff77d6" /* pink scan color */
+          scanOpacity={0.22} /* keep scan subtle to avoid blackout */
+          enablePost
+          bloomIntensity={0.01} /* small bloom to avoid heavy brightening */
+          chromaticAberration={0.001}
+          noiseIntensity={0.002} /* very light noise */
+          scanDirection="pingpong"
+          scanGlow={0.45}
+          scanSoftness={1.2}
+          scanDuration={3.8}
+          scanDelay={1.6}
+          scanOnClick={false}
+          lineJitter={0.02}
+          className="absolute inset-0"
+        />
+      </div>
+      <div className="relative z-10 max-w-5xl mx-auto text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 backdrop-blur border border-white/10 rounded-full text-sm text-pink-200 mb-6">
+          <Sparkles className="w-4 h-4 text-pink-300" />
+          <span>Trusted by hundreds of startups & creators</span>
         </div>
-        {/* Right - Visual / Stats */}
-        {/* ...right side content can be extracted as another component if needed... */}
+
+        {/* Main headline */}
+        <motion.h1
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-3 tracking-tight leading-[1.05]"
+        >
+          Build your
+          <br />
+          <span className="bg-gradient-to-r from-pink-400 via-purple-400 to-pink-300 bg-clip-text text-transparent">Digital Presence</span>
+        </motion.h1>
+
+        {/* Subtitle - minimal */}
+        <motion.p
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.08 }}
+          className="text-pink-100 text-sm sm:text-base max-w-2xl mx-auto mb-8 leading-relaxed"
+        >
+          Beautiful, fast, and scalable websites — designed with modern UX, performance and developer-first practices.
+        </motion.p>
+
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <Link href="#pricing" className="group flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-400 hover:to-purple-400 text-white font-semibold rounded-xl transition-all duration-300">
+            View Pricing
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Link>
+
+          <Link href="#work" className="flex items-center gap-2 px-8 py-4 bg-white/5 hover:bg-white/7 border border-white/10 text-white font-semibold rounded-xl transition-all">
+            <Play className="w-5 h-5 text-pink-300" />
+            See Live Work
+          </Link>
+        </div>
       </div>
     </section>
   );

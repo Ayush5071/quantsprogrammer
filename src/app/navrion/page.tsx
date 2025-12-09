@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import Navbar from "./_component/Navbar";
+import Navbar from "./_component/NavbarNew";
 import HeroSection from "./_component/HeroSection";
 import LiveWorksSection from "./_component/LiveWorksSection";
 import ServicesSection from "./_component/ServicesSection";
