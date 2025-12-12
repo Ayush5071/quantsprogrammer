@@ -1,7 +1,19 @@
-import pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
-// Defer heavy optional deps (canvas, tesseract) so install failures don't crash the server
+// Defer heavy optional deps (canvas, tesseract, pdfjs) so install failures don't crash the server
 
 export async function extractTextFromPDF(buffer: Buffer) {
+  let pdfjsLib: any = null;
+  try {
+    const r = eval('require');
+    pdfjsLib = r('pdfjs-dist/legacy/build/pdf');
+  } catch (e) {
+    try {
+      const r = eval('require');
+      pdfjsLib = r('pdfjs-dist');
+    } catch (e2) {
+      throw new Error('pdfjs-dist not available');
+    }
+  }
+
   const loadingTask = pdfjsLib.getDocument({ data: buffer });
   const doc = await loadingTask.promise;
   let fullText = '';
@@ -15,6 +27,14 @@ export async function extractTextFromPDF(buffer: Buffer) {
 }
 
 export async function extractTextWithOCR(buffer: Buffer) {
+  let pdfjsLib: any = null;
+  try {
+    const r = eval('require');
+    pdfjsLib = r('pdfjs-dist/legacy/build/pdf');
+  } catch (e) {
+    try { const r = eval('require'); pdfjsLib = r('pdfjs-dist'); } catch (e2) { throw new Error('pdfjs-dist not available'); }
+  }
+
   const loadingTask = pdfjsLib.getDocument({ data: buffer });
   const doc = await loadingTask.promise;
   let fullText = '';
@@ -22,10 +42,14 @@ export async function extractTextWithOCR(buffer: Buffer) {
   let createCanvas: any = null;
   let Tesseract: any = null;
   try {
-    createCanvas = (await import('canvas')).createCanvas;
-    Tesseract = (await import('tesseract.js')).default;
+    // Use runtime require that bundlers can't statically analyze
+    const r = eval('require');
+    const canvasMod = r('canvas');
+    createCanvas = canvasMod.createCanvas;
+    const tmod = r('tesseract.js');
+    Tesseract = tmod?.default || tmod;
   } catch (e) {
-    // If optional libs are missing, return empty text and mark pages
+    // If optional libs are missing or not usable, return empty text and mark pages
     return { text: '', pages: doc.numPages, ocrUnavailable: true } as any;
   }
   for (let i = 1; i <= doc.numPages; i++) {
