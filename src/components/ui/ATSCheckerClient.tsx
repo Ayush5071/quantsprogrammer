@@ -52,10 +52,15 @@ export default function ATSCheckerClient() {
   const [result, setResult] = useState<any>(null);
   const [isPremium, setIsPremium] = useState<boolean>(() => typeof window !== 'undefined' && !!localStorage.getItem('ats_premium'));
   const [error, setError] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
 
   useEffect(() => {
     loadPuterScript().then(() => setPuterLoaded(true)).catch(() => setPuterLoaded(false));
   }, []);
+
+  useEffect(() => {
+    if (result) setActiveSection('summary');
+  }, [result]);
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -197,49 +202,201 @@ export default function ATSCheckerClient() {
 
         <div className="mt-4 flex items-center gap-3">
           <button onClick={analyze} disabled={loading} className="px-4 py-2 bg-emerald-600 rounded-md">{loading ? 'Analyzing...' : (isPremium ? 'Analyze (Premium)' : 'Analyze (Free)')}</button>
+          {isPremium && (
+            <button onClick={async () => {
+              setError(null);
+              setResult(null);
+              setLoading(true);
+              try {
+                if (!resumeText) { setError('Please paste a resume for LLM review'); setLoading(false); return; }
+
+                // Try Puter CDN first
+                try {
+                  await loadPuterScript();
+                  if (!window.puter?.ai?.chat) throw new Error('Puter CDN not available');
+
+                  const prompt = `You are a Senior ATS Engineer, Technical Recruiter, and Resume Coach\nwith experience screening resumes for FAANG, Tier-1 startups, and Fortune 500 companies.\n\nYour task is to deeply analyze:\n1) The provided RESUME\n2) The provided JOB DESCRIPTION (if present)\n\nYour response MUST be:\n- ATS-friendly\n- Recruiter-oriented\n- Brutally honest\n- Extremely actionable\n- Written as if advising a real hiring manager and candidate\n\nOUTPUT FORMAT (JSON ONLY)\n\n{ "scores": { "atsCompatibility": "number (0–100)", "grammarQuality": "number (0–100)", "keywordMatch": "number (0–100)", "impactAndMetrics": "number (0–100)", "readability": "number (0–100)", "formattingStructure": "number (0–100)" },\n\n  "overallVerdict": "1–2 line recruiter-style summary of how this resume would perform in ATS + human screening",\n\n  "jobDescriptionReview": { /* structured fields */ },\n\n  "detailedGuidelines": [ /* structured sections 1..10 */ ],\n\n  "missingCriticalKeywords": [],\n\n  "topActionItems": [],\n\n  "finalATSReadySummary": "Concise, ATS-optimized resume summary tailored to this JD"\n}\n\nResume:\n\n${resumeText}\n\nJob Description:\n\n${jdText}\n\nIMPORTANT RULES: Output valid JSON only (no markdown or extra text).`;
+
+                  const aiResponse = await window.puter.ai.chat(prompt, { model: 'claude-haiku-4-5' });
+
+                  let text = '';
+                  if (typeof aiResponse === 'string') {
+                    text = aiResponse;
+                  } else if (aiResponse?.text && typeof aiResponse.text === 'string') {
+                    text = aiResponse.text;
+                  } else if (aiResponse?.message) {
+                    const msg = aiResponse.message;
+                    if (typeof msg === 'string') {
+                      text = msg;
+                    } else if (Array.isArray(msg?.content)) {
+                      text = msg.content.map((c: any) => {
+                        if (typeof c === 'string') return c;
+                        if (typeof c?.text === 'string') return c.text;
+                        try { return JSON.stringify(c); } catch (_) { return String(c); }
+                      }).join('\n\n');
+                    } else {
+                      try { text = JSON.stringify(msg); } catch (_) { text = String(msg); }
+                    }
+                  } else {
+                    text = String(aiResponse);
+                  }
+
+                  // Try parse JSON directly
+                  let parsed: any = null;
+                  try { parsed = JSON.parse(text); } catch (e) {
+                    const m = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+                    if (m) {
+                      try { parsed = JSON.parse(m[1]); } catch (e2) { parsed = null; }
+                    }
+                  }
+
+                  if (parsed) {
+                    setResult({ mode: 'premium', ...parsed });
+                    setTimeout(() => document.getElementById('ats-results')?.scrollIntoView({behavior:'smooth'}), 120);
+                    setLoading(false);
+                    return;
+                  } else {
+                    // If Puter responded but not in JSON, show summary
+                    setResult({ mode: 'premium', summary: text });
+                    setTimeout(() => document.getElementById('ats-results')?.scrollIntoView({behavior:'smooth'}), 120);
+                    setLoading(false);
+                    return;
+                  }
+                } catch (e) {
+                  // Puter CDN failed — do not fallback to server LLM; surface error to user
+                  setError('Puter CDN failed: ' + (e?.message || String(e)));
+                  setLoading(false);
+                  return;
+                }
+
+              } catch (outerErr:any) {
+                setError(outerErr?.message || 'LLM failed');
+              } finally { setLoading(false); }
+            }} className="px-4 py-2 bg-indigo-600 rounded-md">LLM Review (Puter CDN)</button>
+          )}
           <button onClick={() => { setResumeText(''); setJdText(''); setResult(null); }} className="px-3 py-2 bg-white/5 rounded">Reset</button>
         </div>
 
         {error && <div className="mt-4 text-red-400">{error}</div>}
 
         {result && (
-          <div className="mt-6 space-y-4">
-            <div className="bg-[#0b0b11] p-4 rounded-xl border border-white/5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-xs text-gray-400">ATS Score</div>
-                  <div className="text-2xl font-bold">{result.scores?.ats ?? result.atsScore ?? 'N/A'}</div>
-                </div>
-                <div>
-                  <div className="text-xs text-gray-400">Grammar Score</div>
-                  <div className="text-2xl font-bold">{result.scores?.grammar ?? result.grammarScore ?? 'N/A'}</div>
+          <div id="ats-results" className="mt-6 space-y-4">
+            <div className="flex gap-6">
+              <div className="w-72 hidden md:block">
+                <div className="bg-[#06060a] p-3 rounded-lg border border-white/5 sticky top-24">
+                  <div className="text-xs text-gray-400 mb-2">Report</div>
+                  <button onClick={() => { document.getElementById('summary')?.scrollIntoView({behavior:'smooth'}); setActiveSection('summary'); }} className="block text-left text-sm text-gray-300 hover:text-white py-1">Summary</button>
+                  <button onClick={() => { document.getElementById('jd-review')?.scrollIntoView({behavior:'smooth'}); setActiveSection('jd-review'); }} className="block text-left text-sm text-gray-300 hover:text-white py-1">Job Description</button>
+                  <div className="text-xs text-gray-500 mt-2">Guidelines</div>
+                  {result.detailedGuidelines?.map((g:any,i:number)=>(
+                    <button key={i} onClick={() => { document.getElementById(`guideline-${i}`)?.scrollIntoView({behavior:'smooth'}); setActiveSection(`guideline-${i}`); }} className="block text-left text-sm text-gray-300 hover:text-white py-1">{g.heading}</button>
+                  ))}
+                  <button onClick={() => { document.getElementById('missing-keywords')?.scrollIntoView({behavior:'smooth'}); setActiveSection('missing-keywords'); }} className="block text-left text-sm text-gray-300 hover:text-white py-1">Missing Keywords</button>
+                  <button onClick={() => { document.getElementById('top-actions')?.scrollIntoView({behavior:'smooth'}); setActiveSection('top-actions'); }} className="block text-left text-sm text-gray-300 hover:text-white py-1">Top Actions</button>
                 </div>
               </div>
-              {result.suggestions && result.suggestions.length > 0 && (
-                <div className="mt-3 text-sm text-gray-300">
-                  <div className="font-semibold">Quick suggestions:</div>
-                  <ul className="list-disc ml-5 mt-1">{result.suggestions.map((s:string,i:number)=>(<li key={i}>{s}</li>))}</ul>
+
+              <div className="flex-1 space-y-4">
+                <div id="summary" className="bg-[#0b0b11] p-4 rounded-xl border border-white/5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-xs text-gray-400">ATS Compatibility</div>
+                      <div className="text-2xl font-bold">{result.scores?.atsCompatibility ?? result.scores?.ats ?? 'N/A'}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-400">Grammar</div>
+                      <div className="text-2xl font-bold">{result.scores?.grammarQuality ?? result.scores?.grammar ?? 'N/A'}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-gray-400">Keywords</div>
+                      <div className="text-2xl font-bold">{result.scores?.keywordMatch ?? 'N/A'}</div>
+                    </div>
+                  </div>
+                  {result.suggestions && result.suggestions.length > 0 && (
+                    <div className="mt-3 text-sm text-gray-300">
+                      <div className="font-semibold">Quick suggestions:</div>
+                      <ul className="list-disc ml-5 mt-1">{result.suggestions.map((s:string,i:number)=>(<li key={i}>{s}</li>))}</ul>
+                    </div>
+                  )}
+                  {result.summary && <div className="mt-3 text-sm text-gray-300">{result.summary}</div>}
                 </div>
-              )}
-              {result.summary && <div className="mt-3 text-sm text-gray-300">{result.summary}</div>}
+
+                {result.jobDescriptionReview && (
+                  <div id="jd-review" className="bg-[#0b0b11] p-4 rounded-xl border border-white/5">
+                    <div className="text-sm text-gray-400 mb-2">Job Description Review</div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="text-sm text-gray-200">Clarity: <strong className="text-white">{result.jobDescriptionReview.jdClarityScore}</strong></div>
+                      <div className="text-sm text-gray-200">ATS Quality: <strong className="text-white">{result.jobDescriptionReview.jdATSQuality}</strong></div>
+                      <div className="text-sm text-gray-200">Realism: <strong className="text-white">{result.jobDescriptionReview.jdRealism}</strong></div>
+                    </div>
+                    <div className="mt-3 text-sm text-gray-300">
+                      <div className="font-semibold">Red Flags</div>
+                      <ul className="list-disc ml-5 mt-1">{result.jobDescriptionReview.jdRedFlags.map((r:string,i:number)=>(<li key={i}>{r}</li>))}</ul>
+                    </div>
+                    {result.jobDescriptionReview.jdMissingDetails.length > 0 && (
+                      <div className="mt-3 text-sm text-gray-300">
+                        <div className="font-semibold">Missing Details</div>
+                        <ul className="list-disc ml-5 mt-1">{result.jobDescriptionReview.jdMissingDetails.map((r:string,i:number)=>(<li key={i}>{r}</li>))}</ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {Array.isArray(result.detailedGuidelines) && result.detailedGuidelines.map((g:any,i:number)=> (
+                  <div id={`guideline-${i}`} key={i} className={`bg-[#0b0b11] p-4 rounded-xl border border-white/5 transition ${activeSection===`guideline-${i}`? 'ring-2 ring-emerald-600':''}`}>
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-gray-400 font-semibold">{g.heading}</div>
+                      <button onClick={() => { document.getElementById(`guideline-${i}`)?.scrollIntoView({behavior:'smooth'}); setActiveSection(`guideline-${i}`); }} className="text-xs text-gray-400 hover:text-white">View</button>
+                    </div>
+                    <div className="mt-2 text-sm text-gray-200">{g.whatATSLooksFor}</div>
+                    <div className="mt-3 grid md:grid-cols-3 gap-3 text-sm">
+                      <div>
+                        <div className="text-xs text-gray-400">Add</div>
+                        <ul className="list-disc ml-5 mt-1">{(g.whatToAdd||[]).map((a:string,ai:number)=>(<li key={ai}>{a}</li>))}</ul>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-400">Avoid</div>
+                        <ul className="list-disc ml-5 mt-1">{(g.whatToAvoid||[]).map((a:string,ai:number)=>(<li key={ai}>{a}</li>))}</ul>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-400">Vocabulary</div>
+                        <div className="mt-1 text-sm text-gray-200">{(g.recommendedVocabulary||[]).slice(0,8).join(', ')}</div>
+                      </div>
+                    </div>
+                    {g.exampleImprovement && (
+                      <div className="mt-3 text-sm bg-[#07070a] p-3 rounded">
+                        <div className="text-xs text-gray-400">Example</div>
+                        <div className="mt-1 text-sm text-gray-200"><strong>Before:</strong> {g.exampleImprovement.before}</div>
+                        <div className="mt-1 text-sm text-gray-200"><strong>After:</strong> {g.exampleImprovement.after}</div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {result.missingCriticalKeywords && result.missingCriticalKeywords.length > 0 && (
+                  <div id="missing-keywords" className="bg-[#0b0b11] p-4 rounded-xl border border-white/5">
+                    <div className="text-sm text-gray-400 mb-2">Missing Critical Keywords</div>
+                    <div className="flex flex-wrap gap-2">{result.missingCriticalKeywords.map((k:string,i:number)=>(<span key={i} className="bg-white/5 px-2 py-1 rounded text-sm text-gray-200">{k}</span>))}</div>
+                  </div>
+                )}
+
+                {result.topActionItems && result.topActionItems.length > 0 && (
+                  <div id="top-actions" className="bg-[#0b0b11] p-4 rounded-xl border border-white/5">
+                    <div className="text-sm text-gray-400 mb-2">Top Action Items</div>
+                    <ol className="list-decimal ml-5 text-sm text-gray-200">{result.topActionItems.map((t:string,i:number)=>(<li key={i}>{t}</li>))}</ol>
+                  </div>
+                )}
+
+                {result.finalATSReadySummary && (
+                  <div className="bg-gradient-to-r from-emerald-600/10 to-blue-500/5 p-4 rounded-xl border border-white/5">
+                    <div className="text-sm text-gray-400">Final ATS-ready Summary</div>
+                    <div className="mt-2 text-sm text-white">{result.finalATSReadySummary}</div>
+                  </div>
+                )}
+              </div>
             </div>
-
-            {result.paragraphs && result.paragraphs.length > 0 && (
-              <div className="bg-[#0b0b11] p-4 rounded-xl border border-white/5">
-                <div className="text-sm text-gray-400 mb-2">Detailed suggestions</div>
-                <div className="space-y-3">{result.paragraphs.map((p:string,i:number)=> (<div key={i} className="text-sm text-gray-200">{p}</div>))}</div>
-              </div>
-            )}
-
-            {result.bullets && result.bullets.length > 0 && (
-              <div className="bg-[#0b0b11] p-4 rounded-xl border border-white/5">
-                <div className="text-sm text-gray-400 mb-2">Actionable bullets</div>
-                <ul className="list-disc ml-5 text-sm text-gray-200">{result.bullets.map((b:string,i:number)=>(<li key={i}>{b}</li>))}</ul>
-              </div>
-            )}
           </div>
-        )}
-      </div>
+        )}      </div>
     </div>
   );
 }

@@ -203,6 +203,32 @@ export function scoreResume(resumeText: string, jdText: string) {
       formattingStructure,
     },
     overallVerdict,
+    jobDescriptionReview: {
+      jdClarityScore: jdText ? clamp(Math.min(100, Math.round((jdText.split(/\n|\.|,/).length / 6) * 20 + (jdText.length > 200 ? 20 : 0)))) : 0,
+      jdATSQuality: jdTokens.length ? clamp((jdTokens.length / Math.max(1, jdText.split(/\s+/).length)) * 200) : 0,
+      jdRealism: (jdText.length < 50) ? 'Too short to be actionable' : (jdTokens.length > 40 ? 'Possibly over-scoped / "unicorn" JD' : 'Realistic'),
+      jdRedFlags: (function() {
+        const flags: string[] = [];
+        if (!/\b(\bexperience\b|\byears\b)/i.test(jdText)) flags.push('No experience requirement specified');
+        if (!/\b(remote|onsite|hybrid)\b/i.test(jdText)) flags.push('No location or remote clarity');
+        if (/\b(full[- ]?stack).*\b(front|backend|mobile)/i.test(jdText)) flags.push('Possible unrealistic full-stack expectations');
+        return flags;
+      })(),
+      jdMissingDetails: (function() {
+        const missing: string[] = [];
+        if (!/\b(tech|stack|react|node|python|java|aws)\b/i.test(jdText)) missing.push('Tech stack details');
+        if (!/\b(senior|junior|mid|lead|manager)\b/i.test(jdText)) missing.push('Seniority / level clarity');
+        if (!/\b(responsibilit|deliver|work on)\b/i.test(jdText)) missing.push('Clear responsibilities');
+        return missing;
+      })(),
+      jdImprovementSuggestions: (function() {
+        const s: string[] = [];
+        if (jdText.length < 100) s.push('Add a 3-line summary of role and key outcomes expected');
+        s.push('List top 5 must-have skills and 3 nice-to-have skills');
+        s.push('Be explicit about seniority and location (remote/onsite/hybrid)');
+        return s;
+      })()
+    },
     detailedGuidelines: guidelines,
     missingCriticalKeywords: missingCriticalKeywords.slice(0,20),
     topActionItems,
