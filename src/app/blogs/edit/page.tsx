@@ -50,11 +50,8 @@ export default function EditBlogPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const userRes = await axios.get("/api/users/me");
-      const user = userRes.data.user;
       await axios.patch("/api/blogs/edit", {
         blogId,
-        authorId: user._id,
         title,
         content,
         coverImage,

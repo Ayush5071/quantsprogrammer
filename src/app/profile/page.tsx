@@ -268,7 +268,33 @@ export default function ProfilePage() {
   useEffect(() => {
     fetchUserDetails();
     fetchRoadmapsAndProgress();
+    // Also fetch coding profiles on page load
+    fetchCodingProfiles();
   }, [fetchUserDetails, fetchRoadmapsAndProgress]);
+
+  // Auto refresh coding profiles when visiting the coding tab
+  useEffect(() => {
+    if (activeTab === 'coding') {
+      fetchCodingProfiles();
+    }
+  }, [activeTab, fetchCodingProfiles]);
+
+  // Auto fetch coding profiles when opening the modal
+  useEffect(() => {
+    if (showCodingModal) {
+      fetchCodingProfiles();
+    }
+  }, [showCodingModal, fetchCodingProfiles]);
+
+  // Open coding modal only when in coding tab
+  const openCodingModal = (openImmediately = true) => {
+    if (activeTab !== 'coding') {
+      setActiveTab('coding');
+      if (openImmediately) setTimeout(() => setShowCodingModal(true), 200);
+    } else {
+      setShowCodingModal(true);
+    }
+  };
 
   // Handle tab query parameter
   useEffect(() => {
@@ -532,7 +558,7 @@ export default function ProfilePage() {
             {/* Quick Actions */}
             <div className="flex flex-row sm:flex-col gap-2">
               <button
-                onClick={() => setShowCodingModal(true)}
+                onClick={() => openCodingModal()}
                 className="p-2 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 hover:from-emerald-500/20 hover:to-cyan-500/20 border border-emerald-500/20 rounded-lg text-emerald-400 hover:text-emerald-300 transition-all"
                 title="Coding Profiles"
               >
@@ -617,7 +643,7 @@ export default function ProfilePage() {
               Connect your coding profiles from GitHub, LeetCode, Codeforces, and CodeChef to display your achievements and share with others.
             </p>
             <button
-              onClick={() => setShowCodingModal(true)}
+              onClick={() => openCodingModal()}
               className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 rounded-xl text-white font-medium transition-all inline-flex items-center gap-2"
             >
               <Zap className="w-4 h-4" />
@@ -1047,7 +1073,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setShowCodingModal(true)}
+                        onClick={() => openCodingModal()}
                         className="px-3 py-1.5 text-sm bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-gray-400 hover:text-white transition-all flex items-center gap-1.5"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -1247,7 +1273,7 @@ export default function ProfilePage() {
                   Connect your coding profiles from GitHub, LeetCode, Codeforces, and CodeChef to display your achievements and share with others.
                 </p>
                 <button
-                  onClick={() => setShowCodingModal(true)}
+                  onClick={() => openCodingModal()}
                   className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 rounded-xl text-white font-medium transition-all inline-flex items-center gap-2"
                 >
                   <Zap className="w-4 h-4" />
@@ -1690,6 +1716,24 @@ export default function ProfilePage() {
               </div>
             )}
           </div>
+        )}
+
+        {/* Profile / Coding Profile Modals */}
+        {showPhotoModal && (
+          <ProfilePhotoModal
+            isOpen={showPhotoModal}
+            onClose={() => setShowPhotoModal(false)}
+            currentPhoto={userData?.profilePhoto?.url}
+            onUpdate={handlePhotoUpdate}
+          />
+        )}
+        {showCodingModal && activeTab === 'coding' && (
+          <CodingProfilesModal
+            isOpen={showCodingModal}
+            onClose={() => setShowCodingModal(false)}
+            codingProfiles={codingProfiles}
+            onUpdate={(profiles) => { setCodingProfiles(profiles); handleProfilesUpdate(); }}
+          />
         )}
 
         {/* Certificate Modal */}

@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     // @ts-ignore
     const publicId = uploadRes.public_id;
 
-    await User.findByIdAndUpdate(userId, { profilePhoto: url });
+    await User.findByIdAndUpdate(userId, { profilePhoto: { url, publicId, uploadedAt: new Date() } });
 
     return NextResponse.json({
       success: true,

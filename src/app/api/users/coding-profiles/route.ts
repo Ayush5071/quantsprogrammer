@@ -27,6 +27,16 @@ async function fetchGitHubStats(username: string) {
     });
     const repos = reposRes.ok ? await reposRes.json() : [];
     const totalStars = Array.isArray(repos) ? repos.reduce((acc: number, repo: any) => acc + (repo.stargazers_count || 0), 0) : 0;
+    const favoriteRepo = Array.isArray(repos) && repos.length > 0 ? repos.reduce((a: any, b: any) => (a.stargazers_count || 0) > (b.stargazers_count || 0) ? a : b) : null;
+    // Aggregate primary languages across repos
+    const languageCounts: Record<string, number> = {};
+    if (Array.isArray(repos)) {
+      repos.forEach((r: any) => {
+        const lang = r.language || 'Unknown';
+        languageCounts[lang] = (languageCounts[lang] || 0) + 1;
+      });
+    }
+    const topLanguages = Object.entries(languageCounts).sort((a: any, b: any) => b[1] - a[1]).slice(0, 5).map((x: any) => ({ language: x[0], count: x[1] }));
 
     // Estimate commits (GitHub API doesn't provide total commits easily)
     const eventsRes = await fetch(`https://api.github.com/users/${username}/events?per_page=100`, {
@@ -47,6 +57,9 @@ async function fetchGitHubStats(username: string) {
       avatarUrl: user.avatar_url,
       name: user.name,
       bio: user.bio,
+      topLanguages,
+      mergedPRs: Array.isArray(events) ? events.filter((e: any) => e.type === 'PullRequestEvent' && e.payload?.action === 'closed' && e.payload?.pull_request?.merged).length : 0,
+      favoriteRepo: favoriteRepo ? { name: favoriteRepo.name, stars: favoriteRepo.stargazers_count, url: favoriteRepo.html_url } : null,
     };
   } catch (error) {
     console.error("GitHub fetch error:", error);
@@ -165,6 +178,56 @@ async function fetchCodeChefStats(username: string) {
   }
 }
 
+// Fetch HackerRank stats (attempt rest endpoint or parse HTML)
+async function fetchHackerRankStats(username: string) {
+  try {
+    // Attempt official-ish JSON endpoint
+    const url = `https://www.hackerrank.com/rest/contests/master/hackers/${username}/profile`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      const profile = data.model || data || {};
+      return {
+        problemsSolved: profile?.total_solved || 0,
+        contests: profile?.contest_count || 0,
+        ranking: profile?.ranking || 0,
+        avatarUrl: profile?.avatar || null,
+        name: profile?.name || username,
+      };
+    }
+
+    // Fallback: try to fetch the public HTML and parse some numbers (best-effort)
+    const htmlRes = await fetch(`https://www.hackerrank.com/${username}`);
+    if (!htmlRes.ok) return null;
+    const html = await htmlRes.text();
+    // Basic regex-based extraction as best-effort fallback
+    const solvesMatch = html.match(/(\d+)\s+solved/i);
+    const solves = solvesMatch ? parseInt(solvesMatch[1], 10) : 0;
+    return { problemsSolved: solves, contests: 0, ranking: 0, avatarUrl: null, name: username };
+  } catch (error) {
+    console.error('HackerRank fetch error', error);
+    return null;
+  }
+}
+
+// Fetch HackerEarth stats (best-effort HTML parse)
+async function fetchHackerEarthStats(username: string) {
+  try {
+    const res = await fetch(`https://www.hackerearth.com/@${username}/`);
+    if (!res.ok) return null;
+    const html = await res.text();
+    // Try to extract solved/contests if present
+    const solvesMatch = html.match(/(\d+)[^\d]+problems/i);
+    const solves = solvesMatch ? parseInt(solvesMatch[1], 10) : 0;
+    const ratingMatch = html.match(/rating\s*(\d+)/i);
+    const rating = ratingMatch ? parseInt(ratingMatch[1], 10) : 0;
+    return { problemsSolved: solves, contests: 0, rating, avatarUrl: null, name: username };
+  } catch (error) {
+    console.error('HackerEarth fetch error', error);
+    return null;
+  }
+}
+
 // GET - Get user's coding profiles
 export async function GET(request: NextRequest) {
   try {
@@ -222,6 +285,12 @@ export async function POST(request: NextRequest) {
       case 'codechef':
         stats = await fetchCodeChefStats(username);
         break;
+          case 'hackerrank':
+            stats = await fetchHackerRankStats(username);
+            break;
+          case 'hackerearth':
+            stats = await fetchHackerEarthStats(username);
+            break;
     }
 
     if (!stats) {
@@ -326,6 +395,12 @@ export async function PUT(request: NextRequest) {
         break;
       case 'codechef':
         stats = await fetchCodeChefStats(profile.username);
+        break;
+      case 'hackerrank':
+        stats = await fetchHackerRankStats(profile.username);
+        break;
+      case 'hackerearth':
+        stats = await fetchHackerEarthStats(profile.username);
         break;
     }
 

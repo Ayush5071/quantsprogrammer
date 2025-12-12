@@ -219,13 +219,23 @@ export default function BulkResumeScreeningPage() {
           // Check premium status
           const premiumRes = await axios.get("/api/payment/resume-screening");
           setIsPremium(premiumRes.data.purchased || false);
+
+          // Show purchase modal once per session if not purchased
+          if (!premiumRes.data.purchased && !sessionStorage.getItem("resumeScreeningModalShown")) {
+            setTimeout(() => {
+              setShowPremiumModal(true);
+              sessionStorage.setItem("resumeScreeningModalShown", "true");
+            }, 1200);
+          }
         } else {
           setIsAuthenticated(false);
-          router.push("/auth/login-required");
+          // If not authenticated, show purchase modal (prompt to login or purchase after sign-in)
+          setShowPremiumModal(true);
         }
       } catch (error) {
         setIsAuthenticated(false);
-        router.push("/auth/login-required");
+        // If network/auth error, show purchase modal to prompt login or purchase
+        setShowPremiumModal(true);
       } finally {
         setCheckingPremium(false);
       }
@@ -284,11 +294,15 @@ export default function BulkResumeScreeningPage() {
     toast.success(`Found ${pdfFiles.length} PDF files`);
   };
 
-  const extractTextFromPDF = async (file: File): Promise<{ text: string; pageCount: number }> => {
+  const extractTextFromPDF = async (
+    file: File,
+    useOCR: boolean = false
+  ): Promise<{ text: string; pageCount: number; ocrSuggested?: boolean; ocrUsed?: boolean }> => {
     try {
       // Use server-side API for reliable PDF text extraction
       const formData = new FormData();
       formData.append("file", file);
+      if (useOCR) formData.append("useOCR", "1");
 
       const response = await axios.post("/api/resume/extract-text", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -296,9 +310,11 @@ export default function BulkResumeScreeningPage() {
 
       if (response.data.success) {
         console.log(`PDF ${file.name}: ${response.data.pageCount} page(s), ${response.data.textLength} chars`);
-        return { 
-          text: response.data.text, 
-          pageCount: response.data.pageCount 
+        return {
+          text: response.data.text,
+          pageCount: response.data.pageCount,
+          ocrSuggested: Boolean(response.data.ocrSuggested),
+          ocrUsed: Boolean(response.data.ocrUsed),
         };
       } else {
         throw new Error(response.data.error || "Extraction failed");
@@ -306,9 +322,9 @@ export default function BulkResumeScreeningPage() {
     } catch (err: any) {
       console.error(`PDF extraction error for ${file.name}:`, err);
       // Return page count 1 to not disqualify, but with error message in text
-      return { 
-        text: `Error extracting text from ${file.name}. ${err.response?.data?.error || err.message || "Please ensure it's a valid PDF file."}`, 
-        pageCount: 1 
+      return {
+        text: `Error extracting text from ${file.name}. ${err.response?.data?.error || err.message || "Please ensure it's a valid PDF file."}`,
+        pageCount: 1,
       };
     }
   };
@@ -330,13 +346,35 @@ export default function BulkResumeScreeningPage() {
       // Extract text from all PDFs
       const resumes: { fileName: string; text: string; pageCount: number }[] = [];
       
+      let anyOcrSuggested = false;
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         setProcessingStatus(`Extracting text from ${file.name} (${i + 1}/${files.length})...`);
         
-        const { text, pageCount } = await extractTextFromPDF(file);
+        const { text, pageCount, ocrSuggested } = await extractTextFromPDF(file);
+        if (ocrSuggested) anyOcrSuggested = true;
         console.log(`Processed ${file.name}: ${pageCount} pages, text length: ${text.length}`);
         resumes.push({ fileName: file.name, text, pageCount });
+      }
+
+      // If OCR was suggested for any file, ask user to retry with OCR
+      if (anyOcrSuggested) {
+        const retry = window.confirm("One or more resumes look like scanned PDFs. Retry extraction with OCR (may take longer)?");
+        if (retry) {
+          // Re-extract only the affected files with OCR
+          const updatedResumes: { fileName: string; text: string; pageCount: number }[] = [];
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            setProcessingStatus(`Running OCR on ${file.name} (${i + 1}/${files.length})...`);
+            const { text, pageCount, ocrUsed, ocrSuggested: ocrStillSuggested } = await extractTextFromPDF(file, true);
+            if (ocrStillSuggested && !ocrUsed) {
+              toast.error("OCR is not enabled on the server. Ask admin to set OCR_SPACE_API_KEY.");
+            }
+            updatedResumes.push({ fileName: file.name, text, pageCount });
+          }
+          // Replace resumes with updated ones
+          resumes.splice(0, resumes.length, ...updatedResumes);
+        }
       }
 
       setProcessingStatus("Analyzing resumes with AI...");
@@ -366,11 +404,21 @@ export default function BulkResumeScreeningPage() {
       if (response.data.success && response.data.paymentUrl) {
         // Redirect to Instamojo payment page
         window.location.href = response.data.paymentUrl;
+      } else if (response.status === 401 || response.data.error?.toLowerCase()?.includes("login")) {
+        // Not authenticated - redirect to login with return URL
+        toast.error("Please sign in to complete the purchase");
+        router.push(`/auth/login?returnTo=/resume-screening/bulk`);
       } else {
         toast.error(response.data.error || "Failed to create payment request");
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.error || "Failed to initiate payment");
+      // If server returns 401
+      if (error.response?.status === 401) {
+        toast.error("Please sign in to complete the purchase");
+        router.push(`/auth/login?returnTo=/resume-screening/bulk`);
+      } else {
+        toast.error(error.response?.data?.error || "Failed to initiate payment");
+      }
     } finally {
       setPurchaseLoading(false);
     }
@@ -404,8 +452,9 @@ export default function BulkResumeScreeningPage() {
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push("/")}
-              className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+              onClick={() => router.back()}
+              title="Back"
+              className="p-2 hover:bg-emerald-900 bg-emerald-800/10 text-emerald-300 rounded-lg transition-colors"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
@@ -434,6 +483,39 @@ export default function BulkResumeScreeningPage() {
           </div>
         </div>
       </div>
+
+      {/* Premium modal */}
+      {showPremiumModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPremiumModal(false)} />
+          <div className="relative z-10 max-w-md w-full bg-[#0b0b0d] border border-white/10 rounded-2xl p-6">
+            <h3 className="text-lg font-bold mb-2">Unlock Bulk Resume Screening</h3>
+            <p className="text-sm text-gray-400 mb-4">
+              Get faster, multi-resume screening with OCR support, priority processing and downloadable reports.
+            </p>
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-xs text-gray-400">One-time purchase</div>
+              <div className="text-xl font-bold text-emerald-400">₹{premiumPrice}</div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={handlePurchasePremium}
+                disabled={purchaseLoading}
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-lg"
+              >
+                {purchaseLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Buy Premium"}
+              </button>
+              <button
+                onClick={() => router.push('/auth/login?returnTo=/resume-screening/bulk')}
+                className="flex-1 px-4 py-2 bg-transparent border border-gray-700 rounded-lg text-white/80 hover:bg-gray-800"
+              >
+                Sign in
+              </button>
+            </div>
+            <div className="mt-3 text-xs text-gray-500">You can cancel and retry anytime.</div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 py-8">
         {!result ? (

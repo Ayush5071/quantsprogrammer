@@ -90,6 +90,18 @@ export default function CodeForcesWrappedPage() {
    const user = useCurrentUser();
   const router = useRouter();
 
+  // Cycle loading messages
+  useEffect(() => {
+    if (loading) {
+      let i = 0;
+      const interval = setInterval(() => {
+        i = (i + 1) % loadingMessages.length;
+        setLoadingMessage(loadingMessages[i]);
+      }, 1500);
+      return () => clearInterval(interval);
+    }
+  }, [loading]);
+
  if (user === undefined) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
@@ -135,17 +147,6 @@ export default function CodeForcesWrappedPage() {
   }
 
 
-  // Cycle loading messages
-  useEffect(() => {
-    if (loading) {
-      let i = 0;
-      const interval = setInterval(() => {
-        i = (i + 1) % loadingMessages.length;
-        setLoadingMessage(loadingMessages[i]);
-      }, 1500);
-      return () => clearInterval(interval);
-    }
-  }, [loading]);
 
   // Fetch CF stats
   const fetchStats = async () => {

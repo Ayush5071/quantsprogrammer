@@ -96,8 +96,12 @@ const userSchema = new Schema({
         date: { type: String }, // YYYY-MM-DD format
         count: { type: Number, default: 0 },
     },
-    // Profile photo
-    profilePhoto: { type: String },
+    // Profile photo as object (url, publicId, uploadedAt)
+    profilePhoto: {
+        url: { type: String },
+        publicId: { type: String },
+        uploadedAt: { type: Date },
+    },
     // Bio
     bio: { type: String, maxlength: 500 },
     // Social links
@@ -153,15 +157,35 @@ const userSchema = new Schema({
             },
             lastUpdated: { type: Date },
         },
+        hackerrank: {
+            username: { type: String },
+            connected: { type: Boolean, default: false },
+            stats: {
+                problemsSolved: { type: Number, default: 0 },
+                contests: { type: Number, default: 0 },
+                ranking: { type: Number, default: 0 },
+            },
+            lastUpdated: { type: Date },
+        },
+        hackerearth: {
+            username: { type: String },
+            connected: { type: Boolean, default: false },
+            stats: {
+                problemsSolved: { type: Number, default: 0 },
+                contests: { type: Number, default: 0 },
+                rating: { type: Number, default: 0 },
+            },
+            lastUpdated: { type: Date },
+        },
     },
     // Profile visibility
     isPublicProfile: { type: Boolean, default: true },
     profileSlug: { type: String, unique: true, sparse: true },
 });
 
-if (mongoose.models.users) {
-    delete mongoose.models.users;
+if (mongoose.models.User) {
+    delete mongoose.models.User;
 }
 
-const User = mongoose.models.users || mongoose.model("users", userSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 export default User;

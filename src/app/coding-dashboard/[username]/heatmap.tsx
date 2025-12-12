@@ -6,9 +6,10 @@ interface HeatmapProps {
   from: string;
   to: string;
   platform: string;
+  colors?: string[]; // allow custom colors
 }
 
-export const CodingHeatmap: React.FC<HeatmapProps> = ({ data, from, to, platform }) => {
+export const CodingHeatmap: React.FC<HeatmapProps> = ({ data, from, to, platform, colors }) => {
   return (
     <div style={{ height: 180 }} className="rounded-xl overflow-hidden bg-[#181825] border border-white/10">
       <ResponsiveCalendar
@@ -16,7 +17,7 @@ export const CodingHeatmap: React.FC<HeatmapProps> = ({ data, from, to, platform
         from={from}
         to={to}
         emptyColor="#22223b"
-        colors={["#3b82f6", "#06b6d4", "#22d3ee", "#a5b4fc", "#facc15"]}
+        colors={colors || ["#065f46", "#10b981", "#34d399", "#86efac", "#bbf7d0"]}
         margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
         yearSpacing={40}
         monthBorderColor="#27272a"
@@ -35,7 +36,7 @@ export const CodingHeatmap: React.FC<HeatmapProps> = ({ data, from, to, platform
           },
         ]}
       />
-      <div className="text-xs text-gray-400 text-center mt-2">{platform} activity heatmap</div>
+        <div className="text-xs text-gray-400 text-center mt-2">{platform} activity heatmap</div>
     </div>
   );
 };

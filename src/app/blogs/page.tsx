@@ -16,7 +16,9 @@ import {
   Plus,
   Search,
   Sparkles,
-  TrendingUp
+  TrendingUp,
+  MessageCircle,
+  Heart
 } from "lucide-react";
 
 interface UserType {
@@ -78,7 +80,7 @@ const BlogSection = () => {
   const handleDelete = async (blog: any) => {
     if (!window.confirm("Are you sure you want to delete this blog?")) return;
     try {
-      await axios.delete("/api/blogs/edit", { data: { blogId: blog._id, adminId: user!._id } });
+      await axios.delete("/api/blogs/edit", { data: { blogId: blog._id } });
       setBlogs((prev) => prev.filter((b: any) => b._id !== blog._id));
       toast.success("Blog deleted!");
     } catch (err: any) {
@@ -92,6 +94,13 @@ const BlogSection = () => {
     blog.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     blog.author?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const getReadingTime = (content: string) => {
+    const text = (content || '').replace(/<[^>]*>/g, '');
+    const words = text.split(/\s+/).filter(Boolean).length;
+    const minutes = Math.max(1, Math.ceil(words / 200));
+    return minutes;
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -263,9 +272,12 @@ const BlogSection = () => {
                   <span className="px-3 py-1 bg-blue-500/10 text-blue-400 text-xs font-medium rounded-full">
                     Tech
                   </span>
-                  <span className="text-xs text-gray-500 flex items-center gap-1">
+                  <span className="text-xs text-gray-500 flex items-center gap-2">
                     <Clock className="w-3 h-3" />
-                    5 min read
+                    {getReadingTime(blog.content)} min read
+                    <span className="mx-1">•</span>
+                    <span className="flex items-center gap-1 text-gray-400"><MessageCircle className="w-3 h-3" /> {blog.comments?.length || 0}</span>
+                    <span className="flex items-center gap-1 text-gray-400"><Heart className="w-3 h-3" /> {blog.likes?.length || 0}</span>
                   </span>
                 </div>
 

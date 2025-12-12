@@ -21,83 +21,7 @@ interface CertificateProps {
   onClose?: () => void;
 }
 
-// Professional handwritten-style signature for "Ayush Tiwari"
-const AyushTiwariSignature = () => (
-  <svg 
-    viewBox="0 0 240 80" 
-    className="w-48 h-16"
-    style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.08))' }}
-  >
-    <defs>
-      <linearGradient id="sigGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" style={{ stopColor: '#1a365d', stopOpacity: 1 }} />
-        <stop offset="50%" style={{ stopColor: '#2c5282', stopOpacity: 1 }} />
-        <stop offset="100%" style={{ stopColor: '#1a365d', stopOpacity: 1 }} />
-      </linearGradient>
-    </defs>
-    
-    {/* "A" - Capital A with flourish */}
-    <path 
-      d="M12 55 L28 18 Q30 14 32 18 L48 55 M20 42 L40 42"
-      fill="none"
-      stroke="url(#sigGradient)"
-      strokeWidth="2.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    
-    {/* "yush" - flowing lowercase */}
-    <path 
-      d="M50 32 Q52 28 56 32 L54 50 Q52 58 48 62 
-         M58 30 Q64 28 66 34 L66 50 
-         M70 42 Q74 36 80 38 Q86 40 82 50 
-         M88 32 Q92 28 96 32 L96 50 Q100 50 104 46"
-      fill="none"
-      stroke="url(#sigGradient)"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    
-    {/* Space and "T" - Capital T */}
-    <path 
-      d="M120 18 L148 18 M134 18 L134 55"
-      fill="none"
-      stroke="url(#sigGradient)"
-      strokeWidth="2.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    
-    {/* "iwari" - flowing lowercase */}
-    <path 
-      d="M152 30 Q154 28 156 32 L156 50 
-         M152 26 Q154 24 156 26 
-         M162 32 Q168 26 174 32 Q180 38 176 50 Q172 58 166 54 
-         M182 36 Q186 30 192 32 L190 50 
-         M196 30 Q198 28 200 32 L200 50 
-         M196 26 Q198 24 200 26"
-      fill="none"
-      stroke="url(#sigGradient)"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    
-    {/* Decorative underline flourish */}
-    <path 
-      d="M8 62 Q60 68 120 62 Q180 56 232 64"
-      fill="none"
-      stroke="url(#sigGradient)"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      opacity="0.5"
-    />
-    
-    {/* Small decorative dot flourish */}
-    <circle cx="236" cy="64" r="2" fill="url(#sigGradient)" opacity="0.6" />
-  </svg>
-);
+import SignaturePlaceholder from "@/components/component/SignaturePlaceholder";
 
 export default function Certificate({ 
   user, 
@@ -135,7 +59,7 @@ export default function Certificate({
   const CertificateContent = () => (
     <div 
       ref={certRef} 
-      className="w-[850px] h-[620px] bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-xl shadow-2xl border-4 border-slate-800 flex flex-col items-center px-14 py-8 relative overflow-hidden"
+      className="max-w-[850px] w-full min-h-[620px] bg-gradient-to-br from-slate-50 via-white to-blue-50 rounded-xl shadow-2xl border-4 border-slate-800 flex flex-col items-center px-8 md:px-14 py-8 relative overflow-hidden"
     >
       {/* Elegant Background Pattern */}
       <div className="absolute inset-0 opacity-[0.02]">
@@ -185,14 +109,14 @@ export default function Certificate({
       <div className="relative z-10 flex flex-col items-center flex-1 justify-center">
         <p className="text-base text-slate-600 mb-3 text-center">This is to certify that</p>
         
-        <div className="text-4xl font-bold text-slate-900 mb-3 text-center relative px-12">
-          <span className="relative z-10">{displayName}</span>
-          <div className="absolute bottom-1 left-6 right-6 h-3 bg-gradient-to-r from-yellow-200/70 via-yellow-300/70 to-yellow-200/70 -z-0 rounded-full" />
+        <div className="text-4xl font-bold text-slate-900 mb-3 text-center relative px-6 w-full max-w-[720px] mx-auto break-words">
+          <span className="relative z-10 block">{displayName}</span>
+          <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-[78%] h-3 bg-gradient-to-r from-yellow-200/70 via-yellow-300/70 to-yellow-200/70 -z-0 rounded-full" />
         </div>
         
         <p className="text-base text-slate-600 mb-4 text-center">has successfully completed the certification for</p>
         
-        <div className="text-2xl font-bold text-blue-700 mb-5 text-center px-10 py-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-xl border border-blue-200 shadow-sm">
+        <div className="text-2xl font-bold text-blue-700 mb-5 text-center px-6 py-3 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 rounded-xl border border-blue-200 shadow-sm max-w-[80%] mx-auto break-words whitespace-normal">
           {displayTitle}
         </div>
 
@@ -216,9 +140,9 @@ export default function Certificate({
       </div>
 
       {/* Bottom Section: Signature & Seal */}
-      <div className="absolute bottom-12 left-14 right-14 flex items-end justify-between">
+      <div className="absolute bottom-12 left-8 right-8 flex items-center justify-between">
         {/* Decorative Seal */}
-        <div className="flex flex-col items-center">
+        <div className="flex-shrink-0 flex flex-col items-center mr-6">
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-700 flex items-center justify-center shadow-xl border-3 border-white relative">
             <div className="absolute inset-1.5 rounded-full border-2 border-dashed border-white/40" />
             <div className="flex flex-col items-center">
@@ -229,17 +153,17 @@ export default function Certificate({
           <span className="text-[11px] text-blue-700 mt-2 font-bold tracking-[0.2em]">PREPSUTRA</span>
         </div>
 
-        {/* Footer Text */}
-        <div className="flex flex-col items-center absolute left-1/2 -translate-x-1/2 bottom-0">
+        {/* Footer Text (center) */}
+        <div className="flex-1 flex items-center justify-center">
           <p className="text-[11px] text-slate-500 tracking-widest italic font-medium">Master the Art of Development</p>
         </div>
 
         {/* Signature */}
-        <div className="flex flex-col items-center">
-          <AyushTiwariSignature />
-          <div className="w-40 h-[2px] bg-gradient-to-r from-transparent via-slate-400 to-transparent mt-1 mb-2" />
-          <span className="text-sm text-slate-800 font-bold">Ayush Tiwari</span>
-          <span className="text-[11px] text-slate-500 font-medium">Founder & Director</span>
+        <div className="flex-shrink-0 flex flex-col items-center text-center ml-6">
+          <SignaturePlaceholder />
+          <div className="w-36 h-[1.5px] bg-gradient-to-r from-transparent via-slate-400 to-transparent mt-1 mb-2" />
+          <span className="text-sm text-slate-800 font-bold">Authorized Signatory</span>
+          <span className="text-[11px] text-slate-500 font-medium">PrepSutra</span>
         </div>
       </div>
 

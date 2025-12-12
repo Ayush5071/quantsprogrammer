@@ -20,9 +20,7 @@ export function middleware(request: NextRequest) {
                           path.startsWith('/placement-data') ||
                           path.startsWith('/profile') ||
                           path.startsWith('/roadmap-test') ||
-                          path.startsWith('/sample-test') ||
-                          path.startsWith('/company-problems');
-
+                          path.startsWith('/sample-test');
   // Public paths that should redirect to home if logged in
   const isPublicPath = path === '/auth/login' || path === '/auth/signup';
   

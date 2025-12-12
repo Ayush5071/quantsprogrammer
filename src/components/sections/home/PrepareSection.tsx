@@ -2,7 +2,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Code2, Boxes, Cpu, Globe, Database, Lock } from "lucide-react";
+import { Code2, Boxes, Cpu, Globe, Database, Lock, FileText } from "lucide-react";
 
 const topics = [
   { icon: Code2, label: "Company Problems", path: "/company-problems" },
@@ -11,6 +11,7 @@ const topics = [
   { icon: Globe, label: "Web Dev", path: "/explore" },
   { icon: Database, label: "DBMS", path: "/prepare-interviews" },
   { icon: Lock, label: "Security", path: "/prepare-interviews" },
+  { icon: FileText, label: "ATS Checker", path: "/ats-checker" },
 ];
 
 export default function PrepareSection() {

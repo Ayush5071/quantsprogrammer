@@ -9,6 +9,7 @@ const navLinks = [
   { href: "/blogs", label: "Blogs", icon: "📝" },
   { href: "/profile", label: "Profile", icon: "👤" },
   { href: "/top-interviews", label: "Coding Arena", icon: "⭐" },
+  { href: "/interview-experiences", label: "Interview Experiences", icon: "🧭" },
 ];
 
 export default function Navbar() {

@@ -16,63 +16,7 @@ interface TopInterviewCertificateProps {
   onClose?: () => void;
 }
 
-// Professional handwritten-style signature for "Ayush Tiwari"
-const AyushTiwariSignature = () => (
-  <svg 
-    viewBox="0 0 220 70" 
-    className="w-44 h-16"
-    style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.08))' }}
-  >
-    <defs>
-      <linearGradient id="signGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" style={{ stopColor: '#1e3a5f', stopOpacity: 1 }} />
-        <stop offset="50%" style={{ stopColor: '#2d4a6f', stopOpacity: 1 }} />
-        <stop offset="100%" style={{ stopColor: '#1e3a5f', stopOpacity: 1 }} />
-      </linearGradient>
-    </defs>
-    
-    {/* "Ayush" - flowing script */}
-    <path 
-      d="M8 42 
-         Q10 25 18 28 Q28 32 22 42 Q18 50 28 48 L35 42 
-         Q38 38 42 42 Q46 48 44 52 
-         L52 30 Q54 25 58 30 L56 48 Q58 52 64 48 
-         L68 38 Q70 32 74 35 Q78 38 76 45 Q74 52 80 48 
-         L86 35 Q90 28 94 35 Q98 42 95 50"
-      fill="none"
-      stroke="url(#signGradient)"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    
-    {/* "Tiwari" - flowing script */}
-    <path 
-      d="M108 25 L108 50 
-         M102 32 L116 32 
-         M122 35 Q124 32 126 35 L126 48 
-         M132 32 Q136 28 142 32 Q148 38 145 48 Q140 55 134 50 
-         M150 35 Q154 28 162 32 Q168 38 165 48 Q160 55 154 50 
-         M172 35 Q174 32 176 35 L176 48 
-         M172 30 Q174 28 176 30"
-      fill="none"
-      stroke="url(#signGradient)"
-      strokeWidth="2.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    
-    {/* Decorative underline flourish */}
-    <path 
-      d="M5 58 Q50 62 110 56 Q170 50 215 58"
-      fill="none"
-      stroke="url(#signGradient)"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      opacity="0.5"
-    />
-  </svg>
-);
+import SignaturePlaceholder from "@/components/component/SignaturePlaceholder";
 
 // Rank badge component
 const RankBadge = ({ rank }: { rank: number }) => {
@@ -134,7 +78,7 @@ export default function TopInterviewCertificate({
   const CertificateContent = () => (
     <div 
       ref={certRef} 
-      className="w-[850px] h-[620px] bg-gradient-to-br from-slate-50 via-white to-indigo-50 rounded-xl shadow-2xl border-4 border-slate-800 flex flex-col items-center px-10 py-6 relative overflow-hidden"
+      className="max-w-[850px] w-full min-h-[620px] bg-gradient-to-br from-slate-50 via-white to-indigo-50 rounded-xl shadow-2xl border-4 border-slate-800 flex flex-col items-center px-6 md:px-10 py-6 relative overflow-hidden"
     >
       {/* Elegant Background Pattern */}
       <div className="absolute inset-0 opacity-[0.03]">
@@ -229,7 +173,7 @@ export default function TopInterviewCertificate({
       </div>
 
       {/* Bottom Section: Rank Badge & Signature */}
-      <div className="absolute bottom-10 left-12 right-12 flex items-end justify-between">
+      <div className="absolute bottom-10 left-8 right-8 flex items-center justify-between">
         {/* Rank Badge */}
         <div className="flex flex-col items-center">
           <RankBadge rank={rank} />
@@ -237,16 +181,16 @@ export default function TopInterviewCertificate({
         </div>
 
         {/* Footer Text */}
-        <div className="flex flex-col items-center absolute left-1/2 -translate-x-1/2 bottom-0">
+        <div className="flex-1 flex items-center justify-center">
           <p className="text-[10px] text-slate-500 tracking-wider italic">Compete • Excel • Achieve</p>
         </div>
 
         {/* Signature */}
-        <div className="flex flex-col items-center">
-          <AyushTiwariSignature />
+        <div className="flex shrink-0 flex-col items-center text-center ml-6">
+          <SignaturePlaceholder />
           <div className="w-36 h-[1px] bg-slate-400 mt-1 mb-1" />
-          <span className="text-sm text-slate-800 font-semibold">Ayush Tiwari</span>
-          <span className="text-[10px] text-slate-500">Founder & Director</span>
+          <span className="text-sm text-slate-800 font-semibold">Authorized Signatory</span>
+          <span className="text-[10px] text-slate-500">PrepSutra</span>
         </div>
       </div>
 

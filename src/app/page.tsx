@@ -231,12 +231,12 @@ export default function Home() {
   // Memoized nav items - simplified for new navbar
   const navItems = useMemo(() => [
     { name: "About", link: "/about" },
+    { name: "Company Problems", link: "/company-problems" },
     {
       name: "Prepare",
       dropdown: [
         { name: "Blogs", link: "/blogs" },
         { name: "Roadmaps", link: "/explore" },
-        { name: "Company Problems", link: "/company-problems" },
       ],
     },
     {

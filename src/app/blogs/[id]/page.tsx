@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import parse from "html-react-parser";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, BookOpen, Heart, MessageCircle, Send, Trash2, User } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, BookOpen, Heart, MessageCircle, Send, Trash2, User, Share2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 interface Comment {
@@ -48,6 +48,8 @@ export default function BlogDetailPage() {
   const [newComment, setNewComment] = useState("");
   const [submittingComment, setSubmittingComment] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const commentInputRef = React.useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -241,6 +243,19 @@ export default function BlogDetailPage() {
             >
               All Blogs
             </button>
+            <button onClick={() => { setShowComments((s) => !s); setTimeout(() => commentInputRef.current?.focus(), 150); }} className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all">Comments</button>
+            <div className="relative">
+              <button onClick={() => setShowShareMenu(s => !s)} className="px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-white/5 rounded-lg transition-all">Share</button>
+              {showShareMenu && (
+                <div className="absolute right-0 mt-2 w-[210px] bg-[#0b0b12] border border-white/10 rounded-lg shadow-lg p-2 z-50">
+                  <button className="w-full text-left px-3 py-2 hover:bg-white/5 rounded-md text-sm" onClick={() => { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(blog?.title + ' ' + window.location.href)}`, '_blank'); setShowShareMenu(false); }}>WhatsApp</button>
+                  <button className="w-full text-left px-3 py-2 hover:bg-white/5 rounded-md text-sm" onClick={() => { window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`, '_blank'); setShowShareMenu(false); }}>Facebook</button>
+                  <button className="w-full text-left px-3 py-2 hover:bg-white/5 rounded-md text-sm" onClick={() => { window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(blog?.title)}&url=${encodeURIComponent(window.location.href)}`, '_blank'); setShowShareMenu(false); }}>Twitter</button>
+                  <button className="w-full text-left px-3 py-2 hover:bg-white/5 rounded-md text-sm" onClick={() => { window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`, '_blank'); setShowShareMenu(false); }}>LinkedIn</button>
+                  <button className="w-full text-left px-3 py-2 hover:bg-white/5 rounded-md text-sm" onClick={() => { navigator.clipboard.writeText(window.location.href); setShowShareMenu(false); toast.success('Link copied'); }}>Copy link</button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </header>
@@ -378,6 +393,8 @@ export default function BlogDetailPage() {
                     </div>
                     <div className="flex-1">
                       <textarea
+                        ref={commentInputRef}
+                        id="blog-comment-input"
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         placeholder={user ? "Write a comment..." : "Login to comment"}

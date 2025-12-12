@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
+import useCurrentUser from "@/lib/useCurrentUser";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { 
@@ -117,6 +118,8 @@ export default function CompanyProblemsPage() {
     };
     checkPurchaseStatus();
   }, []);
+
+  const user = useCurrentUser();
 
   // Check if a company is free
   const isCompanyFree = (companyName: string) => {
@@ -323,23 +326,45 @@ export default function CompanyProblemsPage() {
             </div>
           </div>
 
-          <button
-            onClick={handlePurchase}
-            disabled={processingPayment}
+          {user === null ? (
+            <div className="space-y-3">
+              <p className="text-gray-400">You need to login to purchase premium access.</p>
+              <div className="flex gap-2">
+                <a href="/auth/login" className="w-full inline-flex items-center justify-center py-3 bg-white/5 border border-white/10 rounded-lg text-white font-semibold">Log in</a>
+                <button onClick={handlePurchase} disabled={processingPayment} className="w-full py-3 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl hover:from-yellow-400 hover:to-orange-400 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                  {processingPayment ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" />
+                      Pay ₹{oaPrice} & Unlock
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              onClick={handlePurchase}
+              disabled={processingPayment}
             className="w-full py-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-black font-bold rounded-xl hover:from-yellow-400 hover:to-orange-400 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {processingPayment ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5" />
-                Pay ₹{oaPrice} & Unlock
-              </>
-            )}
-          </button>
+            >
+              {processingPayment ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-5 h-5" />
+                  Pay ₹{oaPrice} & Unlock
+                </>
+              )}
+            </button>
+          )}
           
           <button
             onClick={() => setShowPurchaseModal(false)}

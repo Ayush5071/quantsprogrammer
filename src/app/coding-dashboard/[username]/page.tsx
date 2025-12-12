@@ -4,13 +4,16 @@ import axios from "axios";
 import { ProfileSummary } from "./profile-summary";
 import { StatsCards } from "./stats-cards";
 import { CodingHeatmap } from "./heatmap";
-import { Github, Code2, Award, Zap, Flame, Star, BookOpen, BarChart3 } from "lucide-react";
+import { LanguageBarChart } from "./language-chart";
+import { Github, Code2, Award, Zap, Flame, Star, BookOpen, BarChart3, Target } from "lucide-react";
 
 const platformColors: Record<string, string> = {
   github: "from-gray-900 to-gray-800",
   leetcode: "from-orange-900 to-yellow-800",
   codeforces: "from-blue-900 to-purple-900",
   codechef: "from-amber-900 to-orange-900",
+  hackerrank: "from-green-700 to-green-500",
+  hackerearth: "from-cyan-700 to-blue-700",
 };
 
 const CodingDashboardPage = ({ params }: { params: { username: string } }) => {
@@ -33,6 +36,16 @@ const CodingDashboardPage = ({ params }: { params: { username: string } }) => {
 
   // Combine stats for cards
   const stats = [];
+  // aggregated total solved
+  let totalSolved = 0;
+  ['leetcode','codeforces','codechef','hackerrank','hackerearth'].forEach((p)=>{
+    const st = (profile?.codingProfiles as any)?.[p]?.stats;
+    if (st && st.totalSolved) totalSolved += st.totalSolved;
+    if (st && st.problemsSolved) totalSolved += st.problemsSolved;
+  });
+  if (totalSolved > 0) {
+    stats.push({ title: "Total Solved", value: totalSolved, icon: <Code2 className="w-6 h-6 text-white" />, color: "from-indigo-700 to-purple-700" });
+  }
   if (profile?.codingProfiles?.github?.stats) {
     stats.push({
       title: "GitHub Repos",
@@ -83,6 +96,22 @@ const CodingDashboardPage = ({ params }: { params: { username: string } }) => {
       color: platformColors.codechef,
     });
   }
+  if (profile?.codingProfiles?.hackerrank?.stats) {
+    stats.push({
+      title: "HackerRank Solved",
+      value: profile.codingProfiles.hackerrank.stats.problemsSolved,
+      icon: <Zap className="w-6 h-6 text-green-400" />,
+      color: "from-green-700 to-green-500",
+    });
+  }
+  if (profile?.codingProfiles?.hackerearth?.stats) {
+    stats.push({
+      title: "HackerEarth Solved",
+      value: profile.codingProfiles.hackerearth.stats.problemsSolved,
+      icon: <Target className="w-6 h-6 text-cyan-400" />,
+      color: "from-cyan-700 to-blue-700",
+    });
+  }
 
   // Example heatmap data (replace with real data from API if available)
   const githubHeatmap = [
@@ -121,29 +150,34 @@ const CodingDashboardPage = ({ params }: { params: { username: string } }) => {
             {/* Heatmaps */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
               <CodingHeatmap
-                data={githubHeatmap}
-                from="2025-12-01"
-                to="2025-12-31"
-                platform="GitHub"
-              />
+                  data={githubHeatmap}
+                  from="2025-12-01"
+                  to="2025-12-31"
+                  platform="GitHub"
+                  colors={["#065f46", "#10b981", "#34d399", "#86efac", "#bbf7d0"]}
+                />
               {/* Add more heatmaps for other platforms if available */}
             </div>
 
             {/* Favorite languages, dev/coding persona, etc. */}
-            <div className="bg-[#181825] border border-white/10 rounded-2xl p-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="bg-[#181825] border border-white/10 rounded-2xl p-6">
               <h2 className="text-xl font-bold mb-2">About This Developer</h2>
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
-                  <div className="mb-2 text-gray-300">Favorite Dev Language: <span className="font-semibold text-blue-400">JavaScript</span></div>
-                  <div className="mb-2 text-gray-300">Favorite Coding Language: <span className="font-semibold text-orange-400">C++</span></div>
+                  <div className="mb-2 text-gray-300">Favorite Dev Language: <span className="font-semibold text-blue-400">{profile?.codingProfiles?.github?.topLanguages?.[0]?.language || 'JavaScript'}</span></div>
+                  <div className="mb-2 text-gray-300">Favorite Coding Language: <span className="font-semibold text-orange-400">{profile?.codingProfiles?.leetcode?.stats?.ranking ? 'C++' : (profile?.codingProfiles?.codeforces?.stats?.rank || 'C++')}</span></div>
                   <div className="mb-2 text-gray-300">Persona: <span className="font-semibold text-green-400">More of a Dev Guy than a Competitive Coder</span></div>
                 </div>
                 <div className="flex-1">
-                  <div className="mb-2 text-gray-300">Coding Since: <span className="font-semibold">2019</span></div>
+                  <div className="mb-2 text-gray-300">Coding Since: <span className="font-semibold">{profile?.memberSince ? new Date(profile.memberSince).getFullYear() : '—'}</span></div>
                   <div className="mb-2 text-gray-300">Most Active Platform: <span className="font-semibold text-purple-400">GitHub</span></div>
-                  <div className="mb-2 text-gray-300">Last Activity: <span className="font-semibold">2 days ago</span></div>
+                  <div className="mb-2 text-gray-300">Last Activity: <span className="font-semibold">{profile?.lastActivity || '—'}</span></div>
                 </div>
               </div>
+              {/* Languages chart */}
+              <LanguageBarChart languages={profile?.codingProfiles?.github?.topLanguages || []} height={220} color="#34d399" />
+            </div>
             </div>
 
             {/* More sections: charts, achievements, etc. */}

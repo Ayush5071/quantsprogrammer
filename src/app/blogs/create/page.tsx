@@ -38,15 +38,11 @@ export default function CreateBlogPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const userRes = await axios.get("/api/users/me");
-      const user = userRes.data.user;
       await axios.post("/api/blogs", {
         title,
         description,
         content,
         coverImage,
-        author: user.fullName || user.username,
-        authorId: user._id,
         link,
       });
       toast.success("Blog created!");

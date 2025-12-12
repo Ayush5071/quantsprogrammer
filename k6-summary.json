@@ -1,0 +1,147 @@
+{
+    "metrics": {
+        "http_req_failed": {
+            "passes": 8048,
+            "fails": 2014,
+            "thresholds": {
+                "rate<0.01": true
+            },
+            "value": 0.7998409858874975
+        },
+        "iteration_duration": {
+            "min": 336.7187,
+            "med": 1191.46145,
+            "max": 2690.1385,
+            "p(90)": 1694.54949,
+            "p(95)": 1792.8767699999999,
+            "avg": 1198.1446478831238
+        },
+        "http_req_sending": {
+            "min": 0,
+            "med": 0,
+            "max": 15.5279,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.019850765255416413
+        },
+        "http_req_waiting": {
+            "p(95)": 679.5469949999998,
+            "avg": 389.0417462631693,
+            "min": 69.5826,
+            "med": 353.23705,
+            "max": 1347.5146,
+            "p(90)": 592.81094
+        },
+        "http_req_receiving": {
+            "avg": 12.406879268535093,
+            "min": 0,
+            "med": 9.8314,
+            "max": 234.0602,
+            "p(90)": 26.735909999999997,
+            "p(95)": 33.606975
+        },
+        "iterations": {
+            "count": 10062,
+            "rate": 82.7506771827486
+        },
+        "http_req_connecting": {
+            "med": 0,
+            "max": 23.4704,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.029265146094215867,
+            "min": 0
+        },
+        "vus": {
+            "value": 15,
+            "min": 15,
+            "max": 100
+        },
+        "http_req_duration": {
+            "min": 71.591,
+            "med": 367.569,
+            "max": 1348.32,
+            "p(90)": 598.5646399999999,
+            "p(95)": 682.5610599999994,
+            "avg": 401.46847629695793,
+            "thresholds": {
+                "p(95)<1500": false
+            }
+        },
+        "http_req_tls_handshaking": {
+            "avg": 0,
+            "min": 0,
+            "med": 0,
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0
+        },
+        "checks": {
+            "passes": 2014,
+            "fails": 8048,
+            "value": 0.20015901411250248
+        },
+        "data_sent": {
+            "count": 901580,
+            "rate": 7414.6646327193885
+        },
+        "http_reqs": {
+            "count": 10062,
+            "rate": 82.7506771827486
+        },
+        "http_req_duration{expected_response:true}": {
+            "avg": 584.7537549155902,
+            "min": 212.5278,
+            "med": 564.82385,
+            "max": 1348.32,
+            "p(90)": 757.2258300000001,
+            "p(95)": 829.1557849999999
+        },
+        "data_received": {
+            "count": 110687356,
+            "rate": 910301.4971743164
+        },
+        "http_req_blocked": {
+            "max": 34.8765,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0.05367064201947916,
+            "min": 0,
+            "med": 0
+        },
+        "vus_max": {
+            "value": 100,
+            "min": 100,
+            "max": 100
+        }
+    },
+    "root_group": {
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "api-data status is 200": {
+                    "fails": 7034,
+                    "name": "api-data status is 200",
+                    "path": "::api-data status is 200",
+                    "id": "c7cffb6174f6dc79b03132b2336f2a59",
+                    "passes": 0
+                },
+                "create-roadmap status is 200": {
+                    "name": "create-roadmap status is 200",
+                    "path": "::create-roadmap status is 200",
+                    "id": "b9191fcef4e96ceaf360bdaa9087058b",
+                    "passes": 0,
+                    "fails": 1014
+                },
+                "top-interviews status is 200": {
+                    "passes": 2014,
+                    "fails": 0,
+                    "name": "top-interviews status is 200",
+                    "path": "::top-interviews status is 200",
+                    "id": "9d55af1193f19de3e815d32ed01d8e7b"
+                }
+            },
+        "name": "",
+        "path": ""
+    }
+}

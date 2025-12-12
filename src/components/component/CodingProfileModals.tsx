@@ -14,7 +14,6 @@ import {
   Trophy,
   Award,
   ExternalLink,
-  RefreshCw,
   Plus,
   Check,
   AlertCircle,
@@ -66,6 +65,24 @@ const platforms = [
     placeholder: "your-codechef-username",
     url: (u: string) => `https://www.codechef.com/users/${u}`,
   },
+  {
+    id: "hackerrank",
+    name: "HackerRank",
+    icon: Zap,
+    color: "from-green-600 to-emerald-600",
+    textColor: "text-white",
+    placeholder: "your-hackerrank-username",
+    url: (u: string) => `https://www.hackerrank.com/${u}`,
+  },
+  {
+    id: "hackerearth",
+    name: "HackerEarth",
+    icon: Target,
+    color: "from-cyan-600 to-blue-600",
+    textColor: "text-white",
+    placeholder: "your-hackerearth-username",
+    url: (u: string) => `https://www.hackerearth.com/@${u}`,
+  },
 ];
 
 interface CodingProfile {
@@ -85,7 +102,7 @@ interface CodingProfiles {
 interface Props {
   currentPhoto?: string;
   username: string;
-  onPhotoUpdate?: (photo: string | null) => void;
+  onPhotoUpdate?: (photo: { url?: string; publicId?: string } | null) => void;
   codingProfiles?: CodingProfiles;
   onProfilesUpdate?: (profiles: CodingProfiles) => void;
 }
@@ -100,7 +117,7 @@ export function ProfilePhotoModal({
   isOpen: boolean;
   onClose: () => void;
   currentPhoto?: string;
-  onUpdate: (photo: string | null) => void;
+  onUpdate: (photo: { url?: string; publicId?: string } | null) => void;
 }) {
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
@@ -137,18 +154,20 @@ export function ProfilePhotoModal({
       const res = await fetch("/api/users/profile-photo", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: 'include',
         body: JSON.stringify({ profilePhoto: preview }),
       });
 
       console.log("[ProfilePhotoModal] Fetch response status:", res.status);
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
         console.log("[ProfilePhotoModal] Error response:", data);
         throw new Error(data.error || "Failed to upload");
       }
 
       toast.success("Profile photo updated!");
-      onUpdate(preview);
+      // Notify parent with the uploaded URL & publicId
+      onUpdate({ url: data.url, publicId: data.publicId });
       onClose();
     } catch (err: any) {
       console.log("[ProfilePhotoModal] Upload error:", err);
@@ -161,10 +180,10 @@ export function ProfilePhotoModal({
   const handleRemove = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/users/profile-photo", { method: "DELETE" });
+      const res = await fetch("/api/users/profile-photo", { method: "DELETE", credentials: 'include' });
       if (!res.ok) throw new Error("Failed to remove");
-
-      toast.success("Profile photo removed");
+      const data = await res.json();
+      toast.success(data?.message || "Profile photo removed");
       onUpdate(null);
       onClose();
     } catch (err) {
@@ -204,13 +223,24 @@ export function ProfilePhotoModal({
             <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-1">
               <div className="w-full h-full rounded-full bg-[#0a0a0f] flex items-center justify-center overflow-hidden">
                 {preview || currentPhoto ? (
-                  <Image
-                    src={preview || currentPhoto || ""}
-                    alt="Profile"
-                    width={128}
-                    height={128}
-                    className="w-full h-full object-cover"
-                  />
+                  // If preview is a data URL (base64), render a native img to avoid Next/Image validation
+                  (preview && preview.startsWith('data:')) ? (
+                    <img
+                      src={preview}
+                      alt="Profile"
+                      width={128}
+                      height={128}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <Image
+                      src={preview || currentPhoto || ""}
+                      alt="Profile"
+                      width={128}
+                      height={128}
+                      className="w-full h-full object-cover"
+                    />
+                  )
                 ) : (
                   <User className="w-12 h-12 text-gray-400" />
                 )}
@@ -283,7 +313,6 @@ export function CodingProfilesModal({
   const [connecting, setConnecting] = useState<string | null>(null);
   const [usernameInput, setUsernameInput] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
-  const [refreshing, setRefreshing] = useState<string | null>(null);
 
   const handleConnect = async (platformId: string) => {
     if (!usernameInput.trim()) {
@@ -343,34 +372,7 @@ export function CodingProfilesModal({
     }
   };
 
-  const handleRefresh = async (platformId: string) => {
-    setRefreshing(platformId);
-    try {
-      const res = await fetch("/api/users/coding-profiles", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ platform: platformId }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || "Failed to refresh");
-
-      toast.success("Stats updated!");
-      onUpdate({
-        ...codingProfiles,
-        [platformId]: {
-          ...(codingProfiles as any)?.[platformId],
-          stats: data.stats,
-          lastUpdated: new Date().toISOString(),
-        },
-      });
-    } catch (err: any) {
-      toast.error(err.message || "Failed to refresh stats");
-    } finally {
-      setRefreshing(null);
-    }
-  };
+  // Note: Removed manual refresh handler to auto-fetch profiles in the parent page
 
   if (!isOpen) return null;
 
@@ -524,25 +526,14 @@ export function CodingProfilesModal({
                         )}
                       </div>
 
-                      {/* Actions */}
+                      {/* Actions (auto-refresh enabled in profile page) */}
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleRefresh(platform.id)}
-                          disabled={refreshing === platform.id}
-                          className="flex-1 py-2 bg-white/10 hover:bg-white/20 rounded-lg text-sm font-medium text-white flex items-center justify-center gap-1 transition-colors disabled:opacity-50"
-                        >
-                          {refreshing === platform.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <RefreshCw className="w-4 h-4" />
-                          )}
-                          Refresh
-                        </button>
-                        <button
                           onClick={() => handleDisconnect(platform.id)}
-                          className="py-2 px-3 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-sm font-medium text-red-400 transition-colors"
+                          className="flex-1 py-2 px-3 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-sm font-medium text-red-400 transition-colors"
                         >
                           <X className="w-4 h-4" />
+                          Disconnect
                         </button>
                       </div>
                     </div>

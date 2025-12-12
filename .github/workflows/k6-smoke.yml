@@ -1,0 +1,19 @@
+name: k6 Smoke Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ secrets.PERF_BASE_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run k6 smoke test against BASE_URL
+        run: |
+          if [ -z "$BASE_URL" ]; then echo "BASE_URL not set (set via secret PERF_BASE_URL)"; exit 1; fi
+          docker run --rm -v "${PWD}:/src" -w /src loadimpact/k6 run test/k6/load-test-frontend.js -e BASE_URL=$BASE_URL --summary-export=./k6-summary.json
+        shell: bash
