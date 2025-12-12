@@ -264,7 +264,7 @@ export default function ATSCheckerClient() {
                   }
                 } catch (e) {
                   // Puter CDN failed — do not fallback to server LLM; surface error to user
-                  setError('Puter CDN failed: ' + (e?.message || String(e)));
+                  setError('Puter CDN failed: ' + (((e as any)?.message) || String(e)));
                   setLoading(false);
                   return;
                 }
