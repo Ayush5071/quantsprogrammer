@@ -50,7 +50,7 @@
     "mini-svg-data-uri": "^1.4.4",
     "mongoose": "^8.9.1",
     "multer": "^2.0.2",
-    "next": "14.2.14",
+    "next": "14.2.35",
     "next-auth": "^4.24.13",
     "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.7",
