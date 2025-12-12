@@ -104,13 +104,10 @@ Return ONLY the JSON object, nothing else.`;
       throw new Error("Invalid response from Gemini");
     }
 
-    // Parse the JSON from response
-    const cleanedText = textContent
-      .replace(/```json\n?/g, "")
-      .replace(/```\n?/g, "")
-      .trim();
-
-    const result = JSON.parse(cleanedText);
+    // Parse the JSON from response using a robust helper
+    const cleanedText = typeof textContent === 'string' ? textContent.trim() : String(textContent);
+    const { safeParseJSON } = await import('@/lib/server/jsonUtils');
+    const result = safeParseJSON(cleanedText, 'Gemini response');
     return result as ScreeningResult;
   } catch (error) {
     console.error("Error screening resume with Gemini:", error);

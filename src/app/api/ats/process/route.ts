@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
       const fd = await req.formData();
       const f = fd.get('file') as File | null;
       jd = String(fd.get('jd') || '');
+      const extractOnlyFlag = Boolean(fd.get('extractOnly'));
       if (!f) return NextResponse.json({ error: 'file required' }, { status: 400 });
       const ab = await f.arrayBuffer();
       const buf = Buffer.from(ab);

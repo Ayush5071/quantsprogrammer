@@ -177,9 +177,6 @@ export default function ATSCheckerClient() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-extrabold">ATS Checker</h1>
-          <div>
-            <button onClick={() => { if (!isPremium) handlePurchase(); else alert('You are premium'); }} className="px-4 py-2 bg-emerald-600 rounded-md">{isPremium ? 'Premium Active' : 'Upgrade ₹10'}</button>
-          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -251,13 +248,13 @@ export default function ATSCheckerClient() {
                   }
 
                   if (parsed) {
-                    setResult({ mode: 'premium', ...parsed });
+                    setResult({ mode: 'puter', ...parsed });
                     setTimeout(() => document.getElementById('ats-results')?.scrollIntoView({behavior:'smooth'}), 120);
                     setLoading(false);
                     return;
                   } else {
                     // If Puter responded but not in JSON, show summary
-                    setResult({ mode: 'premium', summary: text });
+                    setResult({ mode: 'puter', summary: text });
                     setTimeout(() => document.getElementById('ats-results')?.scrollIntoView({behavior:'smooth'}), 120);
                     setLoading(false);
                     return;
