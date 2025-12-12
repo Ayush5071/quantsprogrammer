@@ -1,6 +1,5 @@
 import pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
-import { createCanvas } from 'canvas';
-import Tesseract from 'tesseract.js';
+// Defer heavy optional deps (canvas, tesseract) so install failures don't crash the server
 
 export async function extractTextFromPDF(buffer: Buffer) {
   const loadingTask = pdfjsLib.getDocument({ data: buffer });
@@ -19,6 +18,16 @@ export async function extractTextWithOCR(buffer: Buffer) {
   const loadingTask = pdfjsLib.getDocument({ data: buffer });
   const doc = await loadingTask.promise;
   let fullText = '';
+  // dynamic import to avoid hard dependency failures on systems without build tools
+  let createCanvas: any = null;
+  let Tesseract: any = null;
+  try {
+    createCanvas = (await import('canvas')).createCanvas;
+    Tesseract = (await import('tesseract.js')).default;
+  } catch (e) {
+    // If optional libs are missing, return empty text and mark pages
+    return { text: '', pages: doc.numPages, ocrUnavailable: true } as any;
+  }
   for (let i = 1; i <= doc.numPages; i++) {
     const page = await doc.getPage(i);
     const viewport = page.getViewport({ scale: 2 });

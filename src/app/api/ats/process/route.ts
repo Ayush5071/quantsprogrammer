@@ -24,55 +24,45 @@ function simpleATSScore(resume: string, jd: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const fd = await req.formData();
-    const f = fd.get('file') as File | null;
-    const jd = String(fd.get('jd') || '');
-    if (!f) return NextResponse.json({ error: 'file required' }, { status: 400 });
-
-    const ab = await f.arrayBuffer();
-    const buf = Buffer.from(ab);
-
-    let { text, pages } = await extractTextFromPDF(buf) as { text: string; pages: number };
+    // Accept either form-data file or JSON body with resumeText
+    const contentType = req.headers.get('content-type') || '';
+    let resumeText = '';
+    let jd = '';
+    let pages = 0;
     let ocrPerformed = false;
-    if ((text || '').replace(/\s+/g, '').length < 200) {
-      const o = await extractTextWithOCR(buf);
-      text = o.text;
-      pages = o.pages;
-      ocrPerformed = true;
+
+    if (contentType.includes('multipart/form-data')) {
+      const fd = await req.formData();
+      const f = fd.get('file') as File | null;
+      jd = String(fd.get('jd') || '');
+      if (!f) return NextResponse.json({ error: 'file required' }, { status: 400 });
+      const ab = await f.arrayBuffer();
+      const buf = Buffer.from(ab);
+      let res = await extractTextFromPDF(buf) as { text: string; pages: number };
+      resumeText = res.text;
+      pages = res.pages;
+      if ((resumeText || '').replace(/\s+/g, '').length < 200) {
+        const o: any = await extractTextWithOCR(buf);
+        if (o.ocrUnavailable) {
+          // OCR not available on this host; keep extracted text (may be empty)
+        } else {
+          resumeText = o.text;
+          pages = o.pages;
+          ocrPerformed = true;
+        }
+      }
+    } else {
+      // Try JSON body: { resumeText, jd }
+      const body = await req.json().catch(() => ({}));
+      resumeText = String(body.resumeText || '');
+      jd = String(body.jd || '');
+      if (!resumeText) return NextResponse.json({ error: 'resumeText required' }, { status: 400 });
     }
 
-    const grammarScore = simpleGrammarScore(text);
-    const atsScore = simpleATSScore(text, jd);
+    const { scoreResume } = await import('@/lib/server/atsScorer');
+    const report = scoreResume(resumeText, jd);
 
-    // Generate simple bullets and paragraphs deterministically
-    const paragraphs = [
-      `Summary: Resume appears ${text.split(/\s+/).length < 100 ? 'short' : 'adequate'} in length and ${ocrPerformed ? 'was OCR-processed' : 'contains selectable text'}.`,
-      'Keywords: add more role-specific keywords from the job description, prioritize skills and tools.',
-      'Achievements: quantify outcomes (e.g., improved X by Y%).',
-      'Formatting: use simple, ATS-friendly layouts; avoid images or complex tables.',
-      'Grammar: shorten long sentences and avoid repeated punctuation or ellipses.'
-    ];
-
-    const bullets = [
-      { category: 'Keywords', items: jd ? jd.split(/\W+/).filter(Boolean).slice(0,10) : [] },
-      { category: 'Formatting', items: ['Use standard fonts', 'Avoid headers/footers for important text', 'Prefer bullet points for achievements'] },
-      { category: 'Achievements', items: ['Quantify results', 'Use active verbs', 'List tools and frameworks used with context'] },
-      { category: 'Grammar', items: ['Shorten long sentences', 'Fix punctuation issues'] },
-      { category: 'Structure', items: ['Contact + Summary + Experience + Education + Skills'] }
-    ];
-
-    const report = {
-      atsScore: Math.round(atsScore),
-      grammarScore: Math.round(grammarScore),
-      paragraphs,
-      bullets,
-      summary: `ATS ${Math.round(atsScore)} / Grammar ${Math.round(grammarScore)}. Extracted ${text.split(/\s+/).length} words from ${pages} pages. OCR: ${ocrPerformed}`,
-      extractedTextLength: text.length,
-      ocrPerformed,
-      pages,
-    };
-
-    return NextResponse.json(report);
+    return NextResponse.json({ ...report, extractedTextLength: resumeText.length, ocrPerformed, pages });
   } catch (e: any) {
     return NextResponse.json({ error: e?.message || 'processing failed' }, { status: 500 });
   }

@@ -104,26 +104,25 @@ export default function ATSCheckerClient() {
         return;
       }
 
-      // Premium path: use Puter CDN's AI chat
+      // Premium path: call server-side scoring (either PDF route was used earlier or send resume text)
+      // If a file was uploaded we already handled it above; for pasted text send JSON to server
+      if (resumeText) {
+        const res = await fetch('/api/ats/process', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ resumeText, jd: jdText }) });
+        if (!res.ok) throw new Error('Server analysis failed');
+        const json = await res.json();
+        setResult({ mode: 'premium', ...json });
+        setLoading(false);
+        return;
+      }
+
+      // fallback to Puter if no resume text (should be uncommon)
       if (!puterLoaded || !window.puter?.ai?.chat) {
         throw new Error('AI client not available');
       }
 
-      const prompt = `You are an expert resume reviewer and ATS optimizer. Given the resume text below and the optional job description, provide:
-1) A single-line ATS compatibility score (0-100)
-2) A single-line Grammar score (0-100)
-3) Five detailed paragraphs each with actionable edits and a short before/after example where appropriate
-4) A bulleted list of quick improvements grouped by: Keywords, Formatting, Achievements, Grammar, Structure
-
-Respond as JSON with keys: atsScore, grammarScore, paragraphs (array of 5 strings), bullets (array), summary (short text).
-
-Resume:\n\n${resumeText}\n\nJob Description:\n\n${jdText}\n
-`;
-
-      // call puter.ai.chat via CDN
+      const prompt = `You are an expert resume reviewer and ATS optimizer. Given the resume text below and the optional job description, provide a concise JSON report.`;
       const aiResponse = await window.puter.ai.chat(prompt, { model: 'claude-haiku-4-5' });
-
-      // Extract text robustly from different Puter response shapes
+      // best-effort parse and display if CDN used
       let text = '';
       if (typeof aiResponse === 'string') {
         text = aiResponse;
@@ -137,35 +136,21 @@ Resume:\n\n${resumeText}\n\nJob Description:\n\n${jdText}\n
           text = msg.content.map((c: any) => {
             if (typeof c === 'string') return c;
             if (typeof c?.text === 'string') return c.text;
-            // sometimes content items are objects (json blocks) — stringify safely
             try { return JSON.stringify(c); } catch (_) { return String(c); }
           }).join('\n\n');
         } else {
-          // fallback to a string
           try { text = JSON.stringify(msg); } catch (_) { text = String(msg); }
         }
       } else {
         text = String(aiResponse);
       }
 
-      // try to parse JSON from text
-      let parsed: any = null;
-      try { parsed = JSON.parse(text); } catch (e) {
-        // if not JSON, wrap in a fallback
-        parsed = { atsScore: 0, grammarScore: 0, paragraphs: [text], bullets: [], summary: text };
+      try {
+        const parsed = JSON.parse(text);
+        setResult({ mode: 'premium', ...parsed });
+      } catch (e) {
+        setResult({ mode: 'premium', summary: text });
       }
-
-      // Normalize parsed fields to ensure strings (avoid rendering objects directly)
-      const normalizeString = (v: any) => (v == null ? '' : (typeof v === 'string' ? v : JSON.stringify(v)));
-      const normalized = {
-        atsScore: parsed.atsScore ?? parsed.ats ?? parsed.scores?.ats ?? 0,
-        grammarScore: parsed.grammarScore ?? parsed.scores?.grammar ?? 0,
-        summary: normalizeString(parsed.summary ?? parsed.short ?? parsed.summaryText),
-        paragraphs: Array.isArray(parsed.paragraphs) ? parsed.paragraphs.map((p: any) => normalizeString(p)) : [normalizeString(parsed.paragraphs ?? parsed.text ?? parsed.body ?? '')],
-        bullets: Array.isArray(parsed.bullets) ? parsed.bullets.map((b: any) => normalizeString(b)) : [],
-      };
-
-      setResult({ mode: 'premium', ...normalized });
     } catch (e: any) {
       setError(e?.message || 'Analysis failed');
     } finally {
